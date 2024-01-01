@@ -2,32 +2,66 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ColumnsInput from "./ColumnsInput";
+import { Heading, Button, Flex, TextField } from "@radix-ui/themes";
 
 export default function Create() {
   const router = useRouter();
-
-  const createButtonText = "Create";
+  /*
+  This function needs to know about
+  - the board name
+  - the board description
+  - the columns
+    - column ID?
+    - column desc
+  - if it's loading or not
+  */
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  async function submitForm(e) {
-    setIsLoading(true);
+  const [formData, setFormData] = useState({
+    boardName: "",
+    boardDescription: "",
+    columnsInput: {},
+  });
 
-    console.log("submitting");
+  const onColumnChange = (id: string, value: string) => {
+    /* All column changes are basically going to be adding or removing text */
+    setFormData((prevFormData) => {
+      const updatedColumnsInput = { ...prevFormData.columnsInput };
+      updatedColumnsInput[id] = {
+        name: value,
+      };
+      return {
+        ...prevFormData,
+        columnsInput: updatedColumnsInput,
+      };
+    });
+  };
+
+  const handleBoardAttributeChange = (inputValue) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ...inputValue,
+    }));
+  };
+
+  async function submitForm(e: React.FormEvent<HTMLFormElement>) {
+    setIsLoading(true);
     e.preventDefault();
 
     try {
-      const formData = new FormData(e.currentTarget);
-      console.log(formData);
       const response = await fetch("/api/board", {
         method: "PUT",
-        body: formData,
+        body: JSON.stringify(formData),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
       if (response.ok) {
         const data = await response.json();
-        console.log("the data");
-        console.log(data);
-        router.push(`/board/${formData.get("boardName")}`);
+        // TODO: use the data to redirect to the board
+        router.push(`/board/${formData.boardName}`);
       } else {
         const errorData = await response.json();
         console.error("Server responded with an error: ", errorData);
@@ -41,32 +75,41 @@ export default function Create() {
 
   return (
     <div className="flex flex-col items-center">
-      <form className="flex flex-col" onSubmit={submitForm}>
-        <h1> Enter a title for your retro </h1>
+      <form className="flex flex-col w-96" onSubmit={submitForm}>
+        <Heading size="7" className="self-center py-4">
+          {" "}
+          Enter a title for your retro{" "}
+        </Heading>
         <div className="flex flex-col">
-          <div>
-            <label> Title </label>
-            <input
+          <Flex direction="column" gap="3">
+            <TextField.Input
               name="boardName"
-              className="text-base-black m-2"
+              className="m-2"
               type="text"
               placeholder="Enter a title"
-            />
-          </div>
-          <div> 
-            <label> Description </label>
-          <input
-            name="boardDescription"
-            className="text-base-black m-2"
-            type="text"
-            placeholder="Enter a Description"
-          />
+              onChange={(e) =>
+                handleBoardAttributeChange({ boardName: e.target.value })
+              }
+            ></TextField.Input>
+            <TextField.Input
+              name="boardDescription"
+              className="m-2"
+              type="text"
+              placeholder="Enter a Description"
+              onChange={(e) =>
+                handleBoardAttributeChange({ boardDescription: e.target.value })
+              }
+            ></TextField.Input>
+            <Button size="3" variant="soft">
+              {isLoading ? "Loading..." : "Create"}
+            </Button>
+          </Flex>
         </div>
-        </div>
-        <button className="bg-transparent hover:bg-blue text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-          {isLoading ? "Loading..." : createButtonText}
-        </button>
       </form>
+      <ColumnsInput
+        name="todo-placeholder"
+        handleColumnChange={onColumnChange}
+      />
     </div>
   );
 }

@@ -1,16 +1,26 @@
 import React from "react";
+import Link from 'next/link';
 
 const NavBar: React.FC = () => {
   return (
-    <nav className="flex justify-between items-center bg-gray-800 text-white p-4">
-      <div className="text-lg font-semibold">
-        <a href="#home">expf</a>
+    <nav className="flex justify-between items-center">
+      <div className="text-2xl font-semibold">
+        <Link href="/" className="transition-all duration-300 hover:text-red px-4">
+          expf
+        </Link>
       </div>
       <div>
-        <a href="#home" className="ml-4 hover:text-gray-300">Home</a>
-        <a href="#profile" className="ml-4 hover:text-gray-300">Profile</a>
+        <Link href="/" className="transition-all duration-300 text-lg px-4 hover:text-red">
+          Home
+        </Link>
+        <Link href="/profile" className="transition-all duration-300 text-lg px-4 hover:text-red">
+          About
+        </Link>
+        <Link href="/profile" className="transition-all duration-300 text-lg px-4 hover:text-red">
+          Profile
+        </Link>
       </div>
-    </nav>
+    </nav >
   );
 };
 

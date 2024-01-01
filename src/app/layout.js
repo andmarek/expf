@@ -1,5 +1,8 @@
-import './globals.css'
+import '@radix-ui/themes/styles.css';
 import { Inter } from 'next/font/google'
+import { Theme } from '@radix-ui/themes';
+import './globals.css'
+
 
 import NavBar from '../lib/navbar';
 
@@ -15,7 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <NavBar />
-        {children}
+        <Theme appearance="dark" accentColor="purple">  {children} </Theme>
       </body>
     </html>
   )

@@ -1,45 +1,81 @@
 import * as uuid from "uuid";
-import { DynamoDBClient, PutItemCommand, UpdateItemCommand, UpdateItemCommandInput } from "@aws-sdk/client-dynamodb";
-import { NextApiRequest, NextApiResponse } from "next";
+import {
+  DynamoDBClient,
+  PutItemCommand,
+  GetItemCommand,
+} from "@aws-sdk/client-dynamodb";
+import {
+  PutCommand,
+  GetCommand,
+  DynamoDBDocumentClient,
+} from "@aws-sdk/lib-dynamodb";
 
 const ddb = new DynamoDBClient({});
+const docClient = DynamoDBDocumentClient.from(ddb);
 
-async function appendToList(tableName: string, primaryKey: { [key: string]: any }, listAttributeName: string, newValue: any) {
-  const updateParams: UpdateItemCommandInput = {
-    TableName: tableName,
-    Key: primaryKey,
-    UpdateExpression: `SET #listAttr = list_append(#listAttr, :newVal)`,
-    ExpressionAttributeNames: {
-      '#listAttr': listAttributeName,
-    },
-    ExpressionAttributeValues: {
-      ':newVal': { L: [ { S: newValue } ] },
-    },
-    ReturnValues: "UPDATED_NEW",
-  };
+const tableName = "expf-boards";
 
-  try {
-    const response = await ddb.send(new UpdateItemCommand(updateParams));
-    console.log('UpdateItem response:', response);
-    return response;
-  } catch (error) {
-    console.error('Error updating item:', error);
-    throw error;
-  }
-}
+interface ColumnInput {
+  columnName: string;
+  currentText: string;
+  comments: string[];
+};
+interface PutBoard {
+  boardName: string;
+  boardDescription: string;
+  columnsInput: { [columnId: string]: ColumnInput };
+};
 
 export async function PUT(request: Request) {
-  //const commentBody = request.body.commentBody;
-  //const boardName = request.body.boardName;
+  const formData = await request.json();
+  console.log("----");
+  console.log(formData);
+  console.log("----");
 
+  /* Normalize the input data */
+  const columnsInputDict: { [columnId: string]: ColumnInput } = {};
+  Object.entries(formData.columnsInput).forEach(([columnId, columnData]) => {
+    columnsInputDict[columnId] = {
+      columnName: columnData.name,
+      currentText: "",
+      comments: []
+    };
+  });
+  const dynamoInput: PutBoard = {
+    boardName: formData.boardName as string,
+    boardDescription: formData.boardDescription as string,
+    columnsInput: columnsInputDict
+  };
 
+  const command = new PutCommand({
+    TableName: tableName as string,
+    Item: {
+      Name: dynamoInput.boardName, // todo change to boardName
+      BoardDescription: dynamoInput.boardDescription,
+      columns: dynamoInput.columnsInput,
+      Date: new Date().toISOString(),
+      FeedbackItems: [],
+      ActionItems: [],
+    },
+  });
+  console.log("wtf");
+  const response = await docClient.send(command);
+  console.log(response);
+  return Response.json(response);
+}
 
+export async function POST(request: Request) {
+  const requestData = await request.json();
 
-  try {
-    const dynamoResponse = await appendToList("expf-board", );
+  const boardName: string = requestData.boardName as string;
 
-  } catch (error) {
-    console.log("Error idk why")
-    throw error;
-  }
+  const command = new GetCommand({
+    TableName: tableName,
+    Key: {
+      Name: boardName,
+    },
+  });
+  const response = await docClient.send(command);
+
+  return Response.json(response);
 }
