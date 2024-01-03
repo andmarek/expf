@@ -27,7 +27,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
 
         const jsonData = await response.json();
-        dispatch({ type: "SET_CATEGORIES", payload: jsonData.Item.columns });
+        dispatch({ type: "SET_CATEGORIES", payload: jsonData.Item.BoardColumns });
         console.log(boardState);
         console.log(jsonData);
       } catch (error) {

@@ -1,19 +1,42 @@
-import { useState } from "react";
-import { v4 as uuidv4 } from 'uuid';
-
+import { useState, useRef, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { Flex, Text, TextArea, Button } from "@radix-ui/themes";
+import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
 function Comment({ text, handleDelete, id }) {
+  const [isContentEditable, setIsContentEditable] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isContentEditable) {
+      inputRef.current.focus();
+    }
+  }, [isContentEditable]);
+
+  function handleEdit() {
+    setIsContentEditable(!isContentEditable);
+  }
+
   return (
-    <div className={`h-16 bg-blue rounded flex flex-col`}>
-      <p> {text} </p>
-      <div className="flex space-x-1">
-        <button className="text-red"> edit </button>
-        <button className="text-yellow" onClick={() => handleDelete(id)}>
+    <Flex direction="column" gap="4" className="bg-yellow-light p-1 rounded-md">
+      <Text contentEditable={isContentEditable} ref={inputRef} as="p"> {text} </Text>
+      <Flex gap="3" justify="end">
+        { isContentEditable ? <CheckIcon className="text-blue" onClick={() => handleEdit()} /> : null }
+        <button className="text-blue duration-300 hover:text-red transition-all"
+        onClick={() => handleEdit()}
+        >
           {" "}
-          delete{" "}
+          <Pencil1Icon />{" "}
         </button>
-      </div>
-    </div>
+        <button
+          className="text-blue duration-300 hover:text-red transition-all"
+          onClick={() => handleDelete(id)}
+        >
+          {" "}
+          <TrashIcon />{" "}
+        </button>
+      </Flex>
+    </Flex>
   );
 }
 
@@ -47,32 +70,28 @@ export default function Column({ name, currentText, comments }) {
   }
 
   return (
-    <div className="flex flex-col p-5">
+    <Flex className="p-5" direction="column" gap="2">
       <h1>{name}</h1>
-
-      <textarea
-        className="text-red"
+      <TextArea
         onChange={(e) => setCurText(e.target.value)}
+        placeholder="Post a comment..."
       />
+      <Button onClick={addCommentHandler} size="3" variant="soft">
+        Post
+      </Button>
 
-      <button
-        className="bg-green rounded text-center my-1"
-        onClick={addCommentHandler}
-      >
-        {" "}
-        Post{" "}
-      </button>
-
-      <div className="cardContainer">
+      <div className="flex flex-col gap-3">
         {curComments.map((comment, index) => (
           <Comment
             key={index}
             text={comment.text}
-            handleDelete={(comment) => { deleteCommentHandler(comment) }}
+            handleDelete={(comment) => {
+              deleteCommentHandler(comment);
+            }}
             id={comment.id}
           />
         ))}
       </div>
-    </div>
+    </Flex>
   );
 }

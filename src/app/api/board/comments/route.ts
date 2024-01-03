@@ -16,13 +16,14 @@ export async function POST(request: Request) {
     Key: {
       Name: boardName,
     },
-    UpdateExpression: "SET columns.#column.#comments = list_append(#column.#comments, :comments)",
+    UpdateExpression: "SET BoardColumns.#column.#comments = list_append(#column.#comments, :comments)",
     ExpressionAttributeNames: {
-      "#column": "columnName",
-      "#comments": "comments",
+      "#column": columnName,
+      "#comments": comments,
     },
   });
   const response = await docClient.send(command);
+  console.log(response);
   return Response.json(response);
 
 }

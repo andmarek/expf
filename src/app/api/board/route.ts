@@ -52,7 +52,7 @@ export async function PUT(request: Request) {
     Item: {
       Name: dynamoInput.boardName, // todo change to boardName
       BoardDescription: dynamoInput.boardDescription,
-      columns: dynamoInput.columnsInput,
+      BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
       FeedbackItems: [],
       ActionItems: [],
