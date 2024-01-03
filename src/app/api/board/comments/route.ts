@@ -8,9 +8,12 @@ export async function POST(request: Request) {
   const requestData = await request.json();
 
   const boardName: string = requestData.boardName;
-  const columnName: string = requestData.columnName;
-  const comments: string = requestData.comments;
 
+  const comments: string = requestData.comments;
+  const columnId: string = requestData.columnId;
+  console.log(comments);
+  console.log(columnId);
+  /*
   const command = new UpdateCommand({
     TableName: "expf-boards",
     Key: {
@@ -24,6 +27,7 @@ export async function POST(request: Request) {
   });
   const response = await docClient.send(command);
   console.log(response);
-  return Response.json(response);
+  */
+  return Response.json({});
 
 }

@@ -18,7 +18,7 @@ const tableName = "expf-boards";
 interface ColumnInput {
   columnName: string;
   currentText: string;
-  comments: string[];
+  comments: {};
 };
 interface PutBoard {
   boardName: string;
@@ -38,7 +38,7 @@ export async function PUT(request: Request) {
     columnsInputDict[columnId] = {
       columnName: columnData.name,
       currentText: "",
-      comments: []
+      comments: {} 
     };
   });
   const dynamoInput: PutBoard = {

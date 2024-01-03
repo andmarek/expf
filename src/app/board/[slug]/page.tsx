@@ -55,6 +55,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           name={columnData.columnName}
           currentText={columnData.currentText}
           comments={columnData.comments}
+          columnId={columnId}
         />
       ))}
     </div>

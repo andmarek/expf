@@ -19,11 +19,17 @@ function Comment({ text, handleDelete, id }) {
 
   return (
     <Flex direction="column" gap="4" className="bg-yellow-light p-1 rounded-md">
-      <Text contentEditable={isContentEditable} ref={inputRef} as="p"> {text} </Text>
+      <Text contentEditable={isContentEditable} ref={inputRef} as="p">
+        {" "}
+        {text}{" "}
+      </Text>
       <Flex gap="3" justify="end">
-        { isContentEditable ? <CheckIcon className="text-blue" onClick={() => handleEdit()} /> : null }
-        <button className="text-blue duration-300 hover:text-red transition-all"
-        onClick={() => handleEdit()}
+        {isContentEditable ? (
+          <CheckIcon className="text-blue" onClick={() => handleEdit()} />
+        ) : null}
+        <button
+          className="text-blue duration-300 hover:text-red transition-all"
+          onClick={() => handleEdit()}
         >
           {" "}
           <Pencil1Icon />{" "}
@@ -40,17 +46,21 @@ function Comment({ text, handleDelete, id }) {
   );
 }
 
-export default function Column({ name, currentText, comments }) {
+export default function Column({ name, currentText, comments, columnId }) {
   const [curText, setCurText] = useState(currentText);
   const [curComments, setCurComments] = useState(comments);
 
-  async function postCommentsToDatabase(comments: [string]) {
+  useEffect(() => {
+    postCommentsToDatabase(curComments, columnId);
+  }, [curComments]);
+
+  async function postCommentsToDatabase(comments: [string], columnId: string) {
     const response = await fetch("/api/board/comments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ comments }),
+      body: JSON.stringify({ comments: { comments }, columnId: columnId }),
     });
 
     const data = await response.json();
@@ -66,7 +76,7 @@ export default function Column({ name, currentText, comments }) {
     const commentId = uuidv4();
 
     setCurComments([...curComments, { id: commentId, text: curText }]); // todo change to uuid
-    postCommentsToDatabase(curComments);
+    setCurText("");
   }
 
   return (
@@ -75,20 +85,19 @@ export default function Column({ name, currentText, comments }) {
       <TextArea
         onChange={(e) => setCurText(e.target.value)}
         placeholder="Post a comment..."
+        value={curText}
       />
       <Button onClick={addCommentHandler} size="3" variant="soft">
         Post
       </Button>
 
       <div className="flex flex-col gap-3">
-        {curComments.map((comment, index) => (
+        {Object.entries(curComments).map(([commentId, comment]) => (
           <Comment
-            key={index}
+            key={commentId}
             text={comment.text}
-            handleDelete={(comment) => {
-              deleteCommentHandler(comment);
-            }}
-            id={comment.id}
+            handleDelete={() => deleteCommentHandler(comment)}
+            id={commentId}
           />
         ))}
       </div>
