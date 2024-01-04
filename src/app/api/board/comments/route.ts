@@ -8,26 +8,34 @@ export async function POST(request: Request) {
   const requestData = await request.json();
 
   const boardName: string = requestData.boardName;
-
-  const comments: string = requestData.comments;
+  const commentText: string = requestData.commentText;
+  const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
-  console.log(comments);
-  console.log(columnId);
-  /*
+
+  console.log(commentId, commentText, columnId);
+
+  const updateExpression =
+    "SET BoardColumns.#column_id.comments.#comment_id = :comment_text";
+  const expressionAttributeNames = {
+    "#column_id": columnId,
+    "#comment_id": commentId,
+  };
+  const expressionAttributeValues = {
+    ":comment_text": commentText,
+  };
+
   const command = new UpdateCommand({
     TableName: "expf-boards",
     Key: {
       Name: boardName,
     },
-    UpdateExpression: "SET BoardColumns.#column.#comments = list_append(#column.#comments, :comments)",
-    ExpressionAttributeNames: {
-      "#column": columnName,
-      "#comments": comments,
-    },
+    UpdateExpression: updateExpression,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
   });
+
   const response = await docClient.send(command);
   console.log(response);
-  */
-  return Response.json({});
 
+  return Response.json({});
 }

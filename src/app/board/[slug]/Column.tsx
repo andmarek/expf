@@ -46,24 +46,30 @@ function Comment({ text, handleDelete, id }) {
   );
 }
 
-export default function Column({ name, currentText, comments, columnId }) {
+export default function Column({ boardName, name, currentText, comments, columnId }) {
   const [curText, setCurText] = useState(currentText);
   const [curComments, setCurComments] = useState(comments);
+  console.log("COMMENTS BELOW")
+  console.log(curComments);
 
+  /*
   useEffect(() => {
     postCommentsToDatabase(curComments, columnId);
   }, [curComments]);
+  */
 
-  async function postCommentsToDatabase(comments: [string], columnId: string) {
+  async function postCommentsToDatabase(commentText: string, columnId: string, commentId: string) {
+    // Attempt to add a comment to the database
     const response = await fetch("/api/board/comments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ comments: { comments }, columnId: columnId }),
+      body: JSON.stringify({boardName: boardName, columnId: columnId, commentId: commentId, commentText: commentText}),
     });
-
     const data = await response.json();
+
+    // TODO: handle the case where the comment fails to post to Dynamo
     console.log(data);
   }
 
@@ -75,7 +81,20 @@ export default function Column({ name, currentText, comments, columnId }) {
     console.log(curText);
     const commentId = uuidv4();
 
-    setCurComments([...curComments, { id: commentId, text: curText }]); // todo change to uuid
+    // Optimistic UI updates
+    const previousComments = {...curComments};
+
+    setCurComments({
+      ...curComments, 
+      [commentId]: curText 
+    });
+
+    try {
+      await postCommentsToDatabase(curText, columnId, commentId);
+    } catch (error) {
+      setCurComments(previousComments);
+      console.error("Failed to post comments to database. ", error);
+    }
     setCurText("");
   }
 
@@ -95,7 +114,7 @@ export default function Column({ name, currentText, comments, columnId }) {
         {Object.entries(curComments).map(([commentId, comment]) => (
           <Comment
             key={commentId}
-            text={comment.text}
+            text={comment}
             handleDelete={() => deleteCommentHandler(comment)}
             id={commentId}
           />
