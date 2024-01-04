@@ -46,26 +46,55 @@ function Comment({ text, handleDelete, id }) {
   );
 }
 
-export default function Column({ boardName, name, currentText, comments, columnId }) {
+export default function Column({
+  boardName,
+  name,
+  currentText,
+  comments,
+  columnId,
+}) {
   const [curText, setCurText] = useState(currentText);
   const [curComments, setCurComments] = useState(comments);
-  console.log("COMMENTS BELOW")
+  console.log("COMMENTS BELOW");
   console.log(curComments);
 
-  /*
-  useEffect(() => {
-    postCommentsToDatabase(curComments, columnId);
-  }, [curComments]);
-  */
+  async function deleteCommentFromDatabase(
+    columnId: string,
+    commentId: string
+  ) {
+    // Attempt to add a comment to the database
+    const response = await fetch("/api/board/comments", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        boardName: boardName,
+        columnId: columnId,
+        commentId: commentId,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  }
 
-  async function postCommentsToDatabase(commentText: string, columnId: string, commentId: string) {
+  async function postCommentsToDatabase(
+    commentText: string,
+    columnId: string,
+    commentId: string
+  ) {
     // Attempt to add a comment to the database
     const response = await fetch("/api/board/comments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({boardName: boardName, columnId: columnId, commentId: commentId, commentText: commentText}),
+      body: JSON.stringify({
+        boardName: boardName,
+        columnId: columnId,
+        commentId: commentId,
+        commentText: commentText,
+      }),
     });
     const data = await response.json();
 
@@ -74,7 +103,18 @@ export default function Column({ boardName, name, currentText, comments, columnI
   }
 
   function deleteCommentHandler(commentId: string) {
-    setCurComments(curComments.filter((c) => c.id !== commentId));
+    const previousComments = { ...curComments };
+
+    const commentsCopy = { ...curComments };
+    delete commentsCopy[commentId];
+    setCurComments(commentsCopy);
+
+    try {
+      deleteCommentFromDatabase(columnId, commentId);
+    } catch (error) {
+      setCurComments(previousComments);
+      console.error("Failed to delete comment from database. ", error);
+    }
   }
 
   async function addCommentHandler() {
@@ -82,11 +122,11 @@ export default function Column({ boardName, name, currentText, comments, columnI
     const commentId = uuidv4();
 
     // Optimistic UI updates
-    const previousComments = {...curComments};
+    const previousComments = { ...curComments };
 
     setCurComments({
-      ...curComments, 
-      [commentId]: curText 
+      ...curComments,
+      [commentId]: curText,
     });
 
     try {
@@ -115,7 +155,7 @@ export default function Column({ boardName, name, currentText, comments, columnI
           <Comment
             key={commentId}
             text={comment}
-            handleDelete={() => deleteCommentHandler(comment)}
+            handleDelete={() => deleteCommentHandler(commentId)}
             id={commentId}
           />
         ))}
