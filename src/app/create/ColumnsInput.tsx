@@ -33,7 +33,7 @@ export default function ColumnsInput({ name, handleColumnChange }) {
 
   function onColumnTextChange(id: string, value: string) {
     setCurrentText(value);
-    handleColumnChange(id, currentText);
+    handleColumnChange(id, value);
   }
 
   const addComponent = () => {

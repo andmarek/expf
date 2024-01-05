@@ -4,7 +4,6 @@ import React, { useEffect, useReducer, useState } from "react";
 import columnsReducer from "./categoriesReducer";
 import Column from "./Column";
 
-
 export default function Page({ params }: { params: { slug: string } }) {
   const boardName: string = params.slug;
 
@@ -27,9 +26,12 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
 
         const jsonData = await response.json();
-        dispatch({ type: "SET_CATEGORIES", payload: jsonData.Item.BoardColumns });
+        dispatch({
+          type: "SET_CATEGORIES",
+          payload: jsonData.Item.BoardColumns,
+        });
         console.log(boardState);
-        console.log("all the stuffs")
+        console.log("all the stuffs");
         console.log(jsonData);
         console.log("woot");
       } catch (error) {
@@ -50,17 +52,22 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   /* TODO: define columnData type */
   return (
-    <div className="flex flex-row justify-center">
-      {Object.entries(boardState).map(([columnId, columnData]) => (
-        <Column
-          key={columnId}
-          boardName={boardName}
-          name={columnData.columnName}
-          currentText={columnData.currentText}
-          comments={columnData.comments}
-          columnId={columnId}
-        />
-      ))}
+    <div className="flex flex-col">
+      <div className="bg-gradient-to-r from-purple text-center"> 
+        <h1 className="text-lg font-bold"> {boardName} </h1>
+      </div>
+      <div className="flex flex-row justify-center">
+        {Object.entries(boardState).map(([columnId, columnData]) => (
+          <Column
+            key={columnId}
+            boardName={boardName}
+            name={columnData.columnName}
+            currentText={columnData.currentText}
+            comments={columnData.comments}
+            columnId={columnId}
+          />
+        ))}
+      </div>
     </div>
   );
 }

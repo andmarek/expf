@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Flex, Text, TextArea, Button } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
-function Comment({ text, handleDelete, id }) {
+function Comment({ text, handleDelete, handleEditComment, id }) {
+  const [currentText, setCurrentText] = useState(text);
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef(null);
 
@@ -21,11 +22,20 @@ function Comment({ text, handleDelete, id }) {
     <Flex direction="column" gap="4" className="bg-yellow-light p-1 rounded-md">
       <Text contentEditable={isContentEditable} ref={inputRef} as="p">
         {" "}
-        {text}{" "}
+        {currentText}{" "}
       </Text>
       <Flex gap="3" justify="end">
         {isContentEditable ? (
-          <CheckIcon className="text-blue" onClick={() => handleEdit()} />
+          <button>
+            <CheckIcon
+              className="text-blue"
+              onClick={() => {
+                const editedText = inputRef.current.textContent;
+                handleEditComment(id, editedText);
+                handleEdit();
+              }}
+            />
+          </button>
         ) : null}
         <button
           className="text-blue duration-300 hover:text-red transition-all"
@@ -84,6 +94,10 @@ export default function Column({
     commentId: string
   ) {
     // Attempt to add a comment to the database
+    console.log(commentText);
+    console.log(columnId);
+    console.log(commentId);
+
     const response = await fetch("/api/board/comments", {
       method: "POST",
       headers: {
@@ -114,6 +128,21 @@ export default function Column({
     } catch (error) {
       setCurComments(previousComments);
       console.error("Failed to delete comment from database. ", error);
+    }
+  }
+
+  async function saveEditedComment(commentId: string, commentText: string) {
+    const previousComments = { ...curComments };
+
+    const commentsCopy = { ...curComments };
+    commentsCopy[commentId] = commentText;
+    setCurComments(commentsCopy);
+
+    try {
+      await postCommentsToDatabase(commentText, columnId, commentId);
+    } catch (error) {
+      setCurComments(previousComments);
+      console.error("Failed to post comments to database. ", error);
     }
   }
 
@@ -156,6 +185,7 @@ export default function Column({
             key={commentId}
             text={comment}
             handleDelete={() => deleteCommentHandler(commentId)}
+            handleEditComment={saveEditedComment}
             id={commentId}
           />
         ))}
