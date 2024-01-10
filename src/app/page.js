@@ -1,3 +1,4 @@
+import { Button, Heading } from "@radix-ui/themes";
 export default function Home() {
   const createButtonText = "Get Started";
 
@@ -5,12 +6,10 @@ export default function Home() {
     <div>
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
         <div className="flex flex-col text-center">
-          <h1 className="text-6xl font-bold text-center">Easy Retro</h1>
-          <h2> insert random slogan here </h2>
+          <Heading align="center" weight="bold" size="9"> Retro Rover</Heading>
+          <Heading align="center" weight="light"> Sprint Retrospectives Made Easy, Effective, and Enjoyable </Heading>
           <form action="/create">
-            <button className="bg-transparent hover:bg-purple text-blue-700 font-semibold transition-all duration-300 hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded">
-              {createButtonText}
-            </button>
+            <Button> {createButtonText} </Button>
           </form>
         </div>
       </main>

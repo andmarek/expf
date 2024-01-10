@@ -6,8 +6,8 @@ const NavBar: React.FC = () => {
   return (
     <nav className="flex justify-between items-center">
       <div className="text-2xl font-semibold">
-        <Link href="/" color="purple" className="transition-all duration-300  px-4">
-          expf
+        <Link href="/" className="transition-all duration-300  px-4">
+          Retro Rover
         </Link>
       </div>
       <div>
@@ -18,7 +18,7 @@ const NavBar: React.FC = () => {
           About
         </Link>
         <Link href="/controlPanel" className="transition-all duration-300 text-lg px-4 hover:text-red">
-          Control Panel
+          My Boards
         </Link>
       </div>
     </nav >

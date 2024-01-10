@@ -3,14 +3,11 @@
 import React, { useEffect, useState } from "react";
 import {
   Heading,
-  Flex,
-  Text,
   Table,
   Button,
   Container,
   Link,
 } from "@radix-ui/themes";
-import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
@@ -65,7 +62,7 @@ export default function ControlPanel() {
   return (
     <div>
       <Heading weight="bold" align="center" color="purple">
-        Control Panel
+        My Boards
       </Heading>
       <Container size="2">
         <Table.Root variant="surface">

@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={inter.className}>
         <NavBar />
-        <Theme appearance="dark" accentColor="purple">  {children} </Theme>
+        <Theme appearance="dark" accentColor="bronze">  {children} </Theme>
       </body>
     </html>
   )
