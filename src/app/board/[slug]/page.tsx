@@ -31,9 +31,7 @@ export default function Page({ params }: { params: { slug: string } }) {
           payload: jsonData.Item.BoardColumns,
         });
         console.log(boardState);
-        console.log("all the stuffs");
         console.log(jsonData);
-        console.log("woot");
       } catch (error) {
         console.error("Error initializing board page.");
       }

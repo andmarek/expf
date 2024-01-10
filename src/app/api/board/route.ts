@@ -58,7 +58,6 @@ export async function PUT(request: Request) {
       ActionItems: [],
     },
   });
-  console.log("wtf");
   const response = await docClient.send(command);
   console.log(response);
   return Response.json(response);
