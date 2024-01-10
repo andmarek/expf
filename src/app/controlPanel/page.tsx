@@ -8,6 +8,7 @@ import {
   Table,
   Button,
   Container,
+  Link,
 } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
@@ -79,11 +80,22 @@ export default function ControlPanel() {
             </Table.Row>
             {boards.map((board) => (
               <Table.Row key={board.Name["S"]}>
-                <Table.Cell>{board.Name["S"]}</Table.Cell>
+                <Table.Cell>
+                  <Link
+                    href={`/board/${board.Name["S"]}`}
+                    className="transition-all duration-300 text-lg px-4"
+                  >
+                    {board.Name["S"]}
+                  </Link>
+                </Table.Cell>
                 <Table.Cell>{board.BoardDescription["S"]}</Table.Cell>
                 <Table.Cell>
-                  <Button key={board.Name["S"] + "edit"} className="mx-2"> Edit </Button>
-                  <Button key={board.Name["S"] + "delete"}
+                  <Button key={board.Name["S"] + "edit"} className="mx-2">
+                    {" "}
+                    Edit{" "}
+                  </Button>
+                  <Button
+                    key={board.Name["S"] + "delete"}
                     className="mx-2"
                     onClick={() => handleDeleteBoard(board.Name["S"])}
                   >
