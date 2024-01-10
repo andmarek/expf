@@ -1,12 +1,10 @@
-import * as uuid from "uuid";
 import {
   DynamoDBClient,
-  PutItemCommand,
-  GetItemCommand,
 } from "@aws-sdk/client-dynamodb";
 import {
   PutCommand,
   GetCommand,
+  DeleteCommand,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
 
@@ -69,6 +67,22 @@ export async function POST(request: Request) {
   const boardName: string = requestData.boardName as string;
 
   const command = new GetCommand({
+    TableName: tableName,
+    Key: {
+      Name: boardName,
+    },
+  });
+  const response = await docClient.send(command);
+
+  return Response.json(response);
+}
+
+export async function DELETE(request: Request) {
+  const requestData = await request.json();
+
+  const boardName: string = requestData.boardName as string;
+
+  const command = new DeleteCommand({
     TableName: tableName,
     Key: {
       Name: boardName,
