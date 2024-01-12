@@ -2,6 +2,7 @@ import '@radix-ui/themes/styles.css';
 import { Inter } from 'next/font/google'
 import { Theme } from '@radix-ui/themes';
 import './globals.css'
+import { GeistSans } from "geist/font/sans";
 
 
 import NavBar from '../lib/navbar';
@@ -15,10 +16,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={GeistSans.className}>
       <body className={inter.className}>
         <NavBar />
-        <Theme appearance="dark" accentColor="bronze">  {children} </Theme>
+        <Theme appearance="dark" grayColor="sage" accentColor="bronze">  {children} </Theme>
       </body>
     </html>
   )

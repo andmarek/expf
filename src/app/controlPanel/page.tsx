@@ -1,4 +1,6 @@
 "use client";
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 
 import React, { useEffect, useState } from "react";
 import {
@@ -60,8 +62,8 @@ export default function ControlPanel() {
   }
 
   return (
-    <div>
-      <Heading weight="bold" align="center" color="purple">
+    <div className="flex flex-col space-y-3">
+      <Heading weight="bold" align="center" color="bronze" size="8">
         My Boards
       </Heading>
       <Container size="2">

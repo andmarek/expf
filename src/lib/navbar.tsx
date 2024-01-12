@@ -2,6 +2,7 @@ import React from "react";
 //import Link from 'next/link';
 import { Link } from "@radix-ui/themes";
 
+
 const NavBar: React.FC = () => {
   return (
     <nav className="flex justify-between items-center">
