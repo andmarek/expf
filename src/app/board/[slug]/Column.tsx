@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Flex, Text, TextArea, Button } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
+
 function Comment({ text, handleDelete, handleEditComment, id }) {
   const [currentText, setCurrentText] = useState(text);
   const [isContentEditable, setIsContentEditable] = useState(false);
@@ -62,6 +63,7 @@ export default function Column({
   currentText,
   comments,
   columnId,
+  socket,
 }) {
   const [curText, setCurText] = useState(currentText);
   const [curComments, setCurComments] = useState(comments);
@@ -149,6 +151,7 @@ export default function Column({
   async function addCommentHandler() {
     console.log(curText);
     const commentId = uuidv4();
+    emitComment(socket, commentId, curText); // should we await?
 
     // Optimistic UI updates
     const previousComments = { ...curComments };
@@ -165,6 +168,20 @@ export default function Column({
       console.error("Failed to post comments to database. ", error);
     }
     setCurText("");
+  }
+  function emitComment(socket, commentId, commentText) {
+    console.log("emitting :)");
+    console.log(socket);
+    if (socket.connected) {
+      socket.emit("new comment", {
+        boardName: boardName,
+        columnId: columnId,
+        commentId: commentId,
+        commentText: commentText,
+      });
+    } else {
+      console.log("SOKCET NOT CONNECTk");
+    }
   }
 
   return (
