@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Flex, TextArea, Button } from "@radix-ui/themes";
 import Comment from "./Comment";
 
-
 export default function Column({
   boardName,
   name,
@@ -68,16 +67,21 @@ export default function Column({
   }
 
   function deleteCommentHandler(commentId: string) {
+    console.log("the comment ID is ", commentId);
     const previousComments = { ...curComments };
-  dispatch({
+    dispatch({
       type: "DELETE_COMMENT_FROM_COLUMN",
-      payload: { columnId: columnId, comment: curText }
-    });   
+      payload: { columnId: columnId, comment: commentId },
+    });
     const commentsCopy = { ...curComments };
+
+    console.log("comments copy");
+    console.log(commentsCopy);
+
     delete commentsCopy[commentId];
     setCurComments(commentsCopy);
     try {
-      deleteCommentFromDatabase(columnId, commentId);
+      deleteCommentFromDatabase(columnId, curComments[commentId].id);
     } catch (error) {
       setCurComments(previousComments);
       console.error("Failed to delete comment from database. ", error);
@@ -108,11 +112,11 @@ export default function Column({
     const previousComments = { ...curComments };
     setCurComments({
       ...curComments,
-      [commentId]: {text: curText},
+      [commentId]: { text: curText },
     });
     dispatch({
       type: "ADD_COMMENT_TO_COLUMN",
-      payload: { columnId: columnId, comment: curText }
+      payload: { columnId: columnId, comment: curText },
     });
 
     try {
