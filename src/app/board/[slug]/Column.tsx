@@ -1,72 +1,21 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Flex, Text, TextArea, Button } from "@radix-ui/themes";
-import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
+import { Flex, TextArea, Button } from "@radix-ui/themes";
+import Comment from "./Comment";
 
-
-function Comment({ text, handleDelete, handleEditComment, id }) {
-  const [currentText, setCurrentText] = useState(text);
-  const [isContentEditable, setIsContentEditable] = useState(false);
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (isContentEditable) {
-      inputRef.current.focus();
-    }
-  }, [isContentEditable]);
-
-  function handleEdit() {
-    setIsContentEditable(!isContentEditable);
-  }
-
-  return (
-    <Flex direction="column" gap="4" className="bg-yellow-light p-1 rounded-md">
-      <Text contentEditable={isContentEditable} ref={inputRef} as="p">
-        {" "}
-        {currentText}{" "}
-      </Text>
-      <Flex gap="3" justify="end">
-        {isContentEditable ? (
-          <button>
-            <CheckIcon
-              className="text-blue"
-              onClick={() => {
-                const editedText = inputRef.current.textContent;
-                handleEditComment(id, editedText);
-                handleEdit();
-              }}
-            />
-          </button>
-        ) : null}
-        <button
-          className="text-blue duration-300 hover:text-red transition-all"
-          onClick={() => handleEdit()}
-        >
-          {" "}
-          <Pencil1Icon />{" "}
-        </button>
-        <button
-          className="text-blue duration-300 hover:text-red transition-all"
-          onClick={() => handleDelete(id)}
-        >
-          {" "}
-          <TrashIcon />{" "}
-        </button>
-      </Flex>
-    </Flex>
-  );
-}
 
 export default function Column({
   boardName,
   name,
   currentText,
   comments,
+  dispatch,
   columnId,
   socket,
 }) {
   const [curText, setCurText] = useState(currentText);
   const [curComments, setCurComments] = useState(comments);
+
   console.log("COMMENTS BELOW");
   console.log(curComments);
 
@@ -120,11 +69,13 @@ export default function Column({
 
   function deleteCommentHandler(commentId: string) {
     const previousComments = { ...curComments };
-
+  dispatch({
+      type: "DELETE_COMMENT_FROM_COLUMN",
+      payload: { columnId: columnId, comment: curText }
+    });   
     const commentsCopy = { ...curComments };
     delete commentsCopy[commentId];
     setCurComments(commentsCopy);
-
     try {
       deleteCommentFromDatabase(columnId, commentId);
     } catch (error) {
@@ -155,10 +106,13 @@ export default function Column({
 
     // Optimistic UI updates
     const previousComments = { ...curComments };
-
     setCurComments({
       ...curComments,
-      [commentId]: curText,
+      [commentId]: {text: curText},
+    });
+    dispatch({
+      type: "ADD_COMMENT_TO_COLUMN",
+      payload: { columnId: columnId, comment: curText }
     });
 
     try {
@@ -180,7 +134,7 @@ export default function Column({
         commentText: commentText,
       });
     } else {
-      console.log("SOKCET NOT CONNECTk");
+      console.log("SOCKET NOT CONNECT");
     }
   }
 
@@ -200,7 +154,7 @@ export default function Column({
         {Object.entries(curComments).map(([commentId, comment]) => (
           <Comment
             key={commentId}
-            text={comment}
+            text={comment.text}
             handleDelete={() => deleteCommentHandler(commentId)}
             handleEditComment={saveEditedComment}
             id={commentId}

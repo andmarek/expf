@@ -2,10 +2,9 @@
 
 import { Button, TextField } from "@radix-ui/themes";
 import React, { useRef, useEffect, useReducer, useState } from "react";
-import columnsReducer from "./categoriesReducer";
+import boardReducer from "./categoriesReducer";
 import Column from "./Column";
-import { socket } from './socket';
-
+import { socket } from "./socket";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -15,7 +14,10 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [userName, setUserName] = useState("");
   const boardName: string = params.slug;
 
-  const [boardState, dispatch] = useReducer(columnsReducer, []);
+  const initialState = { columns: [] };
+
+  const [boardState, dispatch] = useReducer(boardReducer, initialState);
+
   const [blur, setBlur] = useState(false);
 
   useEffect(() => {
@@ -35,9 +37,12 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
 
         const jsonData = await response.json();
+        const transformedData = transformBoardData(jsonData);
+        console.log(transformedData);
+
         dispatch({
           type: "SET_CATEGORIES",
-          payload: jsonData.Item.BoardColumns,
+          payload: transformedData,
         });
         console.log(boardState);
         console.log(jsonData);
@@ -65,8 +70,10 @@ export default function Page({ params }: { params: { slug: string } }) {
           commentId: data.commentId,
           commentText: data.commentText,
         },
-      })
+      });
       console.log(data);
+      console.log("BOARD SYAYE");
+      console.log(boardState);
     }
 
     function onDisconnect() {
@@ -74,14 +81,14 @@ export default function Page({ params }: { params: { slug: string } }) {
       setIsConnected(false);
     }
 
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
     socket.on("new comment", onEmittedComment);
 
     return () => {
-      socket.off('connect', onConnect);
-      socket.off('new comment', onEmittedComment);
-      socket.off('disconnect', onDisconnect);
+      socket.off("connect", onConnect);
+      socket.off("new comment", onEmittedComment);
+      socket.off("disconnect", onDisconnect);
     };
   }, []);
 
@@ -98,6 +105,22 @@ export default function Page({ params }: { params: { slug: string } }) {
       setBlur(true);
     }
   };
+  function transformBoardData(data) {
+    console.log(data);
+    return Object.entries(data.Item.BoardColumns).map(
+      ([columnId, columnData]) => ({
+        columnId: columnId,
+        columnName: columnData.columnName,
+        currentText: columnData.currentText,
+        comments: Object.entries(columnData.comments).map(
+          ([commentId, commentText]) => ({
+            id: commentId,
+            text: commentText,
+          })
+        ),
+      })
+    );
+  }
 
   /* TODO: define columnData type */
   return (
@@ -128,17 +151,20 @@ export default function Page({ params }: { params: { slug: string } }) {
             </div>
           </div>
           <div className="flex flex-row justify-center">
-            {Object.entries(boardState).map(([columnId, columnData]) => (
-              <Column
-                key={columnId}
-                boardName={boardName}
-                name={columnData.columnName}
-                currentText={columnData.currentText}
-                comments={columnData.comments}
-                columnId={columnId}
-                socket={socket}
-              />
-            ))}
+            {boardState.columns.map((column) => {
+              return (
+                <Column
+                  key={column.columnId}
+                  boardName={boardName}
+                  name={column.columnName}
+                  dispatch={dispatch}
+                  currentText={column.currentText}
+                  comments={column.comments}
+                  columnId={column.columnId}
+                  socket={socket}
+                />
+              );
+            })}
           </div>
         </>
       )}
