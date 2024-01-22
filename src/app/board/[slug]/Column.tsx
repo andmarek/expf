@@ -18,26 +18,6 @@ export default function Column({
   console.log("COMMENTS BELOW");
   console.log(curComments);
 
-  async function deleteCommentFromDatabase(
-    columnId: string,
-    commentId: string
-  ) {
-    // Attempt to add a comment to the database
-    const response = await fetch("/api/board/comments", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        boardName: boardName,
-        columnId: columnId,
-        commentId: commentId,
-      }),
-    });
-    const data = await response.json();
-    console.log(data);
-  }
-
   async function postCommentsToDatabase(
     commentText: string,
     columnId: string,
@@ -66,67 +46,37 @@ export default function Column({
     console.log(data);
   }
 
-  function deleteCommentHandler(commentId: string) {
-    console.log("the comment ID is ", commentId);
-    const previousComments = { ...curComments };
-    dispatch({
-      type: "DELETE_COMMENT_FROM_COLUMN",
-      payload: { columnId: columnId, comment: commentId },
-    });
-    const commentsCopy = { ...curComments };
 
-    console.log("comments copy");
-    console.log(commentsCopy);
-
-    delete commentsCopy[commentId];
-    setCurComments(commentsCopy);
-    try {
-      deleteCommentFromDatabase(columnId, curComments[commentId].id);
-    } catch (error) {
-      setCurComments(previousComments);
-      console.error("Failed to delete comment from database. ", error);
-    }
-  }
-
-  async function saveEditedComment(commentId: string, commentText: string) {
-    const previousComments = { ...curComments };
-
-    const commentsCopy = { ...curComments };
-    commentsCopy[commentId] = commentText;
-    setCurComments(commentsCopy);
-
-    try {
-      await postCommentsToDatabase(commentText, columnId, commentId);
-    } catch (error) {
-      setCurComments(previousComments);
-      console.error("Failed to post comments to database. ", error);
-    }
-  }
+  
 
   async function addCommentHandler() {
     console.log(curText);
     const commentId = uuidv4();
-    emitComment(socket, commentId, curText); // should we await?
-
-    // Optimistic UI updates
-    const previousComments = { ...curComments };
-    setCurComments({
-      ...curComments,
-      [commentId]: { text: curText },
-    });
+    emitComment(socket, commentId, curText); // No need to await this, as it's just emitting an event
+  
+    // Optimistic UI update - Add the comment to the global state
     dispatch({
       type: "ADD_COMMENT_TO_COLUMN",
-      payload: { columnId: columnId, comment: curText },
+      payload: {
+        columnId: columnId,
+        comment: {
+          id: commentId, // Use the UUID as the comment ID
+          text: curText, // The text of the comment
+        },
+      },
     });
-
+  
     try {
       await postCommentsToDatabase(curText, columnId, commentId);
+      // Optionally handle the server response, e.g., updating the comment with server-generated data
     } catch (error) {
-      setCurComments(previousComments);
       console.error("Failed to post comments to database. ", error);
+      // Handle the error - possibly by dispatching a 'remove' action if necessary
     }
-    setCurText("");
+  
+    setCurText(""); // Clear the input field
   }
+  
   function emitComment(socket, commentId, commentText) {
     console.log("emitting :)");
     console.log(socket);
@@ -155,13 +105,14 @@ export default function Column({
       </Button>
 
       <div className="flex flex-col gap-3">
-        {Object.entries(curComments).map(([commentId, comment]) => (
+        {comments.map(comment => (
           <Comment
-            key={commentId}
-            text={comment.text}
-            handleDelete={() => deleteCommentHandler(commentId)}
-            handleEditComment={saveEditedComment}
-            id={commentId}
+            key={comment.commentId}
+            boardName={boardName}
+            columnId={columnId}
+            commentText={comment.text}
+            dispatch={dispatch}
+            commentId={comment.id}
           />
         ))}
       </div>

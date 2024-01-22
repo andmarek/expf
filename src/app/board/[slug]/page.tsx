@@ -62,18 +62,27 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     function onEmittedComment(data) {
+      console.log("*********************");
       console.log("On emitted comment triggered.");
       dispatch({
-        type: "ADD_COMMENT",
+        type: "ADD_COMMENT_TO_COLUMN",
         payload: {
           columnId: data.columnId,
-          commentId: data.commentId,
-          commentText: data.commentText,
+          comment: { id: data.commentText, text: data.commentText },
         },
       });
-      console.log(data);
-      console.log("BOARD SYAYE");
-      console.log(boardState);
+    }
+
+    function onEmittedDeleteComment(data) {
+      console.log("*********************");
+      console.log("On emitted comment triggered.");
+      dispatch({
+        type: "DELETE_COMMENT_FROM_COLUMN",
+        payload: {
+          columnId: data.columnId,
+          comment: { id: data.commentText, text: data.commentText },
+        },
+      });
     }
 
     function onDisconnect() {
@@ -84,11 +93,13 @@ export default function Page({ params }: { params: { slug: string } }) {
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("new comment", onEmittedComment);
+    socket.on("delete comment", onEmittedDeleteComment);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("new comment", onEmittedComment);
       socket.off("disconnect", onDisconnect);
+      socket.on("delete comment", onEmittedDeleteComment);
     };
   }, []);
 
