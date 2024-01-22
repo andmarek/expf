@@ -7,9 +7,9 @@ import Column from "./Column";
 import { socket } from "./socket";
 
 export default function Page({ params }: { params: { slug: string } }) {
+  // TODO: is this needed?
   const [isConnected, setIsConnected] = useState(socket.connected);
 
-  /* Board stuff */
   const [hasJoined, setHasJoined] = useState(false);
   const [userName, setUserName] = useState("");
   const boardName: string = params.slug;
@@ -18,10 +18,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
 
-  const [blur, setBlur] = useState(false);
-
   useEffect(() => {
-    /* Get initial board info */
     const fetchData = async () => {
       try {
         const response = await fetch("/api/board", {
@@ -62,8 +59,6 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     function onEmittedComment(data) {
-      console.log("*********************");
-      console.log("On emitted comment triggered.");
       dispatch({
         type: "ADD_COMMENT_TO_COLUMN",
         payload: {
@@ -74,14 +69,9 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     function onEmittedDeleteComment(data) {
-      console.log("*********************");
-      console.log("On emitted comment triggered.");
       dispatch({
         type: "DELETE_COMMENT_FROM_COLUMN",
-        payload: {
-          columnId: data.columnId,
-          comment: { id: data.commentText, text: data.commentText },
-        },
+        payload: { columnId: data.columnId, commentId: data.commentId },
       });
     }
 
@@ -103,19 +93,6 @@ export default function Page({ params }: { params: { slug: string } }) {
     };
   }, []);
 
-  function handleJoin() {
-    setHasJoined(true);
-    // TODO: interact with websocket here
-  }
-
-  /* TODO: implement this in admin panel */
-  const handleBlur = () => {
-    if (blur === true) {
-      setBlur(false);
-    } else {
-      setBlur(true);
-    }
-  };
   function transformBoardData(data) {
     console.log(data);
     return Object.entries(data.Item.BoardColumns).map(
@@ -140,7 +117,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         <div className="flex flex-col items-center space-y-3">
           <h1> Please provide a username </h1>
           <TextField.Input onChange={(e) => setUserName(e.target.value)} />
-          <Button onClick={handleJoin} size="3" variant="soft">
+          <Button onClick={() => setHasJoined(true)} size="3" variant="soft">
             {" "}
             Join{" "}
           </Button>

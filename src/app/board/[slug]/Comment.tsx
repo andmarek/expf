@@ -2,15 +2,23 @@ import { useState, useRef, useEffect } from "react";
 import { Flex, Text } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
-export default function Comment(props: {
+export default function Comment({
+  boardName,
+  columnId,
+  commentId,
+  commentText,
+  dispatch,
+  socket,
+}: {
   boardName: string;
-  columnId: string,
-  commentId: string,
-  commentText: string,
-  dispatch: Function,
+  columnId: string;
+  commentId: string;
+  commentText: string;
+  dispatch: Function;
+  socket;
 }) {
   /* TODO: use comment text from reducer */
-  const [currentText, setCurrentText] = useState(props.commentText);
+  const [currentText, setCurrentText] = useState(commentText);
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef(null);
 
@@ -18,32 +26,30 @@ export default function Comment(props: {
     columnId: string,
     commentId: string
   ) {
-    console.log("wtf");
+    console.log("Deleting from database");
     console.log(columnId, commentId);
-    props.dispatch({
-      type: "DELETE_COMMENT_FROM_COLUMN",
-      payload: {
-        columnId: props.columnId,
-        commentId: props.commentId
-      },
+
+    socket.emit("delete comment", {
+      columnId,
+      commentId,
     });
-    // Attempt to add a comment to the database
+
     const response = await fetch("/api/board/comments", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        boardName: props.boardName,
-        columnId: columnId,
-        commentId: commentId,
+        boardName,
+        columnId,
+        commentId,
       }),
     });
     const data = await response.json();
     console.log(data);
   }
-
-  async function saveEditedComment(commentId: string, commentText: string) {
+  /*
+  const saveEditedComment = async (commentId: string, commentText: string) => {
     //const previousComments = { ...curComments };
 
     //const commentsCopy = { ...curComments };
@@ -51,31 +57,28 @@ export default function Comment(props: {
     //setCurComments(commentsCopy);
 
     try {
-      await postCommentsToDatabase(props.commentText, props.columnId, commentId);
+      await postCommentsToDatabase(
+        commentText,
+        columnId,
+        commentId
+      );
     } catch (error) {
       setCurComments(previousComments);
       console.error("Failed to post comments to database. ", error);
     }
-  }
+  };
+  */
 
   function deleteComment(commentId: string) {
-    console.log("the comment ID is ", commentId);
-    //const previousComments = { ...curComments };
-    props.dispatch({
+    console.log("DELETE the comment ID is ", commentId);
+    console.log(columnId, commentId);
+    dispatch({
       type: "DELETE_COMMENT_FROM_COLUMN",
-      payload: { columnId: props.columnId, comment: commentId },
+      payload: { columnId: columnId, commentId: commentId },
     });
-    //const commentsCopy = { ...curComments };
-
-    console.log("comments copy");
-    //console.log(commentsCopy);
-
-    //delete commentsCopy[commentId];
-    //setCurComments(commentsCopy);
     try {
-      deleteCommentFromDatabase(props.columnId, props.commentId);
+      deleteCommentFromDatabase(columnId, commentId);
     } catch (error) {
-      //setCurComments(previousComments);
       console.error("Failed to delete comment from database. ", error);
     }
   }
@@ -99,7 +102,7 @@ export default function Comment(props: {
               className="text-blue"
               onClick={() => {
                 const editedText = inputRef.current.textContent;
-                //props.handleEditComment(props.commentId, editedText);
+                //handleEditComment(commentId, editedText);
                 setIsContentEditable(!isContentEditable);
               }}
             />
@@ -114,7 +117,7 @@ export default function Comment(props: {
         </button>
         <button
           className="text-blue duration-300 hover:text-red transition-all"
-          onClick={() => deleteComment(props.columnId)}
+          onClick={() => deleteComment(commentId)}
         >
           {" "}
           <TrashIcon />{" "}

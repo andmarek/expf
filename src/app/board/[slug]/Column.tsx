@@ -52,29 +52,26 @@ export default function Column({
   async function addCommentHandler() {
     console.log(curText);
     const commentId = uuidv4();
-    emitComment(socket, commentId, curText); // No need to await this, as it's just emitting an event
+    emitComment(socket, commentId, curText);
   
-    // Optimistic UI update - Add the comment to the global state
     dispatch({
       type: "ADD_COMMENT_TO_COLUMN",
       payload: {
         columnId: columnId,
         comment: {
-          id: commentId, // Use the UUID as the comment ID
-          text: curText, // The text of the comment
+          id: commentId,
+          text: curText,
         },
       },
     });
   
     try {
       await postCommentsToDatabase(curText, columnId, commentId);
-      // Optionally handle the server response, e.g., updating the comment with server-generated data
     } catch (error) {
       console.error("Failed to post comments to database. ", error);
-      // Handle the error - possibly by dispatching a 'remove' action if necessary
     }
   
-    setCurText(""); // Clear the input field
+    setCurText("");
   }
   
   function emitComment(socket, commentId, commentText) {
@@ -113,6 +110,7 @@ export default function Column({
             commentText={comment.text}
             dispatch={dispatch}
             commentId={comment.id}
+            socket={socket}
           />
         ))}
       </div>
