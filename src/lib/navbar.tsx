@@ -1,28 +1,27 @@
 import React from "react";
-//import Link from 'next/link';
-import { Link } from "@radix-ui/themes";
+import Link from 'next/link';
 
 
 const NavBar: React.FC = () => {
   return (
-    <nav className="flex justify-between items-center">
-      <div className="text-2xl font-semibold">
-        <Link href="/" className="transition-all duration-300  px-4">
+    <nav className="flex justify-between items-center border-b-2 border-base-black">
+      <div className="text-2xl font-semibold m-2">
+        <Link href="/" className="transition-all duration-300 text-lg mx-2">
           Retro Rover
         </Link>
       </div>
-      <div>
-        <Link href="/" className="transition-all duration-300 text-lg px-4 hover:text-red">
+      <div className="flex flex-row space-x-4 m-2">
+        <Link href="/" className="hover:no-underline transition-all duration-300 text-lg mx-2">
           Home
         </Link>
-        <Link href="/profile" className="transition-all duration-300 text-lg px-4 hover:text-red">
+        <Link href="/profile" className="hover:no-underline transition-all duration-300 text-lg mx-2">
           About
         </Link>
-        <Link href="/controlPanel" className="transition-all duration-300 text-lg px-4 hover:text-red">
-          My Boards
+        <Link href="/controlPanel" className="hover:no-underline transition-all duration-300 text-lg mx-2">
+          Boards
         </Link>
       </div>
-    </nav >
+    </nav>
   );
 };
 

@@ -1,29 +1,55 @@
 "use client";
 
 import { Button, TextField } from "@radix-ui/themes";
-import React, { useRef, useEffect, useReducer, useState } from "react";
-import boardReducer from "./categoriesReducer";
+import React, { useEffect, useReducer, useState } from "react";
+import boardReducer from "./boardReducer";
 import Column from "./Column";
 import { socket } from "./socket";
+import { ChevronRightIcon } from "@radix-ui/react-icons";
+import SideBar from "./SideBar";
 
 export default function Page({ params }: { params: { slug: string } }) {
-  // TODO: is this needed?
-  const [isConnected, setIsConnected] = useState(socket.connected);
+  const boardName: string = params.slug;
+  const decodedBoardName: string = decodeURI(boardName);
 
   const [hasJoined, setHasJoined] = useState(false);
   const [userName, setUserName] = useState("");
-  const boardName: string = params.slug;
+
+  const [sidebarOpened, setSideBarOpened] = useState(false); // needs to be saved eventually
+
+  // TODO: is this needed?
+  const [isConnected, setIsConnected] = useState(socket.connected);
+
+  /* Board Options */
+  const [passwordRequired, setPasswordRequired] = useState(false); // needs to be saved eventually
+  const [setPassword, password] = useState("");
+
+  const [boardBlurred, setBoardBlurred] = useState(false);
+
+
 
   const initialState = { columns: [] };
 
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
+
+  const switchBlurBoard = () => {
+    socket.emit("switch blur board");
+    setBoardBlurred(!boardBlurred);
+    console.log("switchBlurBoard called ", boardBlurred);
+  }
+
+  const switchRequirePassword = () => {
+    setPasswordRequired(!passwordRequired);
+    console.log("switchRequirePassword ", passwordRequired);
+  }
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch("/api/board", {
           method: "POST",
-          body: JSON.stringify({ boardName: boardName }),
+          body: JSON.stringify({ boardName: decodedBoardName }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -35,14 +61,11 @@ export default function Page({ params }: { params: { slug: string } }) {
 
         const jsonData = await response.json();
         const transformedData = transformBoardData(jsonData);
-        console.log(transformedData);
 
         dispatch({
           type: "SET_CATEGORIES",
           payload: transformedData,
         });
-        console.log(boardState);
-        console.log(jsonData);
       } catch (error) {
         console.error("Error initializing board page.");
       }
@@ -75,21 +98,28 @@ export default function Page({ params }: { params: { slug: string } }) {
       });
     }
 
+    function onEmittedSwitchBlurBoard(data) {
+      console.log("onEmittedSwitchBlurBoard called");
+      switchBlurBoard()
+    }
+
     function onDisconnect() {
       console.log("On disconnect triggered.");
       setIsConnected(false);
     }
-
+    socket.on("connect", onConnect);
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("new comment", onEmittedComment);
+    socket.on("switch blur board", onEmittedSwitchBlurBoard);
     socket.on("delete comment", onEmittedDeleteComment);
 
     return () => {
       socket.off("connect", onConnect);
       socket.off("new comment", onEmittedComment);
       socket.off("disconnect", onDisconnect);
-      socket.on("delete comment", onEmittedDeleteComment);
+      socket.off("delete comment", onEmittedDeleteComment);
+      socket.off("switch blur board", onEmittedSwitchBlurBoard);
     };
   }, []);
 
@@ -112,7 +142,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   /* TODO: define columnData type */
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col antialiased">
       {hasJoined === false ? (
         <div className="flex flex-col items-center space-y-3">
           <h1> Please provide a username </h1>
@@ -124,35 +154,57 @@ export default function Page({ params }: { params: { slug: string } }) {
         </div>
       ) : (
         <>
-          <div className="bg-gradient-to-r from-purple text-center">
-            <div className="flex flex-row justify-center space-x-3">
-              <h1 className="text-lg font-bold"> board name: </h1>
-              <h1 className="text-lg font-bold text-magenta-light">
-                {" "}
-                {boardName}{" "}
-              </h1>
-              <h1 className="text-lg font-bold "> username:</h1>
-              <h1 className="text-lg font-bold text-magenta-light">
-                {" "}
-                {userName}{" "}
-              </h1>
+          <div className="flex w-full h-full">
+            <div>
+              {" "}
+              {sidebarOpened ? (
+                <div>
+                  <SideBar switchPasswordRequired={switchRequirePassword} switchBlurCardText={switchBlurBoard} />
+                </div>
+              ) : (
+                <> </>
+              )}{" "}
             </div>
-          </div>
-          <div className="flex flex-row justify-center">
-            {boardState.columns.map((column) => {
-              return (
-                <Column
-                  key={column.columnId}
-                  boardName={boardName}
-                  name={column.columnName}
-                  dispatch={dispatch}
-                  currentText={column.currentText}
-                  comments={column.comments}
-                  columnId={column.columnId}
-                  socket={socket}
-                />
-              );
-            })}
+            <div className="fixed left-0 top-1/2">
+              {" "}
+              <ChevronRightIcon
+                onClick={() => setSideBarOpened(!sidebarOpened)}
+                width="24"
+                height="24"
+              />{" "}
+            </div>
+            <div className="grow">
+              <div className="text-center">
+                <div className="flex flex-row justify-center space-x-3">
+                  <h1 className="text-lg"> Board Name: </h1>
+                  <h1 className="text-lg text-magenta-light">
+                    {" "}
+                    {decodedBoardName}{" "}
+                  </h1>
+                  <h1 className="text-lg"> Username:</h1>
+                  <h1 className="text-lg text-magenta-light"> {userName} </h1>
+                </div>
+              </div>
+
+              <div className="flex flex-row justify-center">
+                {boardState.columns.map((column) => {
+                  return (
+                    <Column
+                      key={column.columnId}
+                      boardName={boardName}
+                      name={column.columnName}
+                      dispatch={dispatch}
+                      currentText={column.currentText}
+                      comments={column.comments}
+                      columnId={column.columnId}
+                      socket={socket}
+                      cardTextBlurred={boardBlurred}
+
+                    />
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </>
       )}

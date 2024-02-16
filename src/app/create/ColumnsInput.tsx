@@ -16,7 +16,7 @@ function ColumnField({ id, handleTextChange, handleRemove }) {
           size="3"
         ></TextField.Input>
       </Box>
-      <Cross1Icon onClick={(id) => handleRemove(id)} />
+      <Cross1Icon onClick={() => handleRemove(id)} />
     </Flex>
   );
 }
@@ -47,7 +47,7 @@ export default function ColumnsInput({ name, handleColumnChange }) {
   return (
     <div className="flex flex-col w-96 py-4">
       <Flex direction="column" gap="3">
-        <Heading size="7" className="self-center">
+        <Heading size="6" className="self-center">
           Choose your columns
         </Heading>
         <Button variant="soft" size="3" onClick={addComponent}>

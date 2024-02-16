@@ -1,15 +1,9 @@
 "use client";
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
 import React, { useEffect, useState } from "react";
-import {
-  Heading,
-  Table,
-  Button,
-  Container,
-  Link,
-} from "@radix-ui/themes";
+import { Heading, Table, Button, Container, Link } from "@radix-ui/themes";
 
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
@@ -63,9 +57,14 @@ export default function ControlPanel() {
 
   return (
     <div className="flex flex-col space-y-3">
-      <Heading weight="bold" align="center" color="bronze" size="8">
-        My Boards
-      </Heading>
+      <div className="flex flex-col justify-center">
+        <Heading weight="bold" align="center" color="mint" size="8">
+          Public Boards
+        </Heading>
+        <form className="my-2 self-center" action="/create">
+            <Button size="3"> Create Board </Button>
+          </form>
+      </div>
       <Container size="2">
         <Table.Root variant="surface">
           <Table.Header>

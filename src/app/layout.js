@@ -16,10 +16,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html suppressHydrationWarning lang="en" className={GeistSans.className}>
       <body className={inter.className}>
         <NavBar />
-        <Theme appearance="dark" grayColor="sage" accentColor="bronze">  {children} </Theme>
+        <Theme appearance="light" grayColor="gray" accentColor="mint" radius='large' scaling='100%' panelBackground='translucent'>  {children} </Theme>
       </body>
     </html>
   )

@@ -11,23 +11,17 @@ export default function Column({
   dispatch,
   columnId,
   socket,
+  cardTextBlurred
 }) {
+  console.log("FROM COLUMN");
+  console.log(cardTextBlurred);
+  console.log("***");
   const [curText, setCurText] = useState(currentText);
-  const [curComments, setCurComments] = useState(comments);
-
-  console.log("COMMENTS BELOW");
-  console.log(curComments);
-
   async function postCommentsToDatabase(
     commentText: string,
     columnId: string,
     commentId: string
   ) {
-    // Attempt to add a comment to the database
-    console.log(commentText);
-    console.log(columnId);
-    console.log(commentId);
-
     const response = await fetch("/api/board/comments", {
       method: "POST",
       headers: {
@@ -46,14 +40,11 @@ export default function Column({
     console.log(data);
   }
 
-
-  
-
   async function addCommentHandler() {
     console.log(curText);
     const commentId = uuidv4();
     emitComment(socket, commentId, curText);
-  
+
     dispatch({
       type: "ADD_COMMENT_TO_COLUMN",
       payload: {
@@ -64,19 +55,17 @@ export default function Column({
         },
       },
     });
-  
+
     try {
       await postCommentsToDatabase(curText, columnId, commentId);
     } catch (error) {
       console.error("Failed to post comments to database. ", error);
     }
-  
+
     setCurText("");
   }
-  
+
   function emitComment(socket, commentId, commentText) {
-    console.log("emitting :)");
-    console.log(socket);
     if (socket.connected) {
       socket.emit("new comment", {
         boardName: boardName,
@@ -85,12 +74,12 @@ export default function Column({
         commentText: commentText,
       });
     } else {
-      console.log("SOCKET NOT CONNECT");
+      console.log("SOCKET NOT CONNECTED");
     }
   }
 
   return (
-    <Flex className="p-5" direction="column" gap="2">
+    <Flex className="p-5 w-96" direction="column" gap="2">
       <h1>{name}</h1>
       <TextArea
         onChange={(e) => setCurText(e.target.value)}
@@ -102,7 +91,7 @@ export default function Column({
       </Button>
 
       <div className="flex flex-col gap-3">
-        {comments.map(comment => (
+        {comments.map((comment) => (
           <Comment
             key={comment.commentId}
             boardName={boardName}
@@ -111,6 +100,7 @@ export default function Column({
             dispatch={dispatch}
             commentId={comment.id}
             socket={socket}
+            cardTextBlurred={cardTextBlurred}
           />
         ))}
       </div>

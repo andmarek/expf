@@ -18,19 +18,17 @@ interface ColumnInput {
   currentText: string;
   comments: {};
 };
+
 interface PutBoard {
   boardName: string;
   boardDescription: string;
   columnsInput: { [columnId: string]: ColumnInput };
+  boardPassword: string;
 };
 
 export async function PUT(request: Request) {
   const formData = await request.json();
-  console.log("----");
-  console.log(formData);
-  console.log("----");
 
-  /* Normalize the input data */
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
   Object.entries(formData.columnsInput).forEach(([columnId, columnData]) => {
     columnsInputDict[columnId] = {
@@ -42,7 +40,8 @@ export async function PUT(request: Request) {
   const dynamoInput: PutBoard = {
     boardName: formData.boardName as string,
     boardDescription: formData.boardDescription as string,
-    columnsInput: columnsInputDict
+    columnsInput: columnsInputDict,
+    boardPassword: formData.boardPassword
   };
 
   const command = new PutCommand({
@@ -52,8 +51,7 @@ export async function PUT(request: Request) {
       BoardDescription: dynamoInput.boardDescription,
       BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
-      FeedbackItems: [],
-      ActionItems: [],
+      Password: dynamoInput.boardPassword
     },
   });
   const response = await docClient.send(command);

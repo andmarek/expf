@@ -9,6 +9,7 @@ export default function Comment({
   commentText,
   dispatch,
   socket,
+  cardTextBlurred
 }: {
   boardName: string;
   columnId: string;
@@ -16,6 +17,7 @@ export default function Comment({
   commentText: string;
   dispatch: Function;
   socket;
+  cardTextBlurred: boolean;
 }) {
   /* TODO: use comment text from reducer */
   const [currentText, setCurrentText] = useState(commentText);
@@ -48,7 +50,9 @@ export default function Comment({
     const data = await response.json();
     console.log(data);
   }
+
   /*
+  // not supporting this right now
   const saveEditedComment = async (commentId: string, commentText: string) => {
     //const previousComments = { ...curComments };
 
@@ -70,8 +74,6 @@ export default function Comment({
   */
 
   function deleteComment(commentId: string) {
-    console.log("DELETE the comment ID is ", commentId);
-    console.log(columnId, commentId);
     dispatch({
       type: "DELETE_COMMENT_FROM_COLUMN",
       payload: { columnId: columnId, commentId: commentId },
@@ -90,10 +92,10 @@ export default function Comment({
   }, [isContentEditable]);
 
   return (
-    <Flex direction="column" gap="4" className="bg-yellow-light p-1 rounded-md">
-      <Text contentEditable={isContentEditable} ref={inputRef} as="p">
+    <Flex direction="column" gap="4" className="bg-base-50 p-1 rounded-md drop-shadow-md">
+      <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} contentEditable={isContentEditable} ref={inputRef} as="p">
         {" "}
-        {currentText}{" "}
+        {cardTextBlurred ? "****" : currentText}{" "}
       </Text>
       <Flex gap="3" justify="end">
         {isContentEditable ? (
@@ -102,7 +104,7 @@ export default function Comment({
               className="text-blue"
               onClick={() => {
                 const editedText = inputRef.current.textContent;
-                //handleEditComment(commentId, editedText);
+                // handleEditComment(commentId, editedText);
                 setIsContentEditable(!isContentEditable);
               }}
             />

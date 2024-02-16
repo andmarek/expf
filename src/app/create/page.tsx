@@ -76,9 +76,9 @@ export default function Create() {
   return (
     <div className="flex flex-col items-center">
       <form className="flex flex-col w-96" onSubmit={submitForm}>
-        <Heading size="7" className="self-center py-4">
+        <Heading size="6" className="self-center py-4">
           {" "}
-          Enter a title for your retro{" "}
+          Enter a title for your retrospective{" "}
         </Heading>
         <div className="flex flex-col">
           <Flex direction="column" gap="3">
