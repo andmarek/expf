@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from 'next/link';
 import { UserButton } from "@clerk/nextjs";
@@ -15,7 +13,7 @@ const NavBar: React.FC = () => {
       </div>
       <div className="flex flex-row space-x-4 m-2">
         <UserButton />
-        <Link href="/" className="text-base-600 hover:text-base-800 hover:no-underline transition-all duration-300 text-lg mx-2">
+        <Link href="/" className="text-base-600 hover:text-base-800 hover:no-underline transition-all duration-300 text-lg mr-2">
           Home
         </Link>
         <Link href="/about" className="text-base-600 hover:text-base-800 hover:no-underline transition-all duration-300 text-lg mx-2">

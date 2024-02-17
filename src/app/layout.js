@@ -1,27 +1,37 @@
-import '@radix-ui/themes/styles.css';
-import { Inter } from 'next/font/google'
-import { Theme } from '@radix-ui/themes';
-import './globals.css'
+import "@radix-ui/themes/styles.css";
+import { Inter } from "next/font/google";
+import { Theme } from "@radix-ui/themes";
+import "./globals.css";
 import { GeistSans } from "geist/font/sans";
-import { ClerkProvider } from '@clerk/nextjs'
-import NavBar from './navbar';
+import { ClerkProvider } from "@clerk/nextjs";
+import NavBar from "./navbar";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: 'RetroRover',
-  description: 'A simplified way to run sprint retrospectives',
-}
+  title: "RetroRover",
+  description: "A simplified way to run sprint retrospectives",
+};
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
     <html suppressHydrationWarning lang="en" className={GeistSans.className}>
-      <body className={inter.className}>
-        <NavBar />
-        <Theme appearance="light" grayColor="gray" accentColor="mint" radius='large' scaling='100%' panelBackground='translucent'>  {children} </Theme>
-      </body>
+      <ClerkProvider>
+        <body className={inter.className}>
+          <NavBar />
+          <Theme
+            appearance="light"
+            grayColor="gray"
+            accentColor="mint"
+            radius="large"
+            scaling="100%"
+            panelBackground="translucent"
+          >
+            {" "}
+            {children}{" "}
+          </Theme>
+        </body>
+      </ClerkProvider>
     </html>
-</ClerkProvider>
-  )
+  );
 }
