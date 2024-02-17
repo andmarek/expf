@@ -56,7 +56,7 @@ export default function ControlPanel() {
   }
 
   return (
-    <div className="flex flex-col space-y-3">
+    <div className="flex flex-col space-y-3 py-2">
       <div className="flex flex-col justify-center">
         <Heading weight="bold" align="center" color="mint" size="8">
           Public Boards

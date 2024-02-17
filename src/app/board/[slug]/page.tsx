@@ -1,12 +1,13 @@
 "use client";
 
-import { Button, TextField } from "@radix-ui/themes";
+import { Heading, Button, TextField } from "@radix-ui/themes";
 import React, { useEffect, useReducer, useState } from "react";
 import boardReducer from "./boardReducer";
 import Column from "./Column";
 import { socket } from "./socket";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
 import SideBar from "./SideBar";
+import SortDropDown from "./SortDropDown";
 
 export default function Page({ params }: { params: { slug: string } }) {
   const boardName: string = params.slug;
@@ -154,7 +155,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         </div>
       ) : (
         <>
-          <div className="flex w-full h-full">
+          <div className="flex w-full h-full py-2">
             <div>
               {" "}
               {sidebarOpened ? (
@@ -183,6 +184,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                   </h1>
                   <h1 className="text-lg"> Username:</h1>
                   <h1 className="text-lg text-magenta-light"> {userName} </h1>
+                  <SortDropDown />
                 </div>
               </div>
 
