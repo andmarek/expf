@@ -59,10 +59,10 @@ export default function ControlPanel() {
     <div className="flex flex-col space-y-3 py-2">
       <div className="flex flex-col justify-center">
         <Heading weight="bold" align="center" color="mint" size="8">
-          Public Boards
+          My Boards
         </Heading>
         <form className="my-2 self-center" action="/create">
-            <Button size="3"> Create Board </Button>
+            <Button size="3"> Create New Board </Button>
           </form>
       </div>
       <Container size="2">

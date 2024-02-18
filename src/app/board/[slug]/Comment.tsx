@@ -92,7 +92,7 @@ export default function Comment({
   }, [isContentEditable]);
 
   return (
-    <Flex direction="column" gap="4" className="bg-base-50 p-1 rounded-md drop-shadow-md">
+    <Flex direction="column" gap="4" className="bg-magenta-light p-1 rounded-md drop-shadow-md">
       <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} contentEditable={isContentEditable} ref={inputRef} as="p">
         {" "}
         {cardTextBlurred ? "****" : currentText}{" "}

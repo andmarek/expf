@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         <body className={inter.className}>
           <NavBar />
           <Theme
-            appearance="light"
+            appearance="dark"
             grayColor="gray"
             accentColor="mint"
             radius="large"

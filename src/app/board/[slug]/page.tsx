@@ -143,7 +143,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   /* TODO: define columnData type */
   return (
-    <div className="flex flex-col antialiased">
+    <div id="__next" className="flex flex-col antialiased min-h-full h-full">
       {hasJoined === false ? (
         <div className="flex flex-col items-center space-y-3">
           <h1> Please provide a username </h1>
@@ -156,7 +156,6 @@ export default function Page({ params }: { params: { slug: string } }) {
       ) : (
         <>
           <div className="flex w-full h-full py-2">
-            <div>
               {" "}
               {sidebarOpened ? (
                 <div>
@@ -165,7 +164,6 @@ export default function Page({ params }: { params: { slug: string } }) {
               ) : (
                 <> </>
               )}{" "}
-            </div>
             <div className="fixed left-0 top-1/2">
               {" "}
               <ChevronRightIcon
