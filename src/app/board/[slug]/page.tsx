@@ -1,11 +1,10 @@
 "use client";
 
-import { Heading, Button, TextField } from "@radix-ui/themes";
+import { Button, TextField } from "@radix-ui/themes";
 import React, { useEffect, useReducer, useState } from "react";
 import boardReducer from "./boardReducer";
 import Column from "./Column";
 import { socket } from "./socket";
-import { ChevronRightIcon } from "@radix-ui/react-icons";
 import SideBar from "./SideBar";
 import SortDropDown from "./SortDropDown";
 
@@ -16,7 +15,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [hasJoined, setHasJoined] = useState(false);
   const [userName, setUserName] = useState("");
 
-  const [sidebarOpened, setSideBarOpened] = useState(false); // needs to be saved eventually
+  const [sidebarOpened, setSideBarOpened] = useState(false);
 
   // TODO: is this needed?
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -32,8 +31,12 @@ export default function Page({ params }: { params: { slug: string } }) {
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
 
   const switchBlurBoard = () => {
-    socket.emit("switch blur board");
     setBoardBlurred(!boardBlurred);
+
+    socket.emit("switch blur board", {
+      boardBlurred,
+    });
+
     console.log("switchBlurBoard called ", boardBlurred);
   };
 
@@ -97,15 +100,15 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     function onEmittedSwitchBlurBoard(data) {
-      console.log("onEmittedSwitchBlurBoard called");
-      switchBlurBoard();
+      console.log("onEmittedSwitchBlurBoard bro called " + data);
+      console.log(data);
+      setBoardBlurred(!data.boardBlurred);
     }
 
     function onDisconnect() {
       console.log("On disconnect triggered.");
       setIsConnected(false);
     }
-    socket.on("connect", onConnect);
     socket.on("connect", onConnect);
     socket.on("disconnect", onDisconnect);
     socket.on("new comment", onEmittedComment);
@@ -116,8 +119,8 @@ export default function Page({ params }: { params: { slug: string } }) {
       socket.off("connect", onConnect);
       socket.off("new comment", onEmittedComment);
       socket.off("disconnect", onDisconnect);
-      socket.off("delete comment", onEmittedDeleteComment);
       socket.off("switch blur board", onEmittedSwitchBlurBoard);
+      socket.off("delete comment", onEmittedDeleteComment);
     };
   }, []);
 
@@ -141,7 +144,7 @@ export default function Page({ params }: { params: { slug: string } }) {
   /* TODO: define columnData type */
   return (
     <div id="__next" className="flex flex-col antialiased min-h-full h-full">
-      {hasJoined === false ? (
+      {!hasJoined ? (
         <div className="flex flex-col items-center space-y-3">
           <h1> Please provide a username </h1>
           <TextField.Input onChange={(e) => setUserName(e.target.value)} />
@@ -152,13 +155,18 @@ export default function Page({ params }: { params: { slug: string } }) {
         </div>
       ) : (
         <>
-        
           <div className="flex w-full h-full">
             <SideBar
               switchPasswordRequired={switchRequirePassword}
               switchBlurCardText={switchBlurBoard}
-            />    
-            <div className="grow">
+              showSidebar={sidebarOpened}
+              setShowSidebar={setSideBarOpened}
+            />
+            <div
+              className={`grow transition-transform duration-300 ease-in-out ${
+                sidebarOpened ? "ml-64" : "ml-0"
+              }`}
+            >
               <div className="text-center">
                 <div className="flex flex-row justify-center space-x-3">
                   <h1 className="text-lg"> Board Name: </h1>
