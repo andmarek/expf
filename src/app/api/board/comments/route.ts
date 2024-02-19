@@ -11,8 +11,6 @@ export async function DELETE(request: Request) {
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
 
-  console.log(commentId, columnId);
-
   // Using REMOVE operation in UpdateExpression
   const updateExpression =
     "REMOVE BoardColumns.#column_id.comments.#comment_id";
@@ -20,8 +18,6 @@ export async function DELETE(request: Request) {
     "#column_id": columnId,
     "#comment_id": commentId,
   };
-  console.log('remove');
-  console.log(boardName, commentId, columnId);
   const command = new UpdateCommand({
     TableName: "expf-boards",
     Key: {
@@ -32,9 +28,7 @@ export async function DELETE(request: Request) {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
-
-  return Response.json({});
+  return Response.json(response);
 }
 
 export async function POST(request: Request) {
@@ -44,8 +38,6 @@ export async function POST(request: Request) {
   const commentText: string = requestData.commentText;
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
-
-  console.log(commentId, commentText, columnId);
 
   const updateExpression =
     "SET BoardColumns.#column_id.comments.#comment_id = :comment_text";
@@ -68,7 +60,6 @@ export async function POST(request: Request) {
   });
 
   const response = await docClient.send(command);
-  console.log(response);
 
-  return Response.json({});
+  return Response.json(response);
 }

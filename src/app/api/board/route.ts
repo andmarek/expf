@@ -15,9 +15,9 @@ const tableName = "expf-boards";
 
 interface ColumnInput {
   columnName: string;
-  currentText: string;
   comments: {};
 };
+
 
 interface PutBoard {
   boardName: string;
@@ -31,9 +31,11 @@ export async function PUT(request: Request) {
 
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
   Object.entries(formData.columnsInput).forEach(([columnId, columnData]) => {
+
+    console.log(columnData.name);
+
     columnsInputDict[columnId] = {
       columnName: columnData.name,
-      currentText: "",
       comments: {} 
     };
   });
@@ -55,7 +57,6 @@ export async function PUT(request: Request) {
     },
   });
   const response = await docClient.send(command);
-  console.log(response);
   return Response.json(response);
 }
 

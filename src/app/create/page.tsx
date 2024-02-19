@@ -7,18 +7,7 @@ import { Heading, Button, Flex, TextField } from "@radix-ui/themes";
 
 export default function Create() {
   const router = useRouter();
-  /*
-  This function needs to know about
-  - the board name
-  - the board description
-  - the columns
-    - column ID?
-    - column desc
-  - if it's loading or not
-  */
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [formData, setFormData] = useState({
     boardName: "",
     boardDescription: "",
@@ -26,7 +15,6 @@ export default function Create() {
   });
 
   const onColumnChange = (id: string, value: string) => {
-    /* All column changes are basically going to be adding or removing text */
     setFormData((prevFormData) => {
       const updatedColumnsInput = { ...prevFormData.columnsInput };
       updatedColumnsInput[id] = {

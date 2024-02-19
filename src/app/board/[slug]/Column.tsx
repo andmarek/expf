@@ -11,61 +11,59 @@ export default function Column({
   dispatch,
   columnId,
   socket,
-  cardTextBlurred
+  cardTextBlurred,
 }) {
-  console.log("FROM COLUMN");
-  console.log(cardTextBlurred);
-  console.log("***");
   const [curText, setCurText] = useState(currentText);
   async function postCommentsToDatabase(
+    boardName: string,
     commentText: string,
     columnId: string,
     commentId: string
   ) {
-    const response = await fetch("/api/board/comments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        boardName: boardName,
-        columnId: columnId,
-        commentId: commentId,
-        commentText: commentText,
-      }),
-    });
-    const data = await response.json();
-
-    // TODO: handle the case where the comment fails to post to Dynamo
-    console.log(data);
+    try {
+      await fetch("/api/board/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          boardName: boardName,
+          columnId: columnId,
+          commentId: commentId,
+          commentText: commentText,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to post comment:", error);
+    }
   }
 
-  async function addCommentHandler() {
-    console.log(curText);
-    const commentId = uuidv4();
-    emitComment(socket, commentId, curText);
-
+  function dispatchAddComment(commentId: string, text: string) {
     dispatch({
       type: "ADD_COMMENT_TO_COLUMN",
       payload: {
         columnId: columnId,
         comment: {
           id: commentId,
-          text: curText,
+          text: text,
         },
       },
     });
+  }
 
+  async function handleAddComment() {
+    const commentId = uuidv4();
+    emitCommentToServer(socket, commentId, curText);
+    dispatchAddComment(commentId, curText);
     try {
-      await postCommentsToDatabase(curText, columnId, commentId);
+      await postCommentsToDatabase(boardName, curText, columnId, commentId);
+      setCurText("");
     } catch (error) {
       console.error("Failed to post comments to database. ", error);
     }
-
-    setCurText("");
   }
 
-  function emitComment(socket, commentId, commentText) {
+  function emitCommentToServer(socket, commentId, commentText) {
     if (socket.connected) {
       socket.emit("new comment", {
         boardName: boardName,
@@ -86,7 +84,7 @@ export default function Column({
         placeholder="Post a comment..."
         value={curText}
       />
-      <Button onClick={addCommentHandler} size="3" variant="soft">
+      <Button onClick={handleAddComment} size="3" variant="soft">
         Post
       </Button>
 

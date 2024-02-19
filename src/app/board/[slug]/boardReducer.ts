@@ -1,8 +1,4 @@
 export default function boardReducer(state, action) {
-  console.log("this is the state");
-  console.log(state);
-  console.log("***");
-
   switch (action.type) {
     case "UPDATE_TEXT":
       return {

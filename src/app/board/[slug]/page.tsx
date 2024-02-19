@@ -17,33 +17,29 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const [sidebarOpened, setSideBarOpened] = useState(false);
 
-  // TODO: is this needed?
+  /* isConnected is currently unused, but I think it'll be used soon,
+     so I'm keeping it. */
   const [isConnected, setIsConnected] = useState(socket.connected);
 
   /* Board Options */
   const [passwordRequired, setPasswordRequired] = useState(false); // needs to be saved eventually
   const [setPassword, password] = useState("");
-
   const [boardBlurred, setBoardBlurred] = useState(false);
 
   const initialState = { columns: [] };
-
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
 
-  const switchBlurBoard = () => {
+  function switchBlurBoard() {
     setBoardBlurred(!boardBlurred);
 
     socket.emit("switch blur board", {
       boardBlurred,
     });
-
-    console.log("switchBlurBoard called ", boardBlurred);
   };
 
-  const switchRequirePassword = () => {
+  function switchRequirePassword() {
     setPasswordRequired(!passwordRequired);
-    console.log("switchRequirePassword ", passwordRequired);
-  };
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,13 +68,12 @@ export default function Page({ params }: { params: { slug: string } }) {
       }
     };
     fetchData();
-  }, []);
+  }, [decodedBoardName]);
 
   useEffect(() => {
     socket.connect();
 
     function onConnect() {
-      console.log("On connect triggered.");
       setIsConnected(true);
     }
 
@@ -100,13 +95,10 @@ export default function Page({ params }: { params: { slug: string } }) {
     }
 
     function onEmittedSwitchBlurBoard(data) {
-      console.log("onEmittedSwitchBlurBoard bro called " + data);
-      console.log(data);
       setBoardBlurred(!data.boardBlurred);
     }
 
     function onDisconnect() {
-      console.log("On disconnect triggered.");
       setIsConnected(false);
     }
     socket.on("connect", onConnect);
@@ -125,7 +117,6 @@ export default function Page({ params }: { params: { slug: string } }) {
   }, []);
 
   function transformBoardData(data) {
-    console.log(data);
     return Object.entries(data.Item.BoardColumns).map(
       ([columnId, columnData]) => ({
         columnId: columnId,
