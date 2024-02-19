@@ -10,7 +10,7 @@ function NavLink(props: {linkText: string, href: string}) {
   )
 }
 
-const NavBar: React.FC = () => {
+export default function NavBar() {
   return (
     <nav className="flex justify-between items-center border-b border-base-300">
       <div className="text-2xl m-2">
@@ -30,5 +30,3 @@ const NavBar: React.FC = () => {
     </nav>
   );
 };
-
-export default NavBar;

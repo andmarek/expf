@@ -27,8 +27,6 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const [boardBlurred, setBoardBlurred] = useState(false);
 
-
-
   const initialState = { columns: [] };
 
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
@@ -37,13 +35,12 @@ export default function Page({ params }: { params: { slug: string } }) {
     socket.emit("switch blur board");
     setBoardBlurred(!boardBlurred);
     console.log("switchBlurBoard called ", boardBlurred);
-  }
+  };
 
   const switchRequirePassword = () => {
     setPasswordRequired(!passwordRequired);
     console.log("switchRequirePassword ", passwordRequired);
-  }
-
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,7 +98,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
     function onEmittedSwitchBlurBoard(data) {
       console.log("onEmittedSwitchBlurBoard called");
-      switchBlurBoard()
+      switchBlurBoard();
     }
 
     function onDisconnect() {
@@ -155,23 +152,12 @@ export default function Page({ params }: { params: { slug: string } }) {
         </div>
       ) : (
         <>
-          <div className="flex w-full h-full py-2">
-              {" "}
-              {sidebarOpened ? (
-                <div>
-                  <SideBar switchPasswordRequired={switchRequirePassword} switchBlurCardText={switchBlurBoard} />
-                </div>
-              ) : (
-                <> </>
-              )}{" "}
-            <div className="fixed left-0 top-1/2">
-              {" "}
-              <ChevronRightIcon
-                onClick={() => setSideBarOpened(!sidebarOpened)}
-                width="24"
-                height="24"
-              />{" "}
-            </div>
+        
+          <div className="flex w-full h-full">
+            <SideBar
+              switchPasswordRequired={switchRequirePassword}
+              switchBlurCardText={switchBlurBoard}
+            />    
             <div className="grow">
               <div className="text-center">
                 <div className="flex flex-row justify-center space-x-3">
@@ -199,7 +185,6 @@ export default function Page({ params }: { params: { slug: string } }) {
                       columnId={column.columnId}
                       socket={socket}
                       cardTextBlurred={boardBlurred}
-
                     />
                   );
                 })}
