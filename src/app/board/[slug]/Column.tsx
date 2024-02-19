@@ -3,6 +3,22 @@ import { v4 as uuidv4 } from "uuid";
 import { Flex, TextArea, Button } from "@radix-ui/themes";
 import Comment from "./Comment";
 
+interface Comment {
+  id: string;
+  text: string;
+}
+
+interface ColumnProps {
+  boardName: string;
+  name: string;
+  currentText: string;
+  comments: Comment[];
+  dispatch: any; // TODO: fix this type
+  columnId: string;
+  socket: any; // TODO: fix this type
+  cardTextBlurred: boolean;
+}
+
 export default function Column({
   boardName,
   name,
@@ -12,7 +28,7 @@ export default function Column({
   columnId,
   socket,
   cardTextBlurred,
-}) {
+}: ColumnProps) {
   const [curText, setCurText] = useState(currentText);
   async function postCommentsToDatabase(
     boardName: string,
@@ -66,10 +82,10 @@ export default function Column({
   function emitCommentToServer(socket, commentId, commentText) {
     if (socket.connected) {
       socket.emit("new comment", {
-        boardName: boardName,
-        columnId: columnId,
-        commentId: commentId,
-        commentText: commentText,
+        boardName,
+        columnId,
+        commentId,
+        commentText,
       });
     } else {
       console.log("SOCKET NOT CONNECTED");
@@ -91,7 +107,7 @@ export default function Column({
       <div className="flex flex-col gap-3">
         {comments.map((comment) => (
           <Comment
-            key={comment.commentId}
+            key={comment.id}
             boardName={boardName}
             columnId={columnId}
             commentText={comment.text}

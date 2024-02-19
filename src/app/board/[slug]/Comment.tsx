@@ -2,6 +2,16 @@ import { useState, useRef, useEffect } from "react";
 import { Flex, Text } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
+interface CommentProps {
+  boardName: string;
+  columnId: string;
+  commentId: string;
+  commentText: string;
+  dispatch: Function;
+  socket: any; // Specify a more detailed type if possible
+  cardTextBlurred: boolean;
+}
+
 export default function Comment({
   boardName,
   columnId,
@@ -9,20 +19,14 @@ export default function Comment({
   commentText,
   dispatch,
   socket,
-  cardTextBlurred
-}: {
-  boardName: string;
-  columnId: string;
-  commentId: string;
-  commentText: string;
-  dispatch: Function;
-  socket;
-  cardTextBlurred: boolean;
-}) {
+  cardTextBlurred,
+}: CommentProps) {
   /* TODO: use comment text from reducer */
   const [currentText, setCurrentText] = useState(commentText);
   const [isContentEditable, setIsContentEditable] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLParagraphElement>(null);
+
+  const blurPlaceholder = "***";
 
   async function deleteCommentFromDatabase(
     columnId: string,
@@ -73,13 +77,13 @@ export default function Comment({
   };
   */
 
-  function deleteComment(commentId: string) {
+  async function deleteComment(commentId: string) {
     dispatch({
       type: "DELETE_COMMENT_FROM_COLUMN",
-      payload: { columnId: columnId, commentId: commentId },
+      payload: { columnId, commentId },
     });
     try {
-      deleteCommentFromDatabase(columnId, commentId);
+      await deleteCommentFromDatabase(columnId, commentId);
     } catch (error) {
       console.error("Failed to delete comment from database. ", error);
     }
@@ -92,10 +96,19 @@ export default function Comment({
   }, [isContentEditable]);
 
   return (
-    <Flex direction="column" gap="4" className="bg-magenta-light p-1 rounded-md drop-shadow-md">
-      <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} contentEditable={isContentEditable} ref={inputRef} as="p">
+    <Flex
+      direction="column"
+      gap="4"
+      className="bg-magenta-light p-1 rounded-md drop-shadow-md"
+    >
+      <Text
+        className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`}
+        contentEditable={isContentEditable}
+        ref={inputRef}
+        as="p"
+      >
         {" "}
-        {cardTextBlurred ? "****" : currentText}{" "}
+        {cardTextBlurred ? blurPlaceholder : currentText}{" "}
       </Text>
       <Flex gap="3" justify="end">
         {isContentEditable ? (

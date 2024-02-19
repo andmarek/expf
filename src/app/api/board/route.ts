@@ -1,6 +1,4 @@
-import {
-  DynamoDBClient,
-} from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   PutCommand,
   GetCommand,
@@ -16,34 +14,32 @@ const tableName = "expf-boards";
 interface ColumnInput {
   columnName: string;
   comments: {};
-};
-
+}
 
 interface PutBoard {
   boardName: string;
   boardDescription: string;
   columnsInput: { [columnId: string]: ColumnInput };
   boardPassword: string;
-};
+}
 
 export async function PUT(request: Request) {
   const formData = await request.json();
 
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
   Object.entries(formData.columnsInput).forEach(([columnId, columnData]) => {
-
     console.log(columnData.name);
 
     columnsInputDict[columnId] = {
       columnName: columnData.name,
-      comments: {} 
+      comments: {},
     };
   });
   const dynamoInput: PutBoard = {
     boardName: formData.boardName as string,
     boardDescription: formData.boardDescription as string,
     columnsInput: columnsInputDict,
-    boardPassword: formData.boardPassword
+    boardPassword: formData.boardPassword,
   };
 
   const command = new PutCommand({
@@ -53,7 +49,7 @@ export async function PUT(request: Request) {
       BoardDescription: dynamoInput.boardDescription,
       BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
-      Password: dynamoInput.boardPassword
+      Password: dynamoInput.boardPassword,
     },
   });
   const response = await docClient.send(command);
