@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { Flex, Text } from "@radix-ui/themes";
-import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
+import {
+  Pencil1Icon,
+  TrashIcon,
+  CheckIcon,
+  HeartFilledIcon,
+  HeartIcon,
+} from "@radix-ui/react-icons";
+import CommentButtonIcon from "./CommentButtonIcon";
 
 interface CommentProps {
   boardId: string;
@@ -8,7 +15,7 @@ interface CommentProps {
   commentId: string;
   commentText: string;
   dispatch: Function;
-  socket: any; // Specify a more detailed type if possible
+  socket: any; // TODO: specify a more detailed type if possible
   cardTextBlurred: boolean;
 }
 
@@ -56,7 +63,7 @@ export default function Comment({
   }
 
   /*
-  // not supporting this right now
+  TODO: not supporting this right now
   const saveEditedComment = async (commentId: string, commentText: string) => {
     //const previousComments = { ...curComments };
 
@@ -111,32 +118,25 @@ export default function Comment({
         {cardTextBlurred ? blurPlaceholder : currentText}{" "}
       </Text>
       <Flex gap="3" justify="end">
+        <CommentButtonIcon icon={<HeartIcon />} onClick={() => {}} />
         {isContentEditable ? (
-          <button>
-            <CheckIcon
-              className="text-blue"
-              onClick={() => {
-                const editedText = inputRef.current.textContent;
-                // handleEditComment(commentId, editedText);
-                setIsContentEditable(!isContentEditable);
-              }}
-            />
-          </button>
+          <CommentButtonIcon
+            icon={<CheckIcon />}
+            onClick={() => {
+              const editedText = inputRef.current.textContent;
+              // handleEditComment(commentId, editedText);
+              setIsContentEditable(!isContentEditable);
+            }}
+          />
         ) : null}
-        <button
-          className="text-blue duration-300 hover:text-red transition-all"
+        <CommentButtonIcon
+          icon={<Pencil1Icon />}
           onClick={() => setIsContentEditable(!isContentEditable)}
-        >
-          {" "}
-          <Pencil1Icon />{" "}
-        </button>
-        <button
-          className="text-blue duration-300 hover:text-red transition-all"
+        />
+        <CommentButtonIcon
+          icon={<TrashIcon />}
           onClick={() => deleteComment(commentId)}
-        >
-          {" "}
-          <TrashIcon />{" "}
-        </button>
+        />
       </Flex>
     </Flex>
   );

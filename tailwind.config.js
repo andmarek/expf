@@ -14,6 +14,10 @@ module.exports = {
       },
     },
     colors: {
+      radix: {
+        mintDefault: "#25d0ab",
+        mintLighter: "#95f3d9"
+      },
       base: {
         black: "#100F0F",
         950: "#1C1B1A",
