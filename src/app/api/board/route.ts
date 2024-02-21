@@ -81,12 +81,12 @@ export async function POST(request: Request) {
 export async function DELETE(request: Request) {
   const requestData = await request.json();
 
-  const boardName: string = requestData.boardName as string;
+  const boardId: string = requestData.boardId as string;
 
   const command = new DeleteCommand({
     TableName: tableName,
     Key: {
-      Name: boardName,
+      BoardId: boardId,
     },
   });
   const response = await docClient.send(command);

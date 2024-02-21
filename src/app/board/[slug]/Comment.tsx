@@ -32,8 +32,37 @@ export default function Comment({
   const [currentText, setCurrentText] = useState(commentText);
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef<HTMLParagraphElement>(null);
+  const [commentLiked, setCommentLiked] = useState(false);
+  const [numberOfLikes, setNumberOfLikes] = useState(0);
 
   const blurPlaceholder = "***";
+
+
+  async function removeCommentLikedInDatabase(columnId: string, commentId: string) {
+    console.log(columnId, commentId);
+  }
+
+  async function updateCommentLikesInDatabase(
+    columnId: string,
+    commentId: string,
+    boardId: string
+  ) {
+    console.log("Deleting from database");
+    console.log("columnId " + columnId + "commentId " + commentId);
+
+    const response = await fetch(`/api/board/comments/${commentId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        boardId,
+        commentId
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+  }
 
   async function deleteCommentFromDatabase(
     columnId: string,
@@ -41,12 +70,6 @@ export default function Comment({
   ) {
     console.log("Deleting from database");
     console.log(columnId, commentId);
-
-    socket.emit("delete comment", {
-      columnId,
-      commentId,
-    });
-
     const response = await fetch("/api/board/comments", {
       method: "DELETE",
       headers: {
@@ -90,6 +113,10 @@ export default function Comment({
       payload: { columnId, commentId },
     });
     try {
+      socket.emit("delete comment", {
+        columnId,
+        commentId,
+      });
       await deleteCommentFromDatabase(columnId, commentId);
     } catch (error) {
       console.error("Failed to delete comment from database. ", error);
@@ -101,6 +128,23 @@ export default function Comment({
       inputRef.current.focus();
     }
   }, [isContentEditable]);
+
+  function handleCommentLiked(commentId: string, columnId: string, boardId: string) {
+    const commentLiked = changeCommentLiked();
+    console.log("yo");
+    console.log(commentLiked);
+    if (commentLiked) {
+      updateCommentLikesInDatabase(
+        columnId, commentId, boardId
+      );
+    } else {
+      removeCommentLikedInDatabase(commentId, columnId);
+    }
+  }
+  function changeCommentLiked() {
+    setCommentLiked(!commentLiked);
+    return commentLiked;
+  }
 
   return (
     <Flex
@@ -118,7 +162,18 @@ export default function Comment({
         {cardTextBlurred ? blurPlaceholder : currentText}{" "}
       </Text>
       <Flex gap="3" justify="end">
-        <CommentButtonIcon icon={<HeartIcon />} onClick={() => {}} />
+        {commentLiked ? (
+          <CommentButtonIcon
+            icon={<HeartFilledIcon />}
+            onClick={() => { handleCommentLiked(commentId, columnId, boardId) }}
+          />
+        ) : (
+          <CommentButtonIcon
+            icon={<HeartIcon />}
+            onClick={() => { handleCommentLiked(commentId, columnId, boardId) }}
+          />
+        )}
+        <p className="text-radix-mintDefault"> {numberOfLikes} </p>
         {isContentEditable ? (
           <CommentButtonIcon
             icon={<CheckIcon />}

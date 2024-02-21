@@ -32,8 +32,8 @@ export default function ControlPanel() {
     fetchData();
   }, []);
 
-  async function handleDeleteBoard(boardName: string) {
-    const newBoards = boards.filter((board) => board.BoardId["S"] !== boardName);
+  async function handleDeleteBoard(boardId: string) {
+    const newBoards = boards.filter((board) => board.BoardId["S"] !== boardId);
     setBoards(newBoards);
     try {
       const response = await fetch("/api/board", {
@@ -42,7 +42,7 @@ export default function ControlPanel() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          boardName: boardName,
+          boardId,
         }),
       });
       if (response.ok) {
