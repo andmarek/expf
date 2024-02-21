@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ColumnsInput from "./ColumnsInput";
 import { Heading, Button, Flex, TextField } from "@radix-ui/themes";
+import { v4 } from "uuid";
 
 export default function Create() {
   const router = useRouter();
@@ -34,14 +35,20 @@ export default function Create() {
     }));
   };
 
+  function generateBoardId() {
+    return v4();
+  }
+
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     setIsLoading(true);
     e.preventDefault();
 
+    const boardId: string = generateBoardId();
+
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ formData: formData, boardId: boardId }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -49,7 +56,7 @@ export default function Create() {
       if (response.ok) {
         const data = await response.json();
         // TODO: use the data to redirect to the board
-        router.push(`/board/${formData.boardName}`);
+        router.push(`/board/${boardId}`);
       } else {
         const errorData = await response.json();
         console.error("Server responded with an error: ", errorData);

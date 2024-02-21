@@ -4,10 +4,12 @@ import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
+const tableName = process.env.BOARDS_DYNAMODB_TABLE;
+
 export async function DELETE(request: Request) {
   const requestData = await request.json();
 
-  const boardName: string = requestData.boardName;
+  const boardId: string = requestData.boardId;
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
 
@@ -19,9 +21,9 @@ export async function DELETE(request: Request) {
     "#comment_id": commentId,
   };
   const command = new UpdateCommand({
-    TableName: "expf-boards",
+    TableName: tableName,
     Key: {
-      Name: boardName,
+      BoardId: boardId,
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,
@@ -34,7 +36,7 @@ export async function DELETE(request: Request) {
 export async function POST(request: Request) {
   const requestData = await request.json();
 
-  const boardName: string = requestData.boardName;
+  const boardId: string = requestData.boardId;
   const commentText: string = requestData.commentText;
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
@@ -50,9 +52,9 @@ export async function POST(request: Request) {
   };
 
   const command = new UpdateCommand({
-    TableName: "expf-boards",
+    TableName: tableName,
     Key: {
-      Name: boardName,
+      BoardId: boardId,
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,

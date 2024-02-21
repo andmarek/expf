@@ -9,7 +9,7 @@ import {
 const ddb = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddb);
 
-const tableName = "expf-boards";
+const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
 interface ColumnInput {
   columnName: string;
@@ -17,35 +17,39 @@ interface ColumnInput {
 }
 
 interface PutBoard {
+  boardId: string;
   boardName: string;
   boardDescription: string;
   columnsInput: { [columnId: string]: ColumnInput };
   boardPassword: string;
 }
 
+/* Create a new board */
 export async function PUT(request: Request) {
-  const formData = await request.json();
+  const req = await request.json();
 
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
-  Object.entries(formData.columnsInput).forEach(([columnId, columnData]) => {
-    console.log(columnData.name);
-
-    columnsInputDict[columnId] = {
-      columnName: columnData.name,
-      comments: {},
-    };
-  });
+  Object.entries(req.formData.columnsInput).forEach(
+    ([columnId, columnData]) => {
+      columnsInputDict[columnId] = {
+        columnName: columnData.name,
+        comments: {},
+      };
+    }
+  );
   const dynamoInput: PutBoard = {
-    boardName: formData.boardName as string,
-    boardDescription: formData.boardDescription as string,
+    boardId: req.boardId as string,
+    boardName: req.formData.boardName as string,
+    boardDescription: req.formData.boardDescription as string,
     columnsInput: columnsInputDict,
-    boardPassword: formData.boardPassword,
+    boardPassword: req.formData.boardPassword,
   };
 
   const command = new PutCommand({
     TableName: tableName as string,
     Item: {
-      Name: dynamoInput.boardName, // todo change to boardName
+      BoardId: dynamoInput.boardId,
+      BoardName: dynamoInput.boardName,
       BoardDescription: dynamoInput.boardDescription,
       BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
@@ -56,15 +60,16 @@ export async function PUT(request: Request) {
   return Response.json(response);
 }
 
+/* Get a board by board Id */
 export async function POST(request: Request) {
-  const requestData = await request.json();
+  const req = await request.json();
 
-  const boardName: string = requestData.boardName as string;
+  const boardId: string = req.boardId as string;
 
   const command = new GetCommand({
     TableName: tableName,
     Key: {
-      Name: boardName,
+      BoardId: boardId,
     },
   });
   const response = await docClient.send(command);
@@ -72,6 +77,7 @@ export async function POST(request: Request) {
   return Response.json(response);
 }
 
+/* Delete a board by boardId */
 export async function DELETE(request: Request) {
   const requestData = await request.json();
 

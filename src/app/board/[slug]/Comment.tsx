@@ -3,7 +3,7 @@ import { Flex, Text } from "@radix-ui/themes";
 import { Pencil1Icon, TrashIcon, CheckIcon } from "@radix-ui/react-icons";
 
 interface CommentProps {
-  boardName: string;
+  boardId: string;
   columnId: string;
   commentId: string;
   commentText: string;
@@ -13,7 +13,7 @@ interface CommentProps {
 }
 
 export default function Comment({
-  boardName,
+  boardId,
   columnId,
   commentId,
   commentText,
@@ -46,7 +46,7 @@ export default function Comment({
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        boardName,
+        boardId,
         columnId,
         commentId,
       }),

@@ -6,7 +6,8 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 const ddb = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddb);
 
-const tableName = "expf-boards";
+
+const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
 export async function GET() {
   const command = new ScanCommand({ 

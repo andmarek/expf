@@ -33,7 +33,7 @@ export default function ControlPanel() {
   }, []);
 
   async function handleDeleteBoard(boardName: string) {
-    const newBoards = boards.filter((board) => board.Name["S"] !== boardName);
+    const newBoards = boards.filter((board) => board.BoardId["S"] !== boardName);
     setBoards(newBoards);
     try {
       const response = await fetch("/api/board", {
@@ -77,25 +77,25 @@ export default function ControlPanel() {
               <Table.ColumnHeaderCell> Actions </Table.ColumnHeaderCell>
             </Table.Row>
             {boards.map((board) => (
-              <Table.Row key={board.Name["S"]}>
+              <Table.Row key={board.BoardId["S"]}>
                 <Table.Cell>
                   <Link
-                    href={`/board/${board.Name["S"]}`}
+                    href={`/board/${board.BoardId["S"]}`}
                     className="transition-all duration-300 text-lg px-4"
                   >
-                    {board.Name["S"]}
+                    {board.BoardName["S"]}
                   </Link>
                 </Table.Cell>
                 <Table.Cell>{board.BoardDescription["S"]}</Table.Cell>
                 <Table.Cell>
-                  <Button key={board.Name["S"] + "edit"} className="mx-2">
+                  <Button key={board.BoardId["S"] + "edit"} className="mx-2">
                     {" "}
                     Edit{" "}
                   </Button>
                   <Button
-                    key={board.Name["S"] + "delete"}
+                    key={board.BoardId["S"] + "delete"}
                     className="mx-2"
-                    onClick={() => handleDeleteBoard(board.Name["S"])}
+                    onClick={() => handleDeleteBoard(board.BoardId["S"])}
                   >
                     {" "}
                     Delete{" "}

@@ -9,6 +9,7 @@ interface Comment {
 }
 
 interface ColumnProps {
+  boardId: string;
   boardName: string;
   name: string;
   currentText: string;
@@ -20,6 +21,7 @@ interface ColumnProps {
 }
 
 export default function Column({
+  boardId,
   boardName,
   name,
   currentText,
@@ -31,7 +33,7 @@ export default function Column({
 }: ColumnProps) {
   const [curText, setCurText] = useState(currentText);
   async function postCommentsToDatabase(
-    boardName: string,
+    boardId: string,
     commentText: string,
     columnId: string,
     commentId: string
@@ -43,10 +45,10 @@ export default function Column({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          boardName: boardName,
-          columnId: columnId,
-          commentId: commentId,
-          commentText: commentText,
+          boardId,
+          columnId,
+          commentId,
+          commentText,
         }),
       });
     } catch (error) {
@@ -72,7 +74,7 @@ export default function Column({
     emitCommentToServer(socket, commentId, curText);
     dispatchAddComment(commentId, curText);
     try {
-      await postCommentsToDatabase(boardName, curText, columnId, commentId);
+      await postCommentsToDatabase(boardId, curText, columnId, commentId);
       setCurText("");
     } catch (error) {
       console.error("Failed to post comments to database. ", error);
@@ -82,7 +84,7 @@ export default function Column({
   function emitCommentToServer(socket, commentId, commentText) {
     if (socket.connected) {
       socket.emit("new comment", {
-        boardName,
+        boardId,
         columnId,
         commentId,
         commentText,
@@ -108,7 +110,7 @@ export default function Column({
         {comments.map((comment) => (
           <Comment
             key={comment.id}
-            boardName={boardName}
+            boardId={boardId}
             columnId={columnId}
             commentText={comment.text}
             dispatch={dispatch}

@@ -9,8 +9,8 @@ import SideBar from "./SideBar";
 import SortDropDown from "./SortDropDown";
 
 export default function Page({ params }: { params: { slug: string } }) {
-  const boardName: string = params.slug;
-  const decodedBoardName: string = decodeURI(boardName);
+  const boardId: string = params.slug;
+  const [boardName, setBoardName] = useState("");
 
   const [hasJoined, setHasJoined] = useState(false);
   const [userName, setUserName] = useState("");
@@ -46,7 +46,7 @@ export default function Page({ params }: { params: { slug: string } }) {
       try {
         const response = await fetch("/api/board", {
           method: "POST",
-          body: JSON.stringify({ boardName: decodedBoardName }),
+          body: JSON.stringify({ boardId }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -57,18 +57,19 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
 
         const jsonData = await response.json();
-        const transformedData = transformBoardData(jsonData);
+        setBoardName(jsonData.Item.BoardName);
+        const boardColumns = transformBoardColumns(jsonData);
 
         dispatch({
           type: "SET_CATEGORIES",
-          payload: transformedData,
+          payload: boardColumns,
         });
       } catch (error) {
         console.error("Error initializing board page.");
       }
     };
     fetchData();
-  }, [decodedBoardName]);
+  }, [boardId]);
 
   useEffect(() => {
     socket.connect();
@@ -116,7 +117,7 @@ export default function Page({ params }: { params: { slug: string } }) {
     };
   }, []);
 
-  function transformBoardData(data) {
+  function transformBoardColumns(data) {
     return Object.entries(data.Item.BoardColumns).map(
       ([columnId, columnData]) => ({
         columnId: columnId,
@@ -163,7 +164,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                   <h1 className="text-lg"> Board Name: </h1>
                   <h1 className="text-lg text-magenta-light">
                     {" "}
-                    {decodedBoardName}{" "}
+                    {boardName}{" "}
                   </h1>
                   <h1 className="text-lg"> Username:</h1>
                   <h1 className="text-lg text-magenta-light"> {userName} </h1>
@@ -176,7 +177,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                   return (
                     <Column
                       key={column.columnId}
-                      boardName={boardName}
+                      boardId={boardId}
                       name={column.columnName}
                       dispatch={dispatch}
                       currentText={column.currentText}
