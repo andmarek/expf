@@ -28,12 +28,12 @@ export default function Create() {
     });
   };
 
-  const handleBoardAttributeChange = (inputValue) => {
+  function handleBoardAttributeChange(inputValue) {
     setFormData((prevFormData) => ({
       ...prevFormData,
       ...inputValue,
     }));
-  };
+  }
 
   function generateBoardId() {
     return v4();
@@ -93,6 +93,15 @@ export default function Create() {
               placeholder="Enter a Description"
               onChange={(e) =>
                 handleBoardAttributeChange({ boardDescription: e.target.value })
+              }
+            ></TextField.Input>
+            <TextField.Input
+              name="boardPassword"
+              className="m-2"
+              type="text"
+              placeholder="Enter a Password"
+              onChange={(e) =>
+                handleBoardAttributeChange({ boardPassword: e.target.value })
               }
             ></TextField.Input>
             <Button size="3" variant="soft">

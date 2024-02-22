@@ -4,7 +4,8 @@ import boardReducer from "./boardReducer";
 import Column from "./Column";
 import { socket } from "./socket";
 import SideBar from "./SideBar";
-import SortDropDown from "./SortDropDown";
+import BoardStatusBar from "./BoardStatusBar";
+import BoardEntryView from "./BoardEntryView";
 
 interface BoardProps {
   boardId: string;
@@ -166,22 +167,12 @@ export default function Board(props: BoardProps) {
   return (
     <div id="__next" className="flex flex-col antialiased min-h-full h-full">
       {!hasJoined ? (
-        <div className="flex flex-col items-center space-y-3">
-          <h1> Please provide a username </h1>
-          <TextField.Input onChange={(e) => setUserName(e.target.value)} />
-          <Button onClick={() => setHasJoined(true)} size="3" variant="soft">
-            {" "}
-            Join{" "}
-          </Button>
-          {
-            passwordRequired ? (
-              <div>
-                <h1> Please provide the password </h1>
-                <TextField.Input />
-              </div>
-            ) : null
-          }
-        </div>
+        <BoardEntryView
+          boardName={boardName}
+          setHasJoined={setHasJoined}
+          setUserName={setUserName}
+          passwordRequired={passwordRequired}
+        />
       ) : (
         <>
           <div className="flex w-full h-full">
@@ -195,18 +186,7 @@ export default function Board(props: BoardProps) {
               className={`grow transition-transform duration-300 ease-in-out ${sidebarOpened ? "ml-64" : "ml-0"
                 }`}
             >
-              <div className="text-center">
-                <div className="flex flex-row justify-center space-x-3">
-                  <h1 className="text-lg"> Board Name: </h1>
-                  <h1 className="text-lg text-magenta-light">
-                    {" "}
-                    {boardName}{" "}
-                  </h1>
-                  <h1 className="text-lg"> Username:</h1>
-                  <h1 className="text-lg text-magenta-light"> {userName} </h1>
-                  <SortDropDown selectSortStatus={selectSortStatus} />
-                </div>
-              </div>
+              <BoardStatusBar boardName={boardName} userName={userName} selectSortStatus={selectSortStatus} />
 
               <div className="flex flex-row justify-center">
                 {boardState.columns.map((column) => {
