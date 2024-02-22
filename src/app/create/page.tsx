@@ -15,12 +15,11 @@ export default function Create() {
     columnsInput: {},
   });
 
-  const onColumnChange = (id: string, value: string, index: string) => {
+  const onColumnChange = (value: string, index: string) => {
     setFormData((prevFormData) => {
       const updatedColumnsInput = { ...prevFormData.columnsInput };
-      updatedColumnsInput[id] = {
+      updatedColumnsInput[index] = {
         columnName: value,
-        columnIndex: index
       };
       return {
         ...prevFormData,

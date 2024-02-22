@@ -14,8 +14,8 @@ export default function ColumnsInput({ handleColumnChange }) {
     );
   }
 
-  function onColumnTextChange(id: string, value: string, index: string) {
-    handleColumnChange(id, value, index);
+  function onColumnTextChange(value: string, index: string) {
+    handleColumnChange(value, index);
   }
 
   const addComponent = () => {

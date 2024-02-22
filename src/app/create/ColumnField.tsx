@@ -15,7 +15,7 @@ export default function ColumnField({ id, index, handleTextChange, handleRemove 
         <TextField.Input
           name="boardName"
           className="m-2"
-          onChange={(e) => handleTextChange(id, e.target.value, index)}
+          onChange={(e) => handleTextChange(e.target.value, index)}
           placeholder="Enter a column name"
           size="3"
         ></TextField.Input>

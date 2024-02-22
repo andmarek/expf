@@ -57,10 +57,11 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
 
         const jsonData = await response.json();
+        console.log(jsonData)
         setBoardName(jsonData.Item.BoardName);
-
+        console.log("board columns before transformation", jsonData);
         const boardColumns = transformBoardColumns(jsonData);
-
+        console.log("boardColumns after transformation", boardColumns);
 
         dispatch({
           type: "SET_CATEGORIES",
@@ -125,7 +126,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         columnId: columnId,
         columnName: columnData.columnName,
         currentText: columnData.currentText,
-        comments: Object.entries(columnData.comments).map(
+        comments: Object.entries(columnData.comments || {}).map(
           ([commentId, commentObj]) => ({
             id: commentId,
             text: commentObj.text,
