@@ -37,18 +37,25 @@ export async function POST(request: Request) {
   const requestData = await request.json();
 
   const boardId: string = requestData.boardId;
+
   const commentText: string = requestData.commentText;
+
+  const commentObj = {
+    "text": commentText,
+    "likes": 0
+  }
+
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
 
   const updateExpression =
-    "SET BoardColumns.#column_id.comments.#comment_id = :comment_text";
+    "SET BoardColumns.#column_id.comments.#comment_id = :comment_obj";
   const expressionAttributeNames = {
     "#column_id": columnId,
     "#comment_id": commentId,
   };
   const expressionAttributeValues = {
-    ":comment_text": commentText,
+    ":comment_obj": commentObj,
   };
 
   const command = new UpdateCommand({

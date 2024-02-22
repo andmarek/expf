@@ -9,11 +9,16 @@ import {
 } from "@radix-ui/react-icons";
 import CommentButtonIcon from "./CommentButtonIcon";
 
+interface CommentObject {
+  text: string;
+  likes: number;
+}
+
 interface CommentProps {
   boardId: string;
   columnId: string;
   commentId: string;
-  commentText: string;
+  commentObj: CommentObject;
   dispatch: Function;
   socket: any; // TODO: specify a more detailed type if possible
   cardTextBlurred: boolean;
@@ -23,17 +28,18 @@ export default function Comment({
   boardId,
   columnId,
   commentId,
-  commentText,
+  commentObj,
   dispatch,
   socket,
   cardTextBlurred,
 }: CommentProps) {
   /* TODO: use comment text from reducer */
-  const [currentText, setCurrentText] = useState(commentText);
+  const [currentText, setCurrentText] = useState(commentObj.text);
+  const [numberOfLikes, setNumberOfLikes] = useState(commentObj.likes);
+
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef<HTMLParagraphElement>(null);
   const [commentLiked, setCommentLiked] = useState(false);
-  const [numberOfLikes, setNumberOfLikes] = useState(0);
 
   const blurPlaceholder = "***";
 
@@ -57,7 +63,7 @@ export default function Comment({
       },
       body: JSON.stringify({
         boardId,
-        commentId
+        columnId
       }),
     });
     const data = await response.json();

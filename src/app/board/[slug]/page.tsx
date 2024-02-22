@@ -124,9 +124,10 @@ export default function Page({ params }: { params: { slug: string } }) {
         columnName: columnData.columnName,
         currentText: columnData.currentText,
         comments: Object.entries(columnData.comments).map(
-          ([commentId, commentText]) => ({
+          ([commentId, commentObj]) => ({
             id: commentId,
-            text: commentText,
+            text: commentObj.text,
+            likes: commentObj.likes,
           })
         ),
       })
@@ -155,9 +156,8 @@ export default function Page({ params }: { params: { slug: string } }) {
               setShowSidebar={setSideBarOpened}
             />
             <div
-              className={`grow transition-transform duration-300 ease-in-out ${
-                sidebarOpened ? "ml-64" : "ml-0"
-              }`}
+              className={`grow transition-transform duration-300 ease-in-out ${sidebarOpened ? "ml-64" : "ml-0"
+                }`}
             >
               <div className="text-center">
                 <div className="flex flex-row justify-center space-x-3">

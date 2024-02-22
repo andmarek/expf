@@ -6,6 +6,7 @@ import Comment from "./Comment";
 interface Comment {
   id: string;
   text: string;
+  likes: number;
 }
 
 interface ColumnProps {
@@ -31,6 +32,7 @@ export default function Column({
   socket,
   cardTextBlurred,
 }: ColumnProps) {
+  console.log("comments", comments);
   const [curText, setCurText] = useState(currentText);
   async function postCommentsToDatabase(
     boardId: string,
@@ -62,15 +64,17 @@ export default function Column({
       payload: {
         columnId: columnId,
         comment: {
-          id: commentId,
+          id: commentId, // TODO change to commentId
           text: text,
+          likes: 0
         },
       },
     });
   }
 
-  async function handleAddComment() {
+  async function addComment() {
     const commentId = uuidv4();
+
     emitCommentToServer(socket, commentId, curText);
     dispatchAddComment(commentId, curText);
     try {
@@ -81,6 +85,7 @@ export default function Column({
     }
   }
 
+  // TODO: refactor this to emitActionToSocket("action", {data})
   function emitCommentToServer(socket, commentId, commentText) {
     if (socket.connected) {
       socket.emit("new comment", {
@@ -102,7 +107,7 @@ export default function Column({
         placeholder="Post a comment..."
         value={curText}
       />
-      <Button onClick={handleAddComment} size="3" variant="soft">
+      <Button onClick={addComment} size="3" variant="soft">
         Post
       </Button>
 
@@ -112,7 +117,7 @@ export default function Column({
             key={comment.id}
             boardId={boardId}
             columnId={columnId}
-            commentText={comment.text}
+            commentObj={comment}
             dispatch={dispatch}
             commentId={comment.id}
             socket={socket}
