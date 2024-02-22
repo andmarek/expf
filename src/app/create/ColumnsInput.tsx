@@ -2,24 +2,8 @@ import { useState } from "react";
 import { Flex, Box, Button, TextField, Heading } from "@radix-ui/themes";
 import { Cross1Icon } from "@radix-ui/react-icons";
 import { v4 as uuidv4 } from "uuid";
+import ColumnField from "./ColumnField";
 
-
-function ColumnField({ id, handleTextChange, handleRemove }) {
-  return (
-    <Flex gap="3" align="center">
-      <Box grow="1">
-        <TextField.Input
-          name="boardName"
-          className="m-2"
-          onChange={(e) => handleTextChange(id, e.target.value)}
-          placeholder="Enter a column name"
-          size="3"
-        ></TextField.Input>
-      </Box>
-      <Cross1Icon onClick={() => handleRemove(id)} />
-    </Flex>
-  );
-}
 
 export default function ColumnsInput({ name, handleColumnChange }) {
   const [currentText, setCurrentText] = useState("");
@@ -54,10 +38,11 @@ export default function ColumnsInput({ name, handleColumnChange }) {
           {" "}
           Add Column{" "}
         </Button>
-        {currentColumns.map((column) => (
+        {currentColumns.map((column, index) => (
           <ColumnField
             key={column.id}
             id={column.id}
+            index={index + 1}
             handleTextChange={onColumnTextChange}
             handleRemove={onRemoveColumn}
           />
