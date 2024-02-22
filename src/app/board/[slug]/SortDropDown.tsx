@@ -2,7 +2,11 @@ import { DropdownMenu, Button } from "@radix-ui/themes";
 
 import { CaretDownIcon } from "@radix-ui/react-icons";
 
-export default function SortDropDown() {
+interface SortDropDownProps {
+  selectSortStatus: (sortBy: string) => void;
+}
+
+export default function SortDropDown({ selectSortStatus }: SortDropDownProps) {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger>
@@ -12,8 +16,8 @@ export default function SortDropDown() {
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Item shortcut="⌘ E">Votes</DropdownMenu.Item>
-        <DropdownMenu.Item shortcut="⌘ D">Time</DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => selectSortStatus("Likes")} shortcut="⌘ E">Votes</DropdownMenu.Item>
+        <DropdownMenu.Item onClick={() => selectSortStatus("Time")} shortcut="⌘ D">Time</DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu.Root>
   );

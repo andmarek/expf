@@ -12,6 +12,11 @@ export default function Page({ params }: { params: { slug: string } }) {
   const boardId: string = params.slug;
   const [boardName, setBoardName] = useState("");
 
+  const [sortStatus, setSortStatus] = useState({
+    "sortBy": "time",
+    "sortDirection": "asc"
+  });
+
   const [hasJoined, setHasJoined] = useState(false);
   const [userName, setUserName] = useState("");
 
@@ -137,6 +142,21 @@ export default function Page({ params }: { params: { slug: string } }) {
     );
   }
 
+  function selectSortStatus(sortBy: string) {
+    if (sortBy === "Time") {
+      console.log("sorting by time");
+      setSortStatus({ "sortBy": "time", "sortDirection": "asc" });
+    } else if (sortBy === "Likes") {
+      console.log("sorting by likes");
+      setSortStatus({ "sortBy": "likes", "sortDirection": "desc" });
+      boardState.columns.forEach((column) => {
+        column.comments.sort((a, b) => {
+          return b.likes - a.likes;
+        });
+      });
+    }
+  }
+
   /* TODO: define columnData type */
   return (
     <div id="__next" className="flex flex-col antialiased min-h-full h-full">
@@ -171,7 +191,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                   </h1>
                   <h1 className="text-lg"> Username:</h1>
                   <h1 className="text-lg text-magenta-light"> {userName} </h1>
-                  <SortDropDown />
+                  <SortDropDown selectSortStatus={selectSortStatus} />
                 </div>
               </div>
 
@@ -188,6 +208,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       columnId={column.columnId}
                       socket={socket}
                       cardTextBlurred={boardBlurred}
+                      sortStatus={sortStatus}
                     />
                   );
                 })}

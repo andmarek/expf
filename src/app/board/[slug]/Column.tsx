@@ -19,6 +19,7 @@ interface ColumnProps {
   columnId: string;
   socket: any; // TODO: fix this type
   cardTextBlurred: boolean;
+  sortStatus: { "sortBy": string; "sortDirection": string; }
 }
 
 export default function Column({
@@ -31,9 +32,13 @@ export default function Column({
   columnId,
   socket,
   cardTextBlurred,
+  sortStatus,
 }: ColumnProps) {
   console.log("comments", comments);
+
   const [curText, setCurText] = useState(currentText);
+  const [sortBy, setSortBy] = useState(sortStatus.sortBy);
+
   async function postCommentsToDatabase(
     boardId: string,
     commentText: string,
