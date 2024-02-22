@@ -42,3 +42,37 @@ export async function POST(request: NextRequest) {
   const dynamoResponse = await docClient.send(updateCommentCommand);
   return Response.json(dynamoResponse);
 }
+
+
+export async function DELETE(request: NextRequest) {
+  const data = await request.json();
+
+  const boardId = data.boardId;
+  const columnId = data.columnId;
+
+  const commentId = getCommentIdFromPath(request.nextUrl.pathname);
+
+  console.log(boardId, columnId, commentId);
+
+  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.likes = BoardColumns.#column_id.comments.#comment_id.likes - :val";
+
+  const expressionAttributeNames = {
+    "#column_id": columnId,
+    "#comment_id": commentId
+  }
+  const expressionAttributeValues = {
+    ":val": 1
+  }
+
+  const updateCommentCommand = new UpdateCommand({
+    TableName: tableName as string,
+    Key: {
+      BoardId: boardId,
+    },
+    UpdateExpression: updateExpression,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues
+  });
+  const dynamoResponse = await docClient.send(updateCommentCommand);
+  return Response.json(dynamoResponse);
+}

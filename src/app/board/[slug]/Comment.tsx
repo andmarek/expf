@@ -43,8 +43,20 @@ export default function Comment({
   const blurPlaceholder = "***";
 
 
-  async function removeCommentLikedInDatabase(columnId: string, commentId: string) {
+  async function removeCommentLikedInDatabase(columnId: string, commentId: string, boardId: string) {
     console.log(columnId, commentId);
+    const response = await fetch(`/api/board/comments/${commentId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        boardId,
+        columnId
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
   }
 
   async function updateCommentLikesInDatabase(
@@ -127,6 +139,17 @@ export default function Comment({
       console.error("Failed to delete comment from database. ", error);
     }
   }
+  function handleLike() {
+    dispatch({ type: "INCREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
+
+    updateCommentLikesInDatabase(
+      columnId, commentId, boardId
+    );
+  }
+  function handleUnlike() {
+    dispatch({ type: "DECREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
+    removeCommentLikedInDatabase(columnId, commentId, boardId);
+  }
 
   useEffect(() => {
     if (isContentEditable) {
@@ -134,7 +157,8 @@ export default function Comment({
     }
   }, [isContentEditable]);
 
-  function handleCommentLiked(commentId: string, columnId: string, boardId: string) {
+  /*
+  function likeComment(commentId: string, columnId: string, boardId: string) {
     const commentLiked = changeCommentLiked();
     console.log("yo");
     console.log(commentLiked);
@@ -148,10 +172,7 @@ export default function Comment({
       removeCommentLikedInDatabase(commentId, columnId);
     }
   }
-  function changeCommentLiked() {
-    setCommentLiked(!commentLiked);
-    return commentLiked;
-  }
+  */
 
   return (
     <Flex
@@ -172,12 +193,12 @@ export default function Comment({
         {commentLiked ? (
           <CommentButtonIcon
             icon={<HeartFilledIcon />}
-            onClick={() => { handleCommentLiked(commentId, columnId, boardId) }}
+            onClick={() => { setCommentLiked(!commentLiked); handleUnlike(); }}
           />
         ) : (
           <CommentButtonIcon
             icon={<HeartIcon />}
-            onClick={() => { handleCommentLiked(commentId, columnId, boardId) }}
+            onClick={() => { setCommentLiked(!commentLiked); handleLike(); }}
           />
         )}
         <p className="text-radix-mintDefault"> {commentObj.likes} </p>
