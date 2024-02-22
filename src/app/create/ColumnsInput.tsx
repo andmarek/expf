@@ -1,29 +1,30 @@
 import { useState } from "react";
-import { Flex, Box, Button, TextField, Heading } from "@radix-ui/themes";
-import { Cross1Icon } from "@radix-ui/react-icons";
+import { Flex, Button, Heading } from "@radix-ui/themes";
 import { v4 as uuidv4 } from "uuid";
 import ColumnField from "./ColumnField";
 
 
-export default function ColumnsInput({ name, handleColumnChange }) {
-  const [currentText, setCurrentText] = useState("");
+export default function ColumnsInput({ handleColumnChange }) {
   const [currentColumns, setCurrentColumns] = useState([]);
+  const [numberColumns, setNumberColumns] = useState(0);
 
-  function onRemoveColumn(columnId) {
+  function onRemoveColumn(columnId: string) {
     setCurrentColumns((columns) =>
       columns.filter((column) => column.id !== columnId)
     );
   }
 
-  function onColumnTextChange(id: string, value: string) {
-    setCurrentText(value);
-    handleColumnChange(id, value);
+  function onColumnTextChange(id: string, value: string, index: string) {
+    handleColumnChange(id, value, index);
   }
 
   const addComponent = () => {
+    setNumberColumns(numberColumns + 1);
+
     const newColumn = {
       id: uuidv4(),
       text: "",
+      index: numberColumns + 1,
     };
     setCurrentColumns((currentColumns) => [...currentColumns, newColumn]);
   };

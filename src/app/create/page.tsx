@@ -15,11 +15,12 @@ export default function Create() {
     columnsInput: {},
   });
 
-  const onColumnChange = (id: string, value: string) => {
+  const onColumnChange = (id: string, value: string, index: string) => {
     setFormData((prevFormData) => {
       const updatedColumnsInput = { ...prevFormData.columnsInput };
       updatedColumnsInput[id] = {
-        name: value,
+        columnName: value,
+        columnIndex: index
       };
       return {
         ...prevFormData,
@@ -40,8 +41,9 @@ export default function Create() {
   }
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
-    setIsLoading(true);
     e.preventDefault();
+
+    setIsLoading(true);
 
     const boardId: string = generateBoardId();
 
@@ -53,13 +55,12 @@ export default function Create() {
           "Content-Type": "application/json",
         },
       });
+
+      const responseBody = await response.json();
       if (response.ok) {
-        const data = await response.json();
-        // TODO: use the data to redirect to the board
         router.push(`/board/${boardId}`);
       } else {
-        const errorData = await response.json();
-        console.error("Server responded with an error: ", errorData);
+        console.error("Server responded with an error: ", responseBody);
       }
     } catch (error) {
       console.error(error);
@@ -102,7 +103,6 @@ export default function Create() {
         </div>
       </form>
       <ColumnsInput
-        name="todo-placeholder"
         handleColumnChange={onColumnChange}
       />
     </div>

@@ -13,6 +13,7 @@ const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
 interface ColumnInput {
   columnName: string;
+  columnIndex: number;
   comments: {};
 }
 
@@ -29,14 +30,17 @@ export async function PUT(request: Request) {
   const req = await request.json();
 
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
+  // Create a dictionary of columnId to columnData
   Object.entries(req.formData.columnsInput).forEach(
     ([columnId, columnData]) => {
       columnsInputDict[columnId] = {
-        columnName: columnData.name,
+        columnName: columnData.columnName,
+        columnIndex: columnData.columnIndex,
         comments: {},
       };
     }
   );
+
   const dynamoInput: PutBoard = {
     boardId: req.boardId as string,
     boardName: req.formData.boardName as string,
