@@ -35,7 +35,6 @@ export default function Comment({
 }: CommentProps) {
   /* TODO: use comment text from reducer */
   const [currentText, setCurrentText] = useState(commentObj.text);
-  const [numberOfLikes, setNumberOfLikes] = useState(commentObj.likes);
 
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef<HTMLParagraphElement>(null);
@@ -140,6 +139,8 @@ export default function Comment({
     console.log("yo");
     console.log(commentLiked);
     if (commentLiked) {
+      dispatch({ type: "INCREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
+
       updateCommentLikesInDatabase(
         columnId, commentId, boardId
       );
@@ -179,7 +180,7 @@ export default function Comment({
             onClick={() => { handleCommentLiked(commentId, columnId, boardId) }}
           />
         )}
-        <p className="text-radix-mintDefault"> {numberOfLikes} </p>
+        <p className="text-radix-mintDefault"> {commentObj.likes} </p>
         {isContentEditable ? (
           <CommentButtonIcon
             icon={<CheckIcon />}

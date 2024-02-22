@@ -58,7 +58,9 @@ export default function Page({ params }: { params: { slug: string } }) {
 
         const jsonData = await response.json();
         setBoardName(jsonData.Item.BoardName);
+
         const boardColumns = transformBoardColumns(jsonData);
+
 
         dispatch({
           type: "SET_CATEGORIES",

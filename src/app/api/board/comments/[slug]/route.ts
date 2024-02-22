@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
 
   const commentId = getCommentIdFromPath(request.nextUrl.pathname);
 
-  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.likes = :val";
+  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.likes = BoardColumns.#column_id.comments.#comment_id.likes + :val";
+
   const expressionAttributeNames = {
     "#column_id": columnId,
     "#comment_id": commentId
