@@ -18,6 +18,13 @@ module.exports = {
         mintDefault: "#25d0ab",
         mintLighter: "#95f3d9"
       },
+      coolors: {
+        orange: "#eaac8b",
+        red: "#e56b6f",
+        lessred: "#415a77",
+        purple: "#6d597a",
+        blue: "#355070",
+      },
       base: {
         black: "#100F0F",
         950: "#1C1B1A",

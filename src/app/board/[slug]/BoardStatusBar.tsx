@@ -8,7 +8,7 @@ interface BoardStatusBarProps {
 
 export default function BoardStatusBar(props: BoardStatusBarProps) {
   return (
-    <div className="text-center">
+    <div className="text-center bg-base-800">
       <div className="flex flex-row justify-center space-x-3">
         <h1 className="text-lg"> Board Name: </h1>
         <h1 className="text-lg text-magenta-light">

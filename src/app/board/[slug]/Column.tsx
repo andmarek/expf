@@ -11,7 +11,6 @@ interface Comment {
 
 interface ColumnProps {
   boardId: string;
-  boardName: string;
   name: string;
   currentText: string;
   comments: Comment[];
@@ -24,7 +23,6 @@ interface ColumnProps {
 
 export default function Column({
   boardId,
-  boardName,
   name,
   currentText,
   comments,
@@ -105,7 +103,7 @@ export default function Column({
   }
 
   return (
-    <Flex className="p-5 w-96" direction="column" gap="2">
+    <Flex className="p-5 lg:w-96 md:w-auto" direction="column" gap="2">
       <h1>{name}</h1>
       <TextArea
         onChange={(e) => setCurText(e.target.value)}

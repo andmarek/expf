@@ -17,8 +17,8 @@ export default function Board(props: BoardProps) {
   const [boardName, setBoardName] = useState("");
 
   const [sortStatus, setSortStatus] = useState({
-    "sortBy": "time",
-    "sortDirection": "asc"
+    sortBy: "time",
+    sortDirection: "asc",
   });
 
   const [hasJoined, setHasJoined] = useState(false);
@@ -46,7 +46,7 @@ export default function Board(props: BoardProps) {
     socket.emit("switch blur board", {
       boardBlurred,
     });
-  };
+  }
 
   function switchRequirePassword() {
     setPasswordRequired(!passwordRequired);
@@ -68,7 +68,7 @@ export default function Board(props: BoardProps) {
         }
 
         const jsonData = await response.json();
-        console.log(jsonData)
+        console.log(jsonData);
         setBoardName(jsonData.Item.BoardName);
         console.log("board columns before transformation", jsonData);
         const boardColumns = transformBoardColumns(jsonData);
@@ -151,10 +151,10 @@ export default function Board(props: BoardProps) {
   function selectSortStatus(sortBy: string) {
     if (sortBy === "Time") {
       console.log("sorting by time");
-      setSortStatus({ "sortBy": "time", "sortDirection": "asc" });
+      setSortStatus({ sortBy: "time", sortDirection: "asc" });
     } else if (sortBy === "Likes") {
       console.log("sorting by likes");
-      setSortStatus({ "sortBy": "likes", "sortDirection": "desc" });
+      setSortStatus({ sortBy: "likes", sortDirection: "desc" });
       boardState.columns.forEach((column) => {
         column.comments.sort((a, b) => {
           return b.likes - a.likes;
@@ -163,7 +163,6 @@ export default function Board(props: BoardProps) {
     }
   }
 
-  /* TODO: define columnData type */
   return (
     <div id="__next" className="flex flex-col antialiased min-h-full h-full">
       {!hasJoined ? (
@@ -174,41 +173,44 @@ export default function Board(props: BoardProps) {
           passwordRequired={passwordRequired}
         />
       ) : (
-        <>
-          <div className="flex w-full h-full">
-            <SideBar
-              switchPasswordRequired={switchRequirePassword}
-              switchBlurCardText={switchBlurBoard}
-              showSidebar={sidebarOpened}
-              setShowSidebar={setSideBarOpened}
+        <div className="grid w-full h-full">
+          <SideBar
+            switchPasswordRequired={switchRequirePassword}
+            switchBlurCardText={switchBlurBoard}
+            showSidebar={sidebarOpened}
+            setShowSidebar={setSideBarOpened}
+          />
+          <div
+            className={
+              "col-start-1 row-start-1 grow transition-transform duration-300 ease-in-out"
+            }
+          >
+            <BoardStatusBar
+              boardName={boardName}
+              userName={userName}
+              selectSortStatus={selectSortStatus}
             />
-            <div
-              className={`grow transition-transform duration-300 ease-in-out ${sidebarOpened ? "ml-64" : "ml-0"
-                }`}
-            >
-              <BoardStatusBar boardName={boardName} userName={userName} selectSortStatus={selectSortStatus} />
 
-              <div className="flex flex-row justify-center">
-                {boardState.columns.map((column) => {
-                  return (
-                    <Column
-                      key={column.columnId}
-                      boardId={boardId}
-                      name={column.columnName}
-                      dispatch={dispatch}
-                      currentText={column.currentText}
-                      comments={column.comments}
-                      columnId={column.columnId}
-                      socket={socket}
-                      cardTextBlurred={boardBlurred}
-                      sortStatus={sortStatus}
-                    />
-                  );
-                })}
-              </div>
+            <div className="flex flex-row justify-center">
+              {boardState.columns.map((column) => {
+                return (
+                  <Column
+                    key={column.columnId}
+                    boardId={boardId}
+                    name={column.columnName}
+                    dispatch={dispatch}
+                    currentText={column.currentText}
+                    comments={column.comments}
+                    columnId={column.columnId}
+                    socket={socket}
+                    cardTextBlurred={boardBlurred}
+                    sortStatus={sortStatus}
+                  />
+                );
+              })}
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
