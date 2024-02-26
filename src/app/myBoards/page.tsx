@@ -4,11 +4,14 @@ import { useUser } from "@clerk/clerk-react";
 import React, { useEffect, useState } from "react";
 import { Heading, Table, Button, Container, Link } from "@radix-ui/themes";
 
+
+
+
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
 
-  //const { user } = useUser();
-  //const userId = user?.id;
+  const { user } = useUser();
+  const userId = user?.id;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,17 +29,23 @@ export default function ControlPanel() {
         const jsonData = await response.json();
 
         const boards = jsonData.Items;
-        setBoards(boards);
+
+        console.log(boards);
+        const userIdBoards = boards.filter((board) => board.UserId == userId);
+        setBoards(userIdBoards);
       } catch (error) {
         console.error("Error initializing board page.");
       }
     };
-
-    fetchData();
-  }, []);
+    if (userId) {
+      fetchData();
+    } else {
+      return;
+    }
+  }, [userId]);
 
   async function handleDeleteBoard(boardId: string) {
-    const newBoards = boards.filter((board) => board.BoardId["S"] !== boardId);
+    const newBoards = boards.filter((board) => board.BoardId !== boardId);
     setBoards(newBoards);
     try {
       const response = await fetch("/api/board", {
@@ -46,10 +55,11 @@ export default function ControlPanel() {
         },
         body: JSON.stringify({
           boardId,
+          userId,
         }),
       });
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
       } else {
         console.error("Error deleting board.");
       }
@@ -80,25 +90,25 @@ export default function ControlPanel() {
               <Table.ColumnHeaderCell> Actions </Table.ColumnHeaderCell>
             </Table.Row>
             {boards.map((board) => (
-              <Table.Row key={board.BoardId["S"]}>
+              <Table.Row key={board.BoardId}>
                 <Table.Cell>
                   <Link
-                    href={`/board/${board.BoardId["S"]}`}
+                    href={`/board/${board.BoardId}`}
                     className="transition-all duration-300 text-lg px-4"
                   >
-                    {board.BoardName["S"]}
+                    {board.BoardName}
                   </Link>
                 </Table.Cell>
-                <Table.Cell>{board.BoardDescription["S"]}</Table.Cell>
+                <Table.Cell>{board.BoardDescription}</Table.Cell>
                 <Table.Cell>
-                  <Button key={board.BoardId["S"] + "edit"} className="mx-2">
+                  <Button key={board.BoardId + "edit"} className="mx-2">
                     {" "}
                     Edit{" "}
                   </Button>
                   <Button
-                    key={board.BoardId["S"] + "delete"}
+                    key={board.BoardId + "delete"}
                     className="mx-2"
-                    onClick={() => handleDeleteBoard(board.BoardId["S"])}
+                    onClick={() => handleDeleteBoard(board.BoardId)}
                   >
                     {" "}
                     Delete{" "}

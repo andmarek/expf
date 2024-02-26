@@ -95,14 +95,18 @@ export async function POST(request: Request) {
 
 /* Delete a board by boardId */
 export async function DELETE(request: Request) {
-  const requestData = await request.json();
+  const req = await request.json();
 
-  const boardId: string = requestData.boardId as string;
+  const boardId: string = req.boardId as string;
+  const userId: string = req.userId as string;
+
+  console.log(boardId);
 
   const command = new DeleteCommand({
     TableName: tableName,
     Key: {
       BoardId: boardId,
+      UserId: userId,
     },
   });
   const response = await docClient.send(command);
