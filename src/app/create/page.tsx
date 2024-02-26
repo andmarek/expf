@@ -1,5 +1,6 @@
 "use client";
 
+import { useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ColumnsInput from "./ColumnsInput";
@@ -14,6 +15,8 @@ export default function Create() {
     boardDescription: "",
     columnsInput: {},
   });
+
+  const { user } = useUser();
 
   const onColumnChange = (value: string, index: string) => {
     setFormData((prevFormData) => {
@@ -45,11 +48,10 @@ export default function Create() {
     setIsLoading(true);
 
     const boardId: string = generateBoardId();
-
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
-        body: JSON.stringify({ formData: formData, boardId: boardId }),
+        body: JSON.stringify({ formData: formData, boardId: boardId, userId: user.id }),
         headers: {
           "Content-Type": "application/json",
         },

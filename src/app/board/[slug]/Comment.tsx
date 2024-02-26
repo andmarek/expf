@@ -16,6 +16,7 @@ interface CommentObject {
 
 interface CommentProps {
   boardId: string;
+  userId: string;
   columnId: string;
   commentId: string;
   commentObj: CommentObject;
@@ -26,6 +27,7 @@ interface CommentProps {
 
 export default function Comment({
   boardId,
+  userId,
   columnId,
   commentId,
   commentObj,

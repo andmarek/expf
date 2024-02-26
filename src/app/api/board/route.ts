@@ -26,6 +26,7 @@ interface PutBoard {
   boardDescription: string;
   columnsInput: { [columnId: string]: ColumnInput };
   boardPassword: string;
+  userId: string;
 }
 
 /* Create a new board */
@@ -45,8 +46,11 @@ export async function PUT(request: Request) {
     }
   );
 
+  console.log(req.userId);
+
   const dynamoInput: PutBoard = {
     boardId: req.boardId as string,
+    userId: req.userId as string,
     boardName: req.formData.boardName as string,
     boardDescription: req.formData.boardDescription as string,
     columnsInput: columnsInputDict,
@@ -57,27 +61,31 @@ export async function PUT(request: Request) {
     TableName: tableName as string,
     Item: {
       BoardId: dynamoInput.boardId,
+      UserId: dynamoInput.userId,
       BoardName: dynamoInput.boardName,
       BoardDescription: dynamoInput.boardDescription,
       BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
-      Password: dynamoInput.boardPassword,
+      Password: dynamoInput.boardPassword
     },
   });
   const response = await docClient.send(command);
   return Response.json(response);
 }
 
-/* Get a board by board Id */
+/* Get a board by board Id  and user ID*/
 export async function POST(request: Request) {
   const req = await request.json();
 
   const boardId: string = req.boardId as string;
+  const userId: string = req.userId as string;
+  console.log(userId);
 
   const command = new GetCommand({
     TableName: tableName,
     Key: {
       BoardId: boardId,
+      UserId: userId,
     },
   });
   const response = await docClient.send(command);

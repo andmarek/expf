@@ -1,4 +1,3 @@
-import { Button, TextField } from "@radix-ui/themes";
 import React, { useEffect, useReducer, useState } from "react";
 import boardReducer from "./boardReducer";
 import Column from "./Column";
@@ -6,6 +5,7 @@ import { socket } from "./socket";
 import SideBar from "./SideBar";
 import BoardStatusBar from "./BoardStatusBar";
 import BoardEntryView from "./BoardEntryView";
+import { useUser } from "@clerk/clerk-react";
 
 interface BoardProps {
   boardId: string;
@@ -13,6 +13,11 @@ interface BoardProps {
 
 export default function Board(props: BoardProps) {
   const boardId = props.boardId;
+
+  const { user } = useUser();
+  const userId = user?.id;
+
+  console.log(user);
 
   const [boardName, setBoardName] = useState("");
 
@@ -55,9 +60,13 @@ export default function Board(props: BoardProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!userId)  {
+          return;
+        }
+
         const response = await fetch("/api/board", {
           method: "POST",
-          body: JSON.stringify({ boardId }),
+          body: JSON.stringify({ boardId, userId }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -68,11 +77,8 @@ export default function Board(props: BoardProps) {
         }
 
         const jsonData = await response.json();
-        console.log(jsonData);
         setBoardName(jsonData.Item.BoardName);
-        console.log("board columns before transformation", jsonData);
         const boardColumns = transformBoardColumns(jsonData);
-        console.log("boardColumns after transformation", boardColumns);
 
         dispatch({
           type: "SET_CATEGORIES",
@@ -83,7 +89,7 @@ export default function Board(props: BoardProps) {
       }
     };
     fetchData();
-  }, [boardId]);
+  }, [boardId, userId]);
 
   useEffect(() => {
     socket.connect();
@@ -197,6 +203,7 @@ export default function Board(props: BoardProps) {
                   <Column
                     key={column.columnId}
                     boardId={boardId}
+                    userId={user?.id}
                     name={column.columnName}
                     dispatch={dispatch}
                     currentText={column.currentText}

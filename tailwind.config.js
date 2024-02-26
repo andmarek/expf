@@ -25,6 +25,13 @@ module.exports = {
         purple: "#6d597a",
         blue: "#355070",
       },
+      coolersPastel: {
+        forest: "#4a5759",
+        bathtub: "#b0c4b1",
+        offGreen: "#dedbd2",
+        creme: "#f7e1d7",
+        pink: "#edafb8",
+      },
       base: {
         black: "#100F0F",
         950: "#1C1B1A",

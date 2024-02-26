@@ -10,6 +10,9 @@ export async function DELETE(request: Request) {
   const requestData = await request.json();
 
   const boardId: string = requestData.boardId;
+
+  const userId: string = requestData.userId;
+
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
 
@@ -37,6 +40,7 @@ export async function POST(request: Request) {
   const requestData = await request.json();
 
   const boardId: string = requestData.boardId;
+  const userId: string = requestData.userId;
 
   const commentText: string = requestData.commentText;
 
@@ -62,6 +66,7 @@ export async function POST(request: Request) {
     TableName: tableName,
     Key: {
       BoardId: boardId,
+      UserId: userId,
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,

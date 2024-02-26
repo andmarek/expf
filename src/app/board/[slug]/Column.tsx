@@ -2,6 +2,7 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Flex, TextArea, Button } from "@radix-ui/themes";
 import Comment from "./Comment";
+import { useUser } from "@clerk/clerk-react";
 
 interface Comment {
   id: string;
@@ -11,6 +12,7 @@ interface Comment {
 
 interface ColumnProps {
   boardId: string;
+  userId: string;
   name: string;
   currentText: string;
   comments: Comment[];
@@ -23,6 +25,7 @@ interface ColumnProps {
 
 export default function Column({
   boardId,
+  userId,
   name,
   currentText,
   comments,
@@ -32,12 +35,10 @@ export default function Column({
   cardTextBlurred,
   sortStatus,
 }: ColumnProps) {
-  console.log("comments", comments);
-
   const [curText, setCurText] = useState(currentText);
   const [sortBy, setSortBy] = useState(sortStatus.sortBy);
 
-  async function postCommentsToDatabase(
+  async function postCommentToDatabase(
     boardId: string,
     commentText: string,
     columnId: string,
@@ -51,6 +52,7 @@ export default function Column({
         },
         body: JSON.stringify({
           boardId,
+          userId,
           columnId,
           commentId,
           commentText,
@@ -81,7 +83,7 @@ export default function Column({
     emitCommentToServer(socket, commentId, curText);
     dispatchAddComment(commentId, curText);
     try {
-      await postCommentsToDatabase(boardId, curText, columnId, commentId);
+      await postCommentToDatabase(boardId, curText, columnId, commentId);
       setCurText("");
     } catch (error) {
       console.error("Failed to post comments to database. ", error);
@@ -119,6 +121,7 @@ export default function Column({
           <Comment
             key={comment.id}
             boardId={boardId}
+            userId={userId}
             columnId={columnId}
             commentObj={comment}
             dispatch={dispatch}

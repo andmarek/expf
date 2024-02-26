@@ -1,6 +1,5 @@
 "use client";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
+import { useUser } from "@clerk/clerk-react";
 
 import React, { useEffect, useState } from "react";
 import { Heading, Table, Button, Container, Link } from "@radix-ui/themes";
@@ -8,7 +7,12 @@ import { Heading, Table, Button, Container, Link } from "@radix-ui/themes";
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
 
+  const { user } = useUser();
+  const userId = user?.id;
+
   useEffect(() => {
+    if (!userId) return;
+
     const fetchData = async () => {
       try {
         const response = await fetch("/api/boards", {
@@ -30,7 +34,7 @@ export default function ControlPanel() {
       }
     };
     fetchData();
-  }, []);
+  }, [userId]);
 
   async function handleDeleteBoard(boardId: string) {
     const newBoards = boards.filter((board) => board.BoardId["S"] !== boardId);
