@@ -12,7 +12,7 @@ function NavLink(props: {linkText: string, href: string}) {
 
 export default function NavBar() {
   return (
-    <nav className="flex justify-between items-center border-b border-base-300">
+    <nav className="px-5 flex justify-between items-center border-b border-base-300 border-opacity-30">
       <div className="m-6">
         <NavLink linkText="Retro Rover" href="/"/>
       </div>
