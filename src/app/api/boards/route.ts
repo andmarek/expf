@@ -17,7 +17,9 @@ export async function GET(req: Request) {
     TableName: tableName as string,
   });
 
+  console.log("what2");
   const response = await docClient.send(command);
+  console.log("what");
 
   return Response.json(response);
 }

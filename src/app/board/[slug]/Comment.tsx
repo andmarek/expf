@@ -44,8 +44,11 @@ export default function Comment({
 
   const blurPlaceholder = "***";
 
-
-  async function removeCommentLikedInDatabase(columnId: string, commentId: string, boardId: string) {
+  async function removeCommentLikedInDatabase(
+    columnId: string,
+    commentId: string,
+    boardId: string
+  ) {
     console.log(columnId, commentId);
     const response = await fetch(`/api/board/comments/${commentId}`, {
       method: "DELETE",
@@ -54,7 +57,7 @@ export default function Comment({
       },
       body: JSON.stringify({
         boardId,
-        columnId
+        columnId,
       }),
     });
     const data = await response.json();
@@ -64,7 +67,8 @@ export default function Comment({
   async function updateCommentLikesInDatabase(
     columnId: string,
     commentId: string,
-    boardId: string
+    boardId: string,
+    userId: string
   ) {
     console.log("Deleting from database");
     console.log("columnId " + columnId + "commentId " + commentId);
@@ -76,7 +80,8 @@ export default function Comment({
       },
       body: JSON.stringify({
         boardId,
-        columnId
+        userId,
+        columnId,
       }),
     });
     const data = await response.json();
@@ -142,14 +147,18 @@ export default function Comment({
     }
   }
   function handleLike() {
-    dispatch({ type: "INCREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
+    dispatch({
+      type: "INCREMENT_LIKES_ON_COMMENT",
+      payload: { columnId, commentId },
+    });
 
-    updateCommentLikesInDatabase(
-      columnId, commentId, boardId
-    );
+    updateCommentLikesInDatabase(columnId, commentId, boardId, userId);
   }
   function handleUnlike() {
-    dispatch({ type: "DECREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
+    dispatch({
+      type: "DECREMENT_LIKES_ON_COMMENT",
+      payload: { columnId, commentId },
+    });
     removeCommentLikedInDatabase(columnId, commentId, boardId);
   }
 
@@ -195,12 +204,18 @@ export default function Comment({
         {commentLiked ? (
           <CommentButtonIcon
             icon={<HeartFilledIcon />}
-            onClick={() => { setCommentLiked(!commentLiked); handleUnlike(); }}
+            onClick={() => {
+              setCommentLiked(!commentLiked);
+              handleUnlike();
+            }}
           />
         ) : (
           <CommentButtonIcon
             icon={<HeartIcon />}
-            onClick={() => { setCommentLiked(!commentLiked); handleLike(); }}
+            onClick={() => {
+              setCommentLiked(!commentLiked);
+              handleLike();
+            }}
           />
         )}
         <p className="text-radix-mintDefault"> {commentObj.likes} </p>
