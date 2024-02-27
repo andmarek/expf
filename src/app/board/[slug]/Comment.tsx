@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Flex, Text } from "@radix-ui/themes";
+import { Flex, Text, Dialog, Button, TextArea } from "@radix-ui/themes";
 import {
   Pencil1Icon,
   TrashIcon,
@@ -213,14 +213,14 @@ export default function Comment({
             }}
           />
         ) : (
-          <CommentButtonIcon
-            icon={<HeartIcon />}
-            onClick={() => {
-              setCommentLiked(!commentLiked);
-              handleLike();
-            }}
-          />
-        )}
+            <CommentButtonIcon
+              icon={<HeartIcon />}
+              onClick={() => {
+                setCommentLiked(!commentLiked);
+                handleLike();
+              }}
+            />
+          )}
         <p className="text-radix-mintDefault"> {commentObj.likes} </p>
         {isContentEditable ? (
           <CommentButtonIcon
@@ -232,10 +232,38 @@ export default function Comment({
             }}
           />
         ) : null}
-        <CommentButtonIcon
-          icon={<Pencil1Icon />}
-          onClick={() => openEditCommentModal()}
-        />
+
+        <Dialog.Root>
+          <Dialog.Trigger>
+            <CommentButtonIcon
+              icon={<Pencil1Icon />}
+              onClick={() => openEditCommentModal()}
+            />
+          </Dialog.Trigger>
+          <Dialog.Content style={{ maxWidth: 450 }}>
+            <Dialog.Title> Edit Comment </ Dialog.Title>
+            <Flex direction="column" gap="3">
+              <label>
+                <TextArea defaultValue={currentText} />
+              </label>
+            </Flex>
+
+            <Flex gap="3" mt="4" justify="end">
+              <Dialog.Close>
+                <Button variant="soft" color="mint">
+                  Cancel
+                </Button>
+              </Dialog.Close>
+              <Dialog.Close>
+                <Button color="plum">Save</Button>
+              </Dialog.Close>
+            </Flex>
+
+
+          </Dialog.Content>
+
+        </ Dialog.Root>
+
         <CommentButtonIcon
           icon={<TrashIcon />}
           onClick={() => deleteComment(commentId)}
