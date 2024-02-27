@@ -71,14 +71,15 @@ export default function Create() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center space-y-3 section-create">
       <form className="flex flex-col w-96" onSubmit={submitForm}>
         <Heading size="6" className="self-center py-4">
           {" "}
-          Enter a title for your retrospective{" "}
+          Create a New Board {" "}
         </Heading>
         <div className="flex flex-col">
-          <Flex direction="column" gap="3">
+          <Flex direction="column" gap="3" className="bg-base-950 rounded-md p-3">
+            <Heading> Board Title </Heading>
             <TextField.Input
               name="boardName"
               className="m-2"
@@ -88,6 +89,7 @@ export default function Create() {
                 handleBoardAttributeChange({ boardName: e.target.value })
               }
             ></TextField.Input>
+            <Heading> Board Details </Heading>
             <TextField.Input
               name="boardDescription"
               className="m-2"

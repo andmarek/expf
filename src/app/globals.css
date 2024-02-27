@@ -20,3 +20,16 @@ body,
   -webkit-mask-image: radial-gradient(rgba(0, 0, 0, 0.45), transparent 70%);
   mask-image: radial-gradient(rgba(0, 0, 0, 0.45), transparent 70%);
 }
+
+.section-create::before {
+  @apply absolute;
+  z-index: -1;
+  content: "";
+  top: 0%;
+  bottom: 10%;
+  width: 100%;
+  left: 0%;
+  background: linear-gradient(83.21deg, #3245ff 0%, #52ee96 100%);
+  -webkit-mask-image: radial-gradient(rgba(0, 0, 0, 0.45), transparent 70%);
+  mask-image: radial-gradient(rgba(0, 0, 0, 0.45), transparent 70%);
+}

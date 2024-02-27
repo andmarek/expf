@@ -184,6 +184,9 @@ export default function Comment({
     }
   }
   */
+  function openEditCommentModal() {
+  }
+
 
   return (
     <Flex
@@ -231,7 +234,7 @@ export default function Comment({
         ) : null}
         <CommentButtonIcon
           icon={<Pencil1Icon />}
-          onClick={() => setIsContentEditable(!isContentEditable)}
+          onClick={() => openEditCommentModal()}
         />
         <CommentButtonIcon
           icon={<TrashIcon />}

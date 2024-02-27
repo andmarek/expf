@@ -30,10 +30,10 @@ export default function ColumnsInput({ handleColumnChange }) {
   };
 
   return (
-    <div className="flex flex-col w-96 py-4">
+    <div className="flex flex-col w-96 py-4 bg-base-950 rounded-md p-3">
       <Flex direction="column" gap="3">
-        <Heading size="6" className="self-center">
-          Choose your columns
+        <Heading size="6">
+          Board Columns
         </Heading>
         <Button variant="soft" size="3" onClick={addComponent}>
           {" "}
