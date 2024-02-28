@@ -4,7 +4,14 @@ import { useUser } from "@clerk/clerk-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ColumnsInput from "./ColumnsInput";
-import { Heading, Button, Flex, TextField } from "@radix-ui/themes";
+import {
+  Text,
+  Checkbox,
+  Heading,
+  Button,
+  Flex,
+  TextField,
+} from "@radix-ui/themes";
 import { v4 } from "uuid";
 
 export default function Create() {
@@ -107,15 +114,11 @@ export default function Create() {
                 handleBoardAttributeChange({ boardDescription: e.target.value })
               }
             ></TextField.Input>
-            <TextField.Input
-              name="boardPassword"
-              className="m-2"
-              type="text"
-              placeholder="Enter a Password"
-              onChange={(e) =>
-                handleBoardAttributeChange({ boardPassword: e.target.value })
-              }
-            ></TextField.Input>
+            <Text as="label" size="2">
+              <Flex gap="2">
+                <Checkbox  color="ruby" variant="classic" defaultChecked /> Secure Board with Password
+              </Flex>
+            </Text>
             <Button size="3" variant="soft">
               {isLoading ? "Loading..." : "Create"}
             </Button>
