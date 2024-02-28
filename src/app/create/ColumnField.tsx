@@ -2,12 +2,11 @@ import { Flex, Box, Button, TextField, Heading } from "@radix-ui/themes";
 import { Cross1Icon } from "@radix-ui/react-icons";
 
 interface ColumnFieldProps {
-  id: string;
   index: number;
-  handleTextChange: (id: string, value: string) => void;
-  handleRemove: (id: string) => void;
+  handleTextChange: (id: string, value: number) => void;
+  handleRemove: (id: number) => void;
 }
-export default function ColumnField({ id, index, handleTextChange, handleRemove }: ColumnFieldProps) {
+export default function ColumnField({index, handleTextChange, handleRemove }: ColumnFieldProps) {
   return (
     <Flex gap="3" align="center">
       <h1> {index} </h1>
@@ -20,7 +19,7 @@ export default function ColumnField({ id, index, handleTextChange, handleRemove 
           size="3"
         ></TextField.Input>
       </Box>
-      <Cross1Icon onClick={() => handleRemove(id)} />
+      <Cross1Icon onClick={() => handleRemove(index)} />
     </Flex>
   );
 }

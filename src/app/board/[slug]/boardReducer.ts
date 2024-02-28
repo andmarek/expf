@@ -52,7 +52,7 @@ export default function boardReducer(state, action) {
                 // Found the correct comment, now increment its likes
                 const newComment = {
                   ...comment,
-                  likes: comment.likes + 1, // Assuming 'likes' is a numeric field
+                  comment_likes: comment.comment_likes + 1, // Assuming 'likes' is a numeric field
                 };
                 console.log(newComment);
                 return newComment;
@@ -85,7 +85,7 @@ export default function boardReducer(state, action) {
                 // Found the correct comment, now increment its likes
                 const newComment = {
                   ...comment,
-                  likes: comment.likes - 1, // Assuming 'likes' is a numeric field
+                  comment_likes: comment.comment_likes - 1, // Assuming 'likes' is a numeric field
                 };
                 console.log(newComment);
                 return newComment;

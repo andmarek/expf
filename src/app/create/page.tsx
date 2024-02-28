@@ -14,10 +14,40 @@ import {
 } from "@radix-ui/themes";
 import { v4 } from "uuid";
 
+/*
+ * Columns need to work like this:
+ * {
+ *  Board:
+ *    BoardName:
+ *    BoardDescription:
+ *    UseTemplate?
+ *      yes --> TemplateName
+ *      no --> Columns 
+ * }
+ *
+ *
+ * {
+ *  "boards": {
+ *    description: ""
+ *    template: ""
+ *    useTemplate: bool
+ *    Columns
+ *
+ *    
+ *  }
+ * }
+ *
+ *
+ *
+ */
 export default function Create() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    boardName: string,
+    boardDescription: string,
+    columnsInput: { [key: number]: { columnName: string } },
+  }>({
     boardName: "",
     boardDescription: "",
     columnsInput: {},
@@ -25,18 +55,32 @@ export default function Create() {
 
   const { user } = useUser();
 
-  const onColumnChange = (value: string, index: string) => {
-    setFormData((prevFormData) => {
-      const updatedColumnsInput = { ...prevFormData.columnsInput };
-      updatedColumnsInput[index] = {
-        columnName: value,
-      };
-      return {
-        ...prevFormData,
-        columnsInput: updatedColumnsInput,
-      };
-    });
+  function onColumnTextChange(value: string, index: number) {
+    setFormData(prevFormData => ({
+      ...prevFormData,
+      columnsInput: {
+        ...prevFormData.columnsInput,
+        [index]: { columnName: value },
+      },
+    }));
   };
+
+  function removeColumnById(columnId: number){
+    console.log("ColumnId to remove", columnId);
+    const updatedObject = {
+      ...formData,
+      columnsInput: {
+        ...formData.columnsInput
+      }
+    };
+    if (updatedObject.columnsInput[columnId]) {
+      delete updatedObject.columnsInput[columnId];
+    }
+
+    setFormData(updatedObject);
+    console.log(formData);
+  };
+
 
   function handleBoardAttributeChange(inputValue) {
     setFormData((prevFormData) => ({
@@ -53,6 +97,8 @@ export default function Create() {
     e.preventDefault();
 
     setIsLoading(true);
+
+    console.log(formData);
 
     const boardId: string = generateBoardId();
     try {
@@ -125,7 +171,7 @@ export default function Create() {
           </Flex>
         </div>
       </form>
-      <ColumnsInput handleColumnChange={onColumnChange} />
+      <ColumnsInput handleRemoveColumn={removeColumnById} handleColumnTextChange={onColumnTextChange} />
     </div>
   );
 }

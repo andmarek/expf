@@ -40,8 +40,6 @@ export default function Comment({
 
   const [currentEditedText, setCurrentEditedText] = useState("");
 
-  const [isContentEditable, setIsContentEditable] = useState(false);
-  const inputRef = useRef<HTMLParagraphElement>(null);
   const [commentLiked, setCommentLiked] = useState(false);
 
   const blurPlaceholder = "***";
@@ -113,28 +111,6 @@ export default function Comment({
     console.log(data);
   }
 
-  /*
-  TODO: not supporting this right now
-  const saveEditedComment = async (commentId: string, commentText: string) => {
-    //const previousComments = { ...curComments };
-
-    //const commentsCopy = { ...curComments };
-    //commentsCopy[commentId] = commentText;
-    //setCurComments(commentsCopy);
-
-    try {
-      await postCommentsToDatabase(
-        commentText,
-        columnId,
-        commentId
-      );
-    } catch (error) {
-      setCurComments(previousComments);
-      console.error("Failed to post comments to database. ", error);
-    }
-  };
-  */
-
   async function deleteComment(commentId: string) {
     dispatch({
       type: "DELETE_COMMENT_FROM_COLUMN",
@@ -151,13 +127,15 @@ export default function Comment({
     }
   }
   function handleLike() {
+    console.log("handling like");
+
     dispatch({
       type: "INCREMENT_LIKES_ON_COMMENT",
       payload: { columnId, commentId },
     });
-
     updateCommentLikesInDatabase(columnId, commentId, boardId, userId);
   }
+
   function handleUnlike() {
     dispatch({
       type: "DECREMENT_LIKES_ON_COMMENT",
@@ -165,13 +143,6 @@ export default function Comment({
     });
     removeCommentLikedInDatabase(columnId, commentId, boardId);
   }
-
-  useEffect(() => {
-    if (isContentEditable) {
-      inputRef.current.focus();
-    }
-  }, [isContentEditable]);
-
 
   function openEditCommentModal() {}
 
@@ -196,15 +167,13 @@ export default function Comment({
     });
     const data = await response.json();
     if (response.ok) {
-      dispatch(
-        {
-          type: "UPDATE_COMMENT_TEXT",
-          payload: {
-            columnId,
-            newText: editedCommentText
-          }
-        }
-      )
+      dispatch({
+        type: "UPDATE_COMMENT_TEXT",
+        payload: {
+          columnId,
+          newText: editedCommentText,
+        },
+      });
       setCurrentText(currentEditedText);
     }
   }
@@ -215,12 +184,7 @@ export default function Comment({
       gap="4"
       className="bg-magenta-light p-1 rounded-md drop-shadow-md"
     >
-      <Text
-        className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`}
-        contentEditable={isContentEditable}
-        ref={inputRef}
-        as="p"
-      >
+      <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} as="p">
         {" "}
         {cardTextBlurred ? blurPlaceholder : currentText}{" "}
       </Text>
@@ -243,17 +207,6 @@ export default function Comment({
           />
         )}
         <p className="text-radix-mintDefault"> {commentObj.comment_likes} </p>
-        {isContentEditable ? (
-          <CommentButtonIcon
-            icon={<CheckIcon />}
-            onClick={() => {
-              const editedText = inputRef.current.textContent;
-              // handleEditComment(commentId, editedText);
-              setIsContentEditable(!isContentEditable);
-            }}
-          />
-        ) : null}
-
         <Dialog.Root>
           <Dialog.Trigger>
             <CommentButtonIcon
