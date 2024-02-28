@@ -69,9 +69,9 @@ export default function Column({
       payload: {
         columnId: columnId,
         comment: {
-          id: commentId, // TODO change to commentId
-          text: text,
-          likes: 0
+          id: commentId, // TODO change obj attr to commentId
+          comment_text: text,
+          comment_likes: 0
         },
       },
     });

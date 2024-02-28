@@ -146,8 +146,8 @@ export default function Board(props: BoardProps) {
         comments: Object.entries(columnData.comments || {}).map(
           ([commentId, commentObj]) => ({
             id: commentId,
-            text: commentObj.text,
-            likes: commentObj.likes,
+            comment_text: commentObj.comment_text,
+            comment_likes: commentObj.comment_likes,
           })
         ),
       })
@@ -163,7 +163,7 @@ export default function Board(props: BoardProps) {
       setSortStatus({ sortBy: "likes", sortDirection: "desc" });
       boardState.columns.forEach((column) => {
         column.comments.sort((a, b) => {
-          return b.likes - a.likes;
+          return b.comment_likes - a.comment_likes;
         });
       });
     }

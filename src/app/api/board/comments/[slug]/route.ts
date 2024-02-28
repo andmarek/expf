@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   const commentId = getCommentIdFromPath(request.nextUrl.pathname);
 
-  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.likes = BoardColumns.#column_id.comments.#comment_id.likes + :val";
+  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.comment_likes = BoardColumns.#column_id.comments.#comment_id.comment_likes + :val";
 
   const expressionAttributeNames = {
     "#column_id": columnId,
@@ -56,7 +56,7 @@ export async function DELETE(request: NextRequest) {
 
   console.log(boardId, columnId, commentId);
 
-  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.likes = BoardColumns.#column_id.comments.#comment_id.likes - :val";
+  const updateExpression = "SET BoardColumns.#column_id.comments.#comment_id.comment_likes = BoardColumns.#column_id.comments.#comment_id.comment_likes - :val";
 
   const expressionAttributeNames = {
     "#column_id": columnId,
@@ -78,3 +78,4 @@ export async function DELETE(request: NextRequest) {
   const dynamoResponse = await docClient.send(updateCommentCommand);
   return Response.json(dynamoResponse);
 }
+

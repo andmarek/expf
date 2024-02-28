@@ -27,6 +27,7 @@ export async function DELETE(request: Request) {
     TableName: tableName,
     Key: {
       BoardId: boardId,
+      UserId: userId,
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,
@@ -45,8 +46,8 @@ export async function POST(request: Request) {
   const commentText: string = requestData.commentText;
 
   const commentObj = {
-    "text": commentText,
-    "likes": 0
+    "comment_text": commentText,
+    "comment_likes": 0
   }
 
   const commentId: string = requestData.commentId;

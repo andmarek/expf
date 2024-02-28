@@ -51,7 +51,11 @@ export default function Create() {
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
-        body: JSON.stringify({ formData: formData, boardId: boardId, userId: user.id }),
+        body: JSON.stringify({
+          formData: formData,
+          boardId: boardId,
+          userId: user.id,
+        }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -75,10 +79,14 @@ export default function Create() {
       <form className="flex flex-col w-96" onSubmit={submitForm}>
         <Heading size="6" className="self-center py-4">
           {" "}
-          Create a New Board {" "}
+          Create a New Board{" "}
         </Heading>
         <div className="flex flex-col">
-          <Flex direction="column" gap="3" className="bg-base-950 rounded-md p-3">
+          <Flex
+            direction="column"
+            gap="3"
+            className="bg-base-950 rounded-md p-3"
+          >
             <Heading> Board Title </Heading>
             <TextField.Input
               name="boardName"
@@ -114,9 +122,7 @@ export default function Create() {
           </Flex>
         </div>
       </form>
-      <ColumnsInput
-        handleColumnChange={onColumnChange}
-      />
+      <ColumnsInput handleColumnChange={onColumnChange} />
     </div>
   );
 }

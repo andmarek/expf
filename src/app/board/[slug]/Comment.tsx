@@ -10,8 +10,8 @@ import {
 import CommentButtonIcon from "./CommentButtonIcon";
 
 interface CommentObject {
-  text: string;
-  likes: number;
+  comment_text: string;
+  comment_likes: number;
 }
 
 interface CommentProps {
@@ -36,7 +36,9 @@ export default function Comment({
   cardTextBlurred,
 }: CommentProps) {
   /* TODO: use comment text from reducer */
-  const [currentText, setCurrentText] = useState(commentObj.text);
+  const [currentText, setCurrentText] = useState(commentObj.comment_text);
+
+  const [currentEditedText, setCurrentEditedText] = useState("");
 
   const [isContentEditable, setIsContentEditable] = useState(false);
   const inputRef = useRef<HTMLParagraphElement>(null);
@@ -90,7 +92,8 @@ export default function Comment({
 
   async function deleteCommentFromDatabase(
     columnId: string,
-    commentId: string
+    commentId: string,
+    userId: string
   ) {
     console.log("Deleting from database");
     console.log(columnId, commentId);
@@ -101,6 +104,7 @@ export default function Comment({
       },
       body: JSON.stringify({
         boardId,
+        userId,
         columnId,
         commentId,
       }),
@@ -141,7 +145,7 @@ export default function Comment({
         columnId,
         commentId,
       });
-      await deleteCommentFromDatabase(columnId, commentId);
+      await deleteCommentFromDatabase(columnId, commentId, userId);
     } catch (error) {
       console.error("Failed to delete comment from database. ", error);
     }
@@ -168,25 +172,42 @@ export default function Comment({
     }
   }, [isContentEditable]);
 
-  /*
-  function likeComment(commentId: string, columnId: string, boardId: string) {
-    const commentLiked = changeCommentLiked();
-    console.log("yo");
-    console.log(commentLiked);
-    if (commentLiked) {
-      dispatch({ type: "INCREMENT_LIKES_ON_COMMENT", payload: { columnId, commentId } });
 
-      updateCommentLikesInDatabase(
-        columnId, commentId, boardId
-      );
-    } else {
-      removeCommentLikedInDatabase(commentId, columnId);
+  function openEditCommentModal() {}
+
+  async function handleEditCommentDialog(
+    editedCommentText: string,
+    boardId: string,
+    columnId: string,
+    commentId: string,
+    userId: string
+  ) {
+    const response = await fetch(`/api/board/comments/edit/${commentId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        boardId,
+        columnId,
+        userId,
+        editedCommentText,
+      }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      dispatch(
+        {
+          type: "UPDATE_COMMENT_TEXT",
+          payload: {
+            columnId,
+            newText: editedCommentText
+          }
+        }
+      )
+      setCurrentText(currentEditedText);
     }
   }
-  */
-  function openEditCommentModal() {
-  }
-
 
   return (
     <Flex
@@ -213,15 +234,15 @@ export default function Comment({
             }}
           />
         ) : (
-            <CommentButtonIcon
-              icon={<HeartIcon />}
-              onClick={() => {
-                setCommentLiked(!commentLiked);
-                handleLike();
-              }}
-            />
-          )}
-        <p className="text-radix-mintDefault"> {commentObj.likes} </p>
+          <CommentButtonIcon
+            icon={<HeartIcon />}
+            onClick={() => {
+              setCommentLiked(!commentLiked);
+              handleLike();
+            }}
+          />
+        )}
+        <p className="text-radix-mintDefault"> {commentObj.comment_likes} </p>
         {isContentEditable ? (
           <CommentButtonIcon
             icon={<CheckIcon />}
@@ -241,10 +262,13 @@ export default function Comment({
             />
           </Dialog.Trigger>
           <Dialog.Content style={{ maxWidth: 450 }}>
-            <Dialog.Title> Edit Comment </ Dialog.Title>
+            <Dialog.Title> Edit Comment </Dialog.Title>
             <Flex direction="column" gap="3">
               <label>
-                <TextArea defaultValue={currentText} />
+                <TextArea
+                  onChange={(e) => setCurrentEditedText(e.target.value)}
+                  defaultValue={currentText}
+                />
               </label>
             </Flex>
 
@@ -255,14 +279,24 @@ export default function Comment({
                 </Button>
               </Dialog.Close>
               <Dialog.Close>
-                <Button color="plum">Save</Button>
+                <Button
+                  onClick={() =>
+                    handleEditCommentDialog(
+                      currentEditedText,
+                      boardId,
+                      columnId,
+                      commentId,
+                      userId
+                    )
+                  }
+                  color="plum"
+                >
+                  Save
+                </Button>
               </Dialog.Close>
             </Flex>
-
-
           </Dialog.Content>
-
-        </ Dialog.Root>
+        </Dialog.Root>
 
         <CommentButtonIcon
           icon={<TrashIcon />}
