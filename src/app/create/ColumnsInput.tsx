@@ -33,6 +33,8 @@ export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChang
       index: numberColumns + 1,
     };
     setCurrentColumns((currentColumns) => [...currentColumns, newColumn]);
+
+    console.log(currentColumns);
   };
 
   function handleRadioChange(value: string) {

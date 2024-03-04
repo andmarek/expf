@@ -43,24 +43,21 @@ export default function boardReducer(state, action) {
         ...state,
         columns: state.columns.map((column) => {
           if (column.columnId === action.payload.columnId) {
-            // Found the correct column, now update the comments array within it
             const updatedComments = column.comments.map((comment) => {
               console.log("comment", comment);
               console.log("hey", action.payload.commentId);
               if (comment.id === action.payload.commentId) {
                 console.log("found a comment with the comment Id");
-                // Found the correct comment, now increment its likes
                 const newComment = {
                   ...comment,
-                  comment_likes: comment.comment_likes + 1, // Assuming 'likes' is a numeric field
+                  comment_likes: comment.comment_likes + 1,
                 };
                 console.log(newComment);
                 return newComment;
               }
-              return comment; // Return the comment unchanged if it's not the one we're looking for
+              return comment;
             });
 
-            // Return the updated column with the updatedComments array
             const updatedColumn = {
               ...column,
               comments: updatedComments,
@@ -68,7 +65,7 @@ export default function boardReducer(state, action) {
             console.log("update col", updatedColumn);
             return updatedColumn;
           }
-          return column; // Return the column unchanged if it's not the one we're looking for
+          return column;
         })
       };
     case "DECREMENT_LIKES_ON_COMMENT":
@@ -76,24 +73,21 @@ export default function boardReducer(state, action) {
         ...state,
         columns: state.columns.map((column) => {
           if (column.columnId === action.payload.columnId) {
-            // Found the correct column, now update the comments array within it
             const updatedComments = column.comments.map((comment) => {
               console.log("comment", comment);
               console.log("hey", action.payload.commentId);
               if (comment.id === action.payload.commentId) {
                 console.log("found a comment with the comment Id");
-                // Found the correct comment, now increment its likes
                 const newComment = {
                   ...comment,
-                  comment_likes: comment.comment_likes - 1, // Assuming 'likes' is a numeric field
+                  comment_likes: comment.comment_likes - 1,
                 };
                 console.log(newComment);
                 return newComment;
               }
-              return comment; // Return the comment unchanged if it's not the one we're looking for
+              return comment;
             });
 
-            // Return the updated column with the updatedComments array
             const updatedColumn = {
               ...column,
               comments: updatedComments,
@@ -101,7 +95,7 @@ export default function boardReducer(state, action) {
             console.log("update col", updatedColumn);
             return updatedColumn;
           }
-          return column; // Return the column unchanged if it's not the one we're looking for
+          return column;
         })
       };
 

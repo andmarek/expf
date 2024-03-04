@@ -70,7 +70,6 @@ export default function Comment({
     boardId: string,
     userId: string
   ) {
-    console.log("Deleting from database");
     console.log("columnId " + columnId + "commentId " + commentId);
 
     const response = await fetch(`/api/board/comments/${commentId}`, {
