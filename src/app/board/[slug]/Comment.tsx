@@ -8,6 +8,7 @@ import {
   HeartIcon,
 } from "@radix-ui/react-icons";
 import CommentButtonIcon from "./CommentButtonIcon";
+import { useDraggable } from "@dnd-kit/core";
 
 interface CommentObject {
   comment_text: string;
@@ -35,6 +36,16 @@ export default function Comment({
   socket,
   cardTextBlurred,
 }: CommentProps) {
+
+
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: `${columnId}_${commentId}`,
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
+
   /* TODO: use comment text from reducer */
   const [currentText, setCurrentText] = useState(commentObj.comment_text);
 
@@ -178,83 +189,85 @@ export default function Comment({
   }
 
   return (
-    <Flex
-      direction="column"
-      gap="4"
-      className="bg-magenta-light p-1 rounded-md drop-shadow-md"
-    >
-      <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} as="p">
-        {" "}
-        {cardTextBlurred ? blurPlaceholder : currentText}{" "}
-      </Text>
-      <Flex gap="3" justify="end">
-        {commentLiked ? (
-          <CommentButtonIcon
-            icon={<HeartFilledIcon />}
-            onClick={() => {
-              setCommentLiked(!commentLiked);
-              handleUnlike();
-            }}
-          />
-        ) : (
-          <CommentButtonIcon
-            icon={<HeartIcon />}
-            onClick={() => {
-              setCommentLiked(!commentLiked);
-              handleLike();
-            }}
-          />
-        )}
-        <p className="text-radix-mintDefault"> {commentObj.comment_likes} </p>
-        <Dialog.Root>
-          <Dialog.Trigger>
+    <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
+      <Flex
+        direction="column"
+        gap="4"
+        className="bg-magenta-light p-1 rounded-md drop-shadow-md"
+      >
+        <Text className={`${cardTextBlurred ? "blur-sm" : "blur-none"}`} as="p">
+          {" "}
+          {cardTextBlurred ? blurPlaceholder : currentText}{" "}
+        </Text>
+        <Flex gap="3" justify="end">
+          {commentLiked ? (
             <CommentButtonIcon
-              icon={<Pencil1Icon />}
-              onClick={() => openEditCommentModal()}
+              icon={<HeartFilledIcon />}
+              onClick={() => {
+                setCommentLiked(!commentLiked);
+                handleUnlike();
+              }}
             />
-          </Dialog.Trigger>
-          <Dialog.Content style={{ maxWidth: 450 }}>
-            <Dialog.Title> Edit Comment </Dialog.Title>
-            <Flex direction="column" gap="3">
-              <label>
-                <TextArea
-                  onChange={(e) => setCurrentEditedText(e.target.value)}
-                  defaultValue={currentText}
-                />
-              </label>
-            </Flex>
+          ) : (
+              <CommentButtonIcon
+                icon={<HeartIcon />}
+                onClick={() => {
+                  setCommentLiked(!commentLiked);
+                  handleLike();
+                }}
+              />
+            )}
+          <p className="text-radix-mintDefault"> {commentObj.comment_likes} </p>
+          <Dialog.Root>
+            <Dialog.Trigger>
+              <CommentButtonIcon
+                icon={<Pencil1Icon />}
+                onClick={() => openEditCommentModal()}
+              />
+            </Dialog.Trigger>
+            <Dialog.Content style={{ maxWidth: 450 }}>
+              <Dialog.Title> Edit Comment </Dialog.Title>
+              <Flex direction="column" gap="3">
+                <label>
+                  <TextArea
+                    onChange={(e) => setCurrentEditedText(e.target.value)}
+                    defaultValue={currentText}
+                  />
+                </label>
+              </Flex>
 
-            <Flex gap="3" mt="4" justify="end">
-              <Dialog.Close>
-                <Button variant="soft" color="mint">
-                  Cancel
-                </Button>
-              </Dialog.Close>
-              <Dialog.Close>
-                <Button
-                  onClick={() =>
-                    handleEditCommentDialog(
-                      currentEditedText,
-                      boardId,
-                      columnId,
-                      commentId,
-                      userId
-                    )
-                  }
-                  color="plum"
-                >
-                  Save
-                </Button>
-              </Dialog.Close>
-            </Flex>
-          </Dialog.Content>
-        </Dialog.Root>
+              <Flex gap="3" mt="4" justify="end">
+                <Dialog.Close>
+                  <Button variant="soft" color="mint">
+                    Cancel
+                  </Button>
+                </Dialog.Close>
+                <Dialog.Close>
+                  <Button
+                    onClick={() =>
+                      handleEditCommentDialog(
+                        currentEditedText,
+                        boardId,
+                        columnId,
+                        commentId,
+                        userId
+                      )
+                    }
+                    color="plum"
+                  >
+                    Save
+                  </Button>
+                </Dialog.Close>
+              </Flex>
+            </Dialog.Content>
+          </Dialog.Root>
 
-        <CommentButtonIcon
-          icon={<TrashIcon />}
-          onClick={() => deleteComment(commentId)}
-        />
+          <CommentButtonIcon
+            icon={<TrashIcon />}
+            onClick={() => deleteComment(commentId)}
+          />
+        </Flex>
       </Flex>
-    </Flex>
+    </div>
   );
 }

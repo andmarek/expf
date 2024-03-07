@@ -61,12 +61,12 @@ export default function boardReducer(state, action) {
             const updatedColumn = {
               ...column,
               comments: updatedComments,
-            }
+            };
             console.log("update col", updatedColumn);
             return updatedColumn;
           }
           return column;
-        })
+        }),
       };
     case "DECREMENT_LIKES_ON_COMMENT":
       return {
@@ -91,14 +91,49 @@ export default function boardReducer(state, action) {
             const updatedColumn = {
               ...column,
               comments: updatedComments,
-            }
+            };
             console.log("update col", updatedColumn);
             return updatedColumn;
           }
           return column;
-        })
+        }),
       };
-
+      case "MOVE_COMMENT": {
+        const { sourceColumnId, destinationColumnId, sourceCommentId } = action.payload;
+        console.log(sourceColumnId, destinationColumnId, sourceCommentId);
+        let commentToMove = null;
+      
+        // Clone the columns array to avoid mutating the state directly
+        const newColumns = state.columns.map(column => {
+          // Find and remove the comment from the source column
+          if (column.columnId === sourceColumnId) {
+            const commentIndex = column.comments.findIndex(comment => comment.id === sourceCommentId);
+            if (commentIndex > -1) {
+              // Extract the comment to move
+              commentToMove = { ...column.comments[commentIndex] };
+              return { ...column, comments: [...column.comments.slice(0, commentIndex), ...column.comments.slice(commentIndex + 1)] };
+            }
+          }
+          return column;
+        });
+      
+        // If we have a comment to move and we've identified the destination column
+        if (commentToMove) {
+          console.log("should be moving it or some shit");
+          const newColumnsWithMovedComment = newColumns.map(column => {
+            if (column.columnId === destinationColumnId) {
+              // Add the comment to the destination column
+              return { ...column, comments: [...column.comments, commentToMove] };
+            }
+            return column;
+          });
+      
+          return { ...state, columns: newColumnsWithMovedComment };
+        }
+      
+        // Return the state unchanged if the comment wasn't found or if there's no need to move
+        return state;
+      };
     default:
       return state;
   }

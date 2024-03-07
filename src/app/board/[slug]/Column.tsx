@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Flex, TextArea, Button } from "@radix-ui/themes";
 import Comment from "./Comment";
 import { useUser } from "@clerk/clerk-react";
+import { useDroppable } from "@dnd-kit/core";
 
 interface Comment {
   id: string;
@@ -37,6 +38,10 @@ export default function Column({
 }: ColumnProps) {
   const [curText, setCurText] = useState(currentText);
   const [sortBy, setSortBy] = useState(sortStatus.sortBy);
+
+  const { isOver, setNodeRef } = useDroppable({
+    id: columnId,
+  })
 
   async function postCommentToDatabase(
     boardId: string,
@@ -105,32 +110,34 @@ export default function Column({
   }
 
   return (
-    <Flex className="p-5 lg:w-96 md:w-auto" direction="column" gap="2">
-      <h1>{name}</h1>
-      <TextArea
-        onChange={(e) => setCurText(e.target.value)}
-        placeholder="Post a comment..."
-        value={curText}
-      />
-      <Button onClick={addComment} size="3" variant="soft">
-        Post
-      </Button>
+    <div ref={setNodeRef} className={`${isOver ? "bg-radix-mintDefault" : "bg-coolors-blue"}`}>
+      <Flex className="p-5 lg:w-96 md:w-auto" direction="column" gap="2">
+        <h1>{name}</h1>
+        <TextArea
+          onChange={(e) => setCurText(e.target.value)}
+          placeholder="Post a comment..."
+          value={curText}
+        />
+        <Button onClick={addComment} size="3" variant="soft">
+          Post
+        </Button>
 
-      <div className="flex flex-col gap-3">
-        {comments.map((comment) => (
-          <Comment
-            key={comment.id}
-            boardId={boardId}
-            userId={userId}
-            columnId={columnId}
-            commentObj={comment}
-            dispatch={dispatch}
-            commentId={comment.id}
-            socket={socket}
-            cardTextBlurred={cardTextBlurred}
-          />
-        ))}
-      </div>
-    </Flex>
+        <div className="flex flex-col gap-3">
+          {comments.map((comment) => (
+            <Comment
+              key={comment.id}
+              boardId={boardId}
+              userId={userId}
+              columnId={columnId}
+              commentObj={comment}
+              dispatch={dispatch}
+              commentId={comment.id}
+              socket={socket}
+              cardTextBlurred={cardTextBlurred}
+            />
+          ))}
+        </div>
+      </Flex>
+    </div>
   );
 }

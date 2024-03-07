@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState, useId } from "react";
 import boardReducer from "./boardReducer";
 import Column from "./Column";
 import { socket } from "./socket";
@@ -7,11 +7,15 @@ import BoardStatusBar from "./BoardStatusBar";
 import BoardEntryView from "./BoardEntryView";
 import { useUser } from "@clerk/clerk-react";
 
+import { DndContext } from "@dnd-kit/core";
+
 interface BoardProps {
   boardId: string;
 }
 
 export default function Board(props: BoardProps) {
+  const DndId = useId();
+
   const boardId = props.boardId;
 
   const { user } = useUser();
@@ -169,56 +173,92 @@ export default function Board(props: BoardProps) {
     }
   }
 
-  return (
-    <div id="__next" className="flex flex-col antialiased min-h-full h-full">
-      {!hasJoined ? (
-        <BoardEntryView
-          boardName={boardName}
-          setHasJoined={setHasJoined}
-          setUserName={setUserName}
-          passwordRequired={passwordRequired}
-        />
-      ) : (
-        <div className="grid w-full h-full">
-          <SideBar
-            switchPasswordRequired={switchRequirePassword}
-            switchBlurCardText={switchBlurBoard}
-            showSidebar={sidebarOpened}
-            setShowSidebar={setSideBarOpened}
-          />
-          <div
-            className={
-              "col-start-1 row-start-1 grow transition-transform duration-300 ease-in-out"
-            }
-          >
-            <BoardStatusBar
-              boardName={boardName}
-              userName={userName}
-              selectSortStatus={selectSortStatus}
-            />
+  function swapColumns(commentId: string, columnA: string, columnB: string) {
+    // move comment active.id
+    // to column over.id
 
-            <div className="flex flex-row justify-center">
-              {boardState.columns.map((column) => {
-                return (
-                  <Column
-                    key={column.columnId}
-                    boardId={boardId}
-                    userId={user?.id}
-                    name={column.columnName}
-                    dispatch={dispatch}
-                    currentText={column.currentText}
-                    comments={column.comments}
-                    columnId={column.columnId}
-                    socket={socket}
-                    cardTextBlurred={boardBlurred}
-                    sortStatus={sortStatus}
-                  />
-                );
-              })}
+  }
+
+  function handleDragEnd(event: any) {
+    const { over, active } = event;
+
+    console.log(over, active);
+
+    if (!over || !active) {
+      return;
+    }
+    const [sourceColumnId, sourceCommentId] = active.id.split("_");
+
+    const destinationColumnId = over.id;
+
+    console.log("source", sourceColumnId, "dest", destinationColumnId);
+    if (sourceColumnId !== destinationColumnId) {
+      console.log('dispatching yo');
+      dispatch({
+        type: 'MOVE_COMMENT',
+        payload: { sourceColumnId, destinationColumnId, sourceCommentId},
+      })
+    }
+
+    console.log("over", over, "active", active);
+
+    console.log("drag has ended");
+
+    return "";
+  }
+
+  return (
+    <DndContext onDragEnd={handleDragEnd} id={DndId}>
+      <div id="__next" className="flex flex-col antialiased min-h-full h-full">
+        {!hasJoined ? (
+          <BoardEntryView
+            boardName={boardName}
+            setHasJoined={setHasJoined}
+            setUserName={setUserName}
+            passwordRequired={passwordRequired}
+          />
+        ) : (
+            <div className="grid w-full h-full">
+              <SideBar
+                switchPasswordRequired={switchRequirePassword}
+                switchBlurCardText={switchBlurBoard}
+                showSidebar={sidebarOpened}
+                setShowSidebar={setSideBarOpened}
+              />
+              <div
+                className={
+                  "col-start-1 row-start-1 grow transition-transform duration-300 ease-in-out"
+                }
+              >
+                <BoardStatusBar
+                  boardName={boardName}
+                  userName={userName}
+                  selectSortStatus={selectSortStatus}
+                />
+
+                <div className="flex flex-row justify-center">
+                  {boardState.columns.map((column) => {
+                    return (
+                      <Column
+                        key={column.columnId}
+                        boardId={boardId}
+                        userId={user?.id}
+                        name={column.columnName}
+                        dispatch={dispatch}
+                        currentText={column.currentText}
+                        comments={column.comments}
+                        columnId={column.columnId}
+                        socket={socket}
+                        cardTextBlurred={boardBlurred}
+                        sortStatus={sortStatus}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
-    </div>
+          )}
+      </div>
+    </DndContext>
   );
 }

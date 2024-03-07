@@ -12,6 +12,7 @@
     "@aws-sdk/client-dynamodb": "^3.474.0",
     "@aws-sdk/lib-dynamodb": "^3.478.0",
     "@clerk/nextjs": "^4.29.7",
+    "@dnd-kit/core": "^6.1.0",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/themes": "^2.0.3",
     "@types/firebase": "^3.2.1",
