@@ -40,6 +40,7 @@ export default function Comment({
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `${columnId}_${commentId}`,
+    data: commentObj 
   });
 
   const style = transform ? {

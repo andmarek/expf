@@ -64,7 +64,7 @@ export default function Board(props: BoardProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!userId)  {
+        if (!userId) {
           return;
         }
 
@@ -173,13 +173,38 @@ export default function Board(props: BoardProps) {
     }
   }
 
-  function swapColumns(commentId: string, columnA: string, columnB: string) {
-    // move comment active.id
-    // to column over.id
-
+  async function moveCommentToColumnInDatabase(
+    boardId: string,
+    userId: string,
+    sourceCommentId: string,
+    sourceColumnId: string,
+    destinationColumnId: string,
+    commentText: string,
+    commentLikes: number
+  ) {
+    const response = await fetch(
+      `/api/board/comments/move/${sourceCommentId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          boardId,
+          userId,
+          sourceColumnId,
+          destinationColumnId,
+          sourceCommentId,
+          commentText,
+          commentLikes,
+        }),
+      }
+    );
+    const data = await response.json();
+    console.log(data);
   }
 
-  function handleDragEnd(event: any) {
+  async function handleDragEnd(event: any) {
     const { over, active } = event;
 
     console.log(over, active);
@@ -189,16 +214,37 @@ export default function Board(props: BoardProps) {
     }
     const [sourceColumnId, sourceCommentId] = active.id.split("_");
 
+    const commentData = active.data.current;
+
+    const commentLikes = commentData.comment_likes;
+    const commentText = commentData.comment_text;
+
     const destinationColumnId = over.id;
 
     console.log("source", sourceColumnId, "dest", destinationColumnId);
+
     if (sourceColumnId !== destinationColumnId) {
-      console.log('dispatching yo');
       dispatch({
-        type: 'MOVE_COMMENT',
-        payload: { sourceColumnId, destinationColumnId, sourceCommentId},
-      })
+        type: "MOVE_COMMENT",
+        payload: {
+          sourceColumnId,
+          destinationColumnId,
+          sourceCommentId,
+          commentLikes,
+          commentText,
+        },
+      });
     }
+
+    await moveCommentToColumnInDatabase(
+      boardId,
+      userId,
+      sourceCommentId,
+      sourceColumnId,
+      destinationColumnId,
+      commentText,
+      commentLikes
+    );
 
     console.log("over", over, "active", active);
 
@@ -218,46 +264,46 @@ export default function Board(props: BoardProps) {
             passwordRequired={passwordRequired}
           />
         ) : (
-            <div className="grid w-full h-full">
-              <SideBar
-                switchPasswordRequired={switchRequirePassword}
-                switchBlurCardText={switchBlurBoard}
-                showSidebar={sidebarOpened}
-                setShowSidebar={setSideBarOpened}
+          <div className="grid w-full h-full">
+            <SideBar
+              switchPasswordRequired={switchRequirePassword}
+              switchBlurCardText={switchBlurBoard}
+              showSidebar={sidebarOpened}
+              setShowSidebar={setSideBarOpened}
+            />
+            <div
+              className={
+                "col-start-1 row-start-1 grow transition-transform duration-300 ease-in-out"
+              }
+            >
+              <BoardStatusBar
+                boardName={boardName}
+                userName={userName}
+                selectSortStatus={selectSortStatus}
               />
-              <div
-                className={
-                  "col-start-1 row-start-1 grow transition-transform duration-300 ease-in-out"
-                }
-              >
-                <BoardStatusBar
-                  boardName={boardName}
-                  userName={userName}
-                  selectSortStatus={selectSortStatus}
-                />
 
-                <div className="flex flex-row justify-center">
-                  {boardState.columns.map((column) => {
-                    return (
-                      <Column
-                        key={column.columnId}
-                        boardId={boardId}
-                        userId={user?.id}
-                        name={column.columnName}
-                        dispatch={dispatch}
-                        currentText={column.currentText}
-                        comments={column.comments}
-                        columnId={column.columnId}
-                        socket={socket}
-                        cardTextBlurred={boardBlurred}
-                        sortStatus={sortStatus}
-                      />
-                    );
-                  })}
-                </div>
+              <div className="flex flex-row justify-center">
+                {boardState.columns.map((column) => {
+                  return (
+                    <Column
+                      key={column.columnId}
+                      boardId={boardId}
+                      userId={user?.id}
+                      name={column.columnName}
+                      dispatch={dispatch}
+                      currentText={column.currentText}
+                      comments={column.comments}
+                      columnId={column.columnId}
+                      socket={socket}
+                      cardTextBlurred={boardBlurred}
+                      sortStatus={sortStatus}
+                    />
+                  );
+                })}
               </div>
             </div>
-          )}
+          </div>
+        )}
       </div>
     </DndContext>
   );
