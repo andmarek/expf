@@ -110,7 +110,7 @@ export default function Column({
   }
 
   return (
-    <div ref={setNodeRef} className={`${isOver ? "bg-radix-mintDefault" : "bg-coolors-blue"}`}>
+    <div ref={setNodeRef} className={`${isOver ? "bg-base-850 transition-all duration-100" : ""}`}>
       <Flex className="p-5 lg:w-96 md:w-auto" direction="column" gap="2">
         <h1>{name}</h1>
         <TextArea

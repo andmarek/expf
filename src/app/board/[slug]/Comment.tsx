@@ -40,7 +40,7 @@ export default function Comment({
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `${columnId}_${commentId}`,
-    data: commentObj 
+    data: commentObj,
   });
 
   const style = transform ? {
@@ -155,7 +155,7 @@ export default function Comment({
     removeCommentLikedInDatabase(columnId, commentId, boardId);
   }
 
-  function openEditCommentModal() {}
+  function openEditCommentModal() { }
 
   async function handleEditCommentDialog(
     editedCommentText: string,
@@ -210,14 +210,14 @@ export default function Comment({
               }}
             />
           ) : (
-              <CommentButtonIcon
-                icon={<HeartIcon />}
-                onClick={() => {
-                  setCommentLiked(!commentLiked);
-                  handleLike();
-                }}
-              />
-            )}
+            <CommentButtonIcon
+              icon={<HeartIcon />}
+              onClick={() => {
+                setCommentLiked(!commentLiked);
+                handleLike();
+              }}
+            />
+          )}
           <p className="text-radix-mintDefault"> {commentObj.comment_likes} </p>
           <Dialog.Root>
             <Dialog.Trigger>

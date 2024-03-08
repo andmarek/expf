@@ -7,7 +7,7 @@ import BoardStatusBar from "./BoardStatusBar";
 import BoardEntryView from "./BoardEntryView";
 import { useUser } from "@clerk/clerk-react";
 
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, useSensors, useSensor, PointerSensor } from "@dnd-kit/core";
 
 interface BoardProps {
   boardId: string;
@@ -15,6 +15,10 @@ interface BoardProps {
 
 export default function Board(props: BoardProps) {
   const DndId = useId();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { delay: 250, distance: 5 } }),
+  );
 
   const boardId = props.boardId;
 
@@ -254,7 +258,7 @@ export default function Board(props: BoardProps) {
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd} id={DndId}>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd} id={DndId}>
       <div id="__next" className="flex flex-col antialiased min-h-full h-full">
         {!hasJoined ? (
           <BoardEntryView
