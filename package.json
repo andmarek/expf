@@ -17,6 +17,7 @@
     "@radix-ui/themes": "^2.0.3",
     "@types/firebase": "^3.2.1",
     "aws-sdk": "^2.1519.0",
+    "bcrypt": "^5.1.1",
     "firebase": "^10.5.0",
     "firebase-admin": "^11.11.0",
     "geist": "^1.2.0",

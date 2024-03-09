@@ -14,34 +14,9 @@ import {
 } from "@radix-ui/themes";
 import { v4 } from "uuid";
 
-/*
- * Columns need to work like this:
- * {
- *  Board:
- *    BoardName:
- *    BoardDescription:
- *    UseTemplate?
- *      yes --> TemplateName
- *      no --> Columns 
- * }
- *
- *
- * {
- *  "boards": {
- *    description: ""
- *    template: ""
- *    useTemplate: bool
- *    Columns
- *
- *    
- *  }
- * }
- *
- *
- *
- */
 export default function Create() {
   const router = useRouter();
+  const [createPassword, setCreatePassword] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<{
     boardName: string,
@@ -65,7 +40,7 @@ export default function Create() {
     }));
   };
 
-  function removeColumnById(columnId: number){
+  function removeColumnById(columnId: number) {
     console.log("ColumnId to remove", columnId);
     const updatedObject = {
       ...formData,
@@ -108,6 +83,7 @@ export default function Create() {
           formData: formData,
           boardId: boardId,
           userId: user.id,
+          createPassword: createPassword
         }),
         headers: {
           "Content-Type": "application/json",
@@ -162,7 +138,7 @@ export default function Create() {
             ></TextField.Input>
             <Text as="label" size="2">
               <Flex gap="2">
-                <Checkbox  color="ruby" variant="classic" defaultChecked /> Secure Board with Password
+                <Checkbox color="ruby" variant="classic" defaultChecked /> Secure Board with Password
               </Flex>
             </Text>
             <Button size="3" variant="soft">
