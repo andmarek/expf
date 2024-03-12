@@ -5,10 +5,17 @@ import {
   DeleteCommand,
   DynamoDBDocumentClient,
 } from "@aws-sdk/lib-dynamodb";
-import bcrypt from "bcrypt";
+
+import { KMSClient, EncryptCommand, DecryptCommand } from "@aws-sdk/client-kms";
+
+const client = new KMSClient({ region: "us-east-1" });
+const kmsKeyId = process.env.AWS_BOARD_PASSWORDS_KMS_KEY_ID;
+
+import { getBoard } from "@/src/app/lib/dynamo";
 
 const ddb = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddb);
+import bcrypt from "bcrypt";
 
 const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
@@ -29,6 +36,17 @@ interface PutBoard {
   boardPassword: string;
   userId: string;
   requirePassword: boolean;
+}
+
+async function encryptData(plaintext, keyId) {
+  const command = new EncryptCommand({
+    KeyId: keyId, // The ARN of your KMS key
+    Plaintext: Buffer.from(plaintext),
+  });
+  const encryptedBlob = await client.send(command);
+  const buff = Buffer.from(encryptedBlob.CiphertextBlob);
+  const encryptedBase64Data = buff.toString("base64");
+  return encryptedBase64Data;
 }
 
 function generatePlainPassword(length = 10, includeNumbers = true, includeSymbols = false) {
@@ -58,19 +76,22 @@ function generatePlainPassword(length = 10, includeNumbers = true, includeSymbol
 export async function PUT(request: Request) {
   const req = await request.json();
   const columnFormData = req.formData.columnsInput as ColumnFormData[];
-  const createPassword: boolean = req.createPassword as boolean;
-
+  const requirePassword: boolean = req.requirePassword as boolean;
   const columnsInputDict: { [columnId: string]: ColumnInput } = {};
 
-  let hashedPassword = "";
+  console.log("create password", requirePassword);
 
-  console.log("create password", createPassword);
+  let encryptedPassword = "";
 
-  if (createPassword == true) {
+  if (requirePassword == true) {
     const plainPassword = generatePlainPassword(10, true, false);
-    const saltRounds = 10; // Recommended salt rounds for bcrypt
+    encryptedPassword = await encryptData(plainPassword, kmsKeyId);
+    /*
+    const saltRounds = 10;
     hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+    */
   }
+
 
   // Create a dictionary of columnId to columnData
   Object.entries(columnFormData).forEach(
@@ -90,20 +111,21 @@ export async function PUT(request: Request) {
     boardName: req.formData.boardName as string,
     boardDescription: req.formData.boardDescription as string,
     columnsInput: columnsInputDict,
-    boardPassword: hashedPassword,
-    requirePassword: createPassword,
+    boardPassword: encryptedPassword as string,
+    requirePassword: req.requirePassword as boolean,
   };
 
   const command = new PutCommand({
     TableName: tableName as string,
     Item: {
       BoardId: dynamoInput.boardId,
-      UserId: dynamoInput.userId,
       BoardName: dynamoInput.boardName,
-      BoardDescription: dynamoInput.boardDescription,
+      UserId: dynamoInput.userId,
       BoardColumns: dynamoInput.columnsInput,
       Date: new Date().toISOString(),
-      Password: dynamoInput.boardPassword
+      BoardDescription: dynamoInput.boardDescription,
+      Password: dynamoInput.boardPassword,
+      RequirePassword: dynamoInput.requirePassword
     },
   });
   const response = await docClient.send(command);
@@ -115,17 +137,8 @@ export async function POST(request: Request) {
   const req = await request.json();
 
   const boardId: string = req.boardId as string;
-  const userId: string = req.userId as string;
-  console.log(userId);
 
-  const command = new GetCommand({
-    TableName: tableName,
-    Key: {
-      BoardId: boardId,
-      UserId: userId,
-    },
-  });
-  const response = await docClient.send(command);
+  const response = await getBoard(tableName, boardId);
 
   return Response.json(response);
 }
@@ -146,6 +159,7 @@ export async function DELETE(request: Request) {
       UserId: userId,
     },
   });
+
   const response = await docClient.send(command);
 
   return Response.json(response);

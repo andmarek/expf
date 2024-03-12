@@ -16,7 +16,7 @@ import { v4 } from "uuid";
 
 export default function Create() {
   const router = useRouter();
-  const [createPassword, setCreatePassword] = useState<boolean>(true);
+  const [requirePassword, setRequirePassword] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<{
     boardName: string,
@@ -83,7 +83,7 @@ export default function Create() {
           formData: formData,
           boardId: boardId,
           userId: user.id,
-          createPassword: createPassword
+          requirePassword: requirePassword
         }),
         headers: {
           "Content-Type": "application/json",

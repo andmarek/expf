@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.474.0",
+    "@aws-sdk/client-kms": "^3.529.1",
     "@aws-sdk/lib-dynamodb": "^3.478.0",
     "@clerk/nextjs": "^4.29.7",
     "@dnd-kit/core": "^6.1.0",

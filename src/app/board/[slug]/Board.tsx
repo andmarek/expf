@@ -45,7 +45,6 @@ export default function Board(props: BoardProps) {
 
   /* Board Options */
   const [passwordRequired, setPasswordRequired] = useState(true); // needs to be saved eventually
-
   const [setPassword, password] = useState("");
 
   const [boardBlurred, setBoardBlurred] = useState(false);
@@ -74,7 +73,7 @@ export default function Board(props: BoardProps) {
 
         const response = await fetch("/api/board", {
           method: "POST",
-          body: JSON.stringify({ boardId, userId }),
+          body: JSON.stringify({ boardId }),
           headers: {
             "Content-Type": "application/json",
           },
@@ -86,6 +85,16 @@ export default function Board(props: BoardProps) {
 
         const jsonData = await response.json();
         setBoardName(jsonData.Item.BoardName);
+
+        const passwordRequiredFromDb = jsonData.Item.RequirePassword;
+        if (passwordRequiredFromDb) {
+          setPasswordRequired(passwordRequiredFromDb);
+          setPassword(jsonData.Item.Password);
+
+        }
+        setPasswordRequired(jsonData.Item.RequirePassword);
+
+
         const boardColumns = transformBoardColumns(jsonData);
 
         dispatch({
@@ -99,6 +108,7 @@ export default function Board(props: BoardProps) {
     fetchData();
   }, [boardId, userId]);
 
+  /*
   useEffect(() => {
     socket.connect();
 
@@ -144,7 +154,7 @@ export default function Board(props: BoardProps) {
       socket.off("delete comment", onEmittedDeleteComment);
     };
   }, []);
-
+  */
   function transformBoardColumns(data) {
     return Object.entries(data.Item.BoardColumns).map(
       ([columnId, columnData]) => ({
@@ -263,6 +273,7 @@ export default function Board(props: BoardProps) {
         {!hasJoined ? (
           <BoardEntryView
             boardName={boardName}
+            boardId={boardId}
             setHasJoined={setHasJoined}
             setUserName={setUserName}
             passwordRequired={passwordRequired}
