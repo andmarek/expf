@@ -156,7 +156,7 @@ export async function DELETE(request: Request) {
     TableName: tableName,
     Key: {
       BoardId: boardId,
-      UserId: userId,
+      //UserId: userId,
     },
   });
 

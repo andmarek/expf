@@ -3,13 +3,21 @@ import { Select, Text, Flex, Button, Heading, RadioGroup } from "@radix-ui/theme
 import { v4 as uuidv4 } from "uuid";
 import ColumnField from "./ColumnField";
 
+const templates = {
+  "Classic": {
+    1: "What went well?",
+    2: "What went wrong?",
+    3: "Action Items",
+  }
+}
+
 export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChange }) {
   const [currentColumns, setCurrentColumns] = useState([]);
   const [numberColumns, setNumberColumns] = useState(0);
 
   const [useTemplate, setUseTemplate] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState("Classic");
-
+  
   function removeColumn(columnId: number) {
     console.log("removing column at columnsInput level" )
 

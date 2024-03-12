@@ -7,6 +7,7 @@ export default function SideBar({
   switchBlurCardText,
   showSidebar,
   setShowSidebar,
+  passwordRequired,
 }) {
   const sidebarWidthPx = "250";
 
@@ -20,7 +21,7 @@ export default function SideBar({
       >
         <div className="px-5 py-5">
           <h1>Blur card text</h1>
-          <Switch onCheckedChange={switchBlurCardText} />
+          <Switch   defaultChecked={passwordRequired} onCheckedChange={switchBlurCardText} />
           <h1>Protect Board with Password</h1>
           <Switch onCheckedChange={switchPasswordRequired} />
           <TextField.Input placeholder="Enter a password" />
@@ -29,7 +30,6 @@ export default function SideBar({
           </Button>
 
         </div>
-        
       </div>
       <ChevronRightIcon
         onClick={() => setShowSidebar(!showSidebar)}

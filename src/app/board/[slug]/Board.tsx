@@ -7,7 +7,12 @@ import BoardStatusBar from "./BoardStatusBar";
 import BoardEntryView from "./BoardEntryView";
 import { useUser } from "@clerk/clerk-react";
 
-import { DndContext, useSensors, useSensor, PointerSensor } from "@dnd-kit/core";
+import {
+  DndContext,
+  useSensors,
+  useSensor,
+  PointerSensor,
+} from "@dnd-kit/core";
 
 interface BoardProps {
   boardId: string;
@@ -17,7 +22,9 @@ export default function Board(props: BoardProps) {
   const DndId = useId();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { delay: 250, distance: 5 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: { delay: 250, distance: 5 },
+    })
   );
 
   const boardId = props.boardId;
@@ -45,7 +52,7 @@ export default function Board(props: BoardProps) {
 
   /* Board Options */
   const [passwordRequired, setPasswordRequired] = useState(true); // needs to be saved eventually
-  const [setPassword, password] = useState("");
+  const [password, setPassword] = useState("");
 
   const [boardBlurred, setBoardBlurred] = useState(false);
 
@@ -70,45 +77,46 @@ export default function Board(props: BoardProps) {
         if (!userId) {
           return;
         }
+        if (hasJoined) {
+          const response = await fetch("/api/board", {
+            method: "POST",
+            body: JSON.stringify({ boardId }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
-        const response = await fetch("/api/board", {
-          method: "POST",
-          body: JSON.stringify({ boardId }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+          if (!response.ok) {
+            throw new Error("Error fetching board data.");
+          }
 
-        if (!response.ok) {
-          throw new Error("Error fetching board data.");
+          const jsonData = await response.json();
+          setBoardName(jsonData.Item.BoardName);
+
+          const passwordRequiredFromDb = jsonData.Item.RequirePassword;
+          if (passwordRequiredFromDb) {
+            setPasswordRequired(passwordRequiredFromDb);
+            setPassword(jsonData.Item.Password);
+          }
+          setPasswordRequired(jsonData.Item.RequirePassword);
+
+          const boardColumns = transformBoardColumns(jsonData);
+
+          dispatch({
+            type: "SET_CATEGORIES",
+            payload: boardColumns,
+          });
         }
-
-        const jsonData = await response.json();
-        setBoardName(jsonData.Item.BoardName);
-
-        const passwordRequiredFromDb = jsonData.Item.RequirePassword;
-        if (passwordRequiredFromDb) {
-          setPasswordRequired(passwordRequiredFromDb);
-          setPassword(jsonData.Item.Password);
-
-        }
-        setPasswordRequired(jsonData.Item.RequirePassword);
-
-
-        const boardColumns = transformBoardColumns(jsonData);
-
-        dispatch({
-          type: "SET_CATEGORIES",
-          payload: boardColumns,
-        });
       } catch (error) {
         console.error("Error initializing board page.");
       }
     };
     fetchData();
-  }, [boardId, userId]);
+  }, [boardId, userId, hasJoined, password]);
 
   /*
+  TURNING OFF WEBSOCKETS FOR NOW.. maybe feature flag?
+
   useEffect(() => {
     socket.connect();
 
@@ -285,6 +293,7 @@ export default function Board(props: BoardProps) {
               switchBlurCardText={switchBlurBoard}
               showSidebar={sidebarOpened}
               setShowSidebar={setSideBarOpened}
+              passwordRequired={passwordRequired}
             />
             <div
               className={

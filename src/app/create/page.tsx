@@ -76,6 +76,7 @@ export default function Create() {
     console.log(formData);
 
     const boardId: string = generateBoardId();
+
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
@@ -138,7 +139,7 @@ export default function Create() {
             ></TextField.Input>
             <Text as="label" size="2">
               <Flex gap="2">
-                <Checkbox color="ruby" variant="classic" defaultChecked /> Secure Board with Password
+                <Checkbox color="cyan" variant="classic" defaultChecked onClick={()=>setRequirePassword(!requirePassword)}/> Secure Board with Password
               </Flex>
             </Text>
             <Button size="3" variant="soft">

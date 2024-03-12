@@ -2,10 +2,18 @@
 import { useUser } from "@clerk/clerk-react";
 
 import React, { useEffect, useState } from "react";
-import { Heading, Table, Button, Container, Link, Text } from "@radix-ui/themes";
+import {
+  Heading,
+  Table,
+  Button,
+  Container,
+  Link,
+  Text,
+} from "@radix-ui/themes";
 
+import { EyeNoneIcon } from "@radix-ui/react-icons";
 
-
+async function revealBoardPassword() {}
 
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
@@ -75,8 +83,8 @@ export default function ControlPanel() {
           My Boards
         </Heading>
         <form className="my-2 self-center" action="/create">
-            <Button size="3"> Create New Board </Button>
-          </form>
+          <Button size="3"> Create New Board </Button>
+        </form>
       </div>
       <Container size="2">
         <Table.Root variant="surface">
@@ -88,6 +96,7 @@ export default function ControlPanel() {
                 Board Description{" "}
               </Table.ColumnHeaderCell>
               <Table.ColumnHeaderCell> Actions </Table.ColumnHeaderCell>
+              <Table.ColumnHeaderCell> Password </Table.ColumnHeaderCell>
             </Table.Row>
             {boards.map((board) => (
               <Table.Row key={board.BoardId}>
@@ -112,7 +121,12 @@ export default function ControlPanel() {
                   >
                     {" "}
                     Delete{" "}
-                  </Button>
+                  </Button>{" "}
+                </Table.Cell>
+                <Table.Cell>
+                  <div className="flex flex-col">
+                    <EyeNoneIcon onClick={revealBoardPassword} className="ml-1" />{" "}
+                  </div>
                 </Table.Cell>
               </Table.Row>
             ))}

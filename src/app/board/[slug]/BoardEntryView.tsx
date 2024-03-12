@@ -28,6 +28,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
       // redirect here
       console.log("testing123")
       console.log("joined successfully");
+      props.setHasJoined(true);
     } else {
       console.error("Failed to join board");
     }
