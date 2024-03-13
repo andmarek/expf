@@ -1,8 +1,8 @@
 import { NextRequest } from "next/server";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { tableName } from "@/src/app/lib/dynamo"
 
-const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
@@ -78,4 +78,3 @@ export async function DELETE(request: NextRequest) {
   const dynamoResponse = await docClient.send(updateCommentCommand);
   return Response.json(dynamoResponse);
 }
-

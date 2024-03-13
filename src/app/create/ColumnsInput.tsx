@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Select, Text, Flex, Button, Heading, RadioGroup } from "@radix-ui/themes";
 import { v4 as uuidv4 } from "uuid";
 import ColumnField from "./ColumnField";
 
-const templates = {
+const boardColumnTemplates = {
   "Classic": {
     1: "What went well?",
     2: "What went wrong?",
@@ -11,21 +11,47 @@ const templates = {
   }
 }
 
-export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChange }) {
-  const [currentColumns, setCurrentColumns] = useState([]);
-  const [numberColumns, setNumberColumns] = useState(0);
+function getInitialColumns(initialTemplate: string) {
+  const templateColumns = boardColumnTemplates[initialTemplate];
+  const initialColumns = [];
+  for (let columnIndex in templateColumns) {
+    const newColumn = {
+      id: uuidv4(),
+      text: templateColumns[columnIndex],
+      index: columnIndex,
+    };
+    initialColumns.push(newColumn);
+  }
+  return initialColumns;
+}
 
+export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChange, onTemplateSet }) {
   const [useTemplate, setUseTemplate] = useState(true);
   const [selectedTemplate, setSelectedTemplate] = useState("Classic");
-  
+
+  useEffect(() => {
+    const initialColumns = getInitialColumns(selectedTemplate);
+    onTemplateSet(initialColumns);
+  }, [selectedTemplate, onTemplateSet]);
+
+  const [currentColumns, setCurrentColumns] = useState(getInitialColumns(selectedTemplate));
+  const [numberColumns, setNumberColumns] = useState(0);
+
   function removeColumn(columnId: number) {
-    console.log("removing column at columnsInput level" )
+    console.log("removing column at columnsInput level")
 
     setCurrentColumns(columns =>
       columns.filter((column) => column.index !== columnId)
     );
 
     handleRemoveColumn(columnId);
+  }
+
+  function handleRemoveAllColumns() {
+    setCurrentColumns([]);
+    for (let column of currentColumns) {
+      removeColumn(column.index);
+    }
   }
 
   function onColumnTextChange(value: string, index: number) {
@@ -51,7 +77,19 @@ export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChang
 
   function handleTemplateChange(value: string) {
     setSelectedTemplate(value);
+    handleRemoveAllColumns();
+    const templateColumns = boardColumnTemplates[value];
+    for (let columnIndex in templateColumns) {
+      const newColumn = {
+        id: uuidv4(),
+        text: templateColumns[columnIndex],
+        index: columnIndex,
+      };
+      setCurrentColumns((currentColumns) => [...currentColumns, newColumn]);
+    }
   }
+
+  console.log("currentColumns", currentColumns);
 
   return (
     <div className="flex flex-col w-96 py-4 bg-base-950 rounded-md p-3">
@@ -84,20 +122,23 @@ export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChang
             </Select.Content>
           </Select.Root>
         ) : (
-            <>
-              <Button variant="soft" size="3" onClick={addComponent}>
-                Add Column
-              </Button>
-              {currentColumns.map((column, index) => (
-                <ColumnField
-                  key={column.id}
-                  index={index + 1}
-                  handleTextChange={onColumnTextChange}
-                  handleRemove={removeColumn}
-                />
-              ))}
-            </>
-          )}
+          <>
+            <Button variant="soft" size="3" onClick={addComponent}>
+              Add Column
+            </Button>
+            <Button variant="soft" size="3" onClick={handleRemoveAllColumns}>
+              Remove All Columns
+            </Button>
+            {currentColumns.map((column, index) => (
+              <ColumnField
+                key={column.id}
+                index={index + 1}
+                handleTextChange={onColumnTextChange}
+                handleRemove={removeColumn}
+              />
+            ))}
+          </>
+        )}
       </Flex>
     </div>
   );

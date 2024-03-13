@@ -78,6 +78,7 @@ export default function Board(props: BoardProps) {
           return;
         }
         if (hasJoined) {
+          console.log("JOINING BOYZ", userName);
           const response = await fetch("/api/board", {
             method: "POST",
             body: JSON.stringify({ boardId }),
@@ -106,6 +107,23 @@ export default function Board(props: BoardProps) {
             type: "SET_CATEGORIES",
             payload: boardColumns,
           });
+        } else {
+          console.log("getting board metadata");
+          const response = await fetch(`/api/board/${boardId}/metadata`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          if (response.ok) {
+            const jsonData = await response.json();
+            console.log(jsonData);
+
+            setBoardName(jsonData.BoardName);
+            setPasswordRequired(jsonData.passwordRequired);
+          } else {
+            throw new Error("Error fetching board data.");
+          }
         }
       } catch (error) {
         console.error("Error initializing board page.");

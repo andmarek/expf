@@ -16,9 +16,11 @@ import { v4 } from "uuid";
 
 export default function Create() {
   const router = useRouter();
+
   const [requirePassword, setRequirePassword] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<{
+
+  const [boardConfig, setBoardConfig] = useState<{
     boardName: string,
     boardDescription: string,
     columnsInput: { [key: number]: { columnName: string } },
@@ -31,35 +33,43 @@ export default function Create() {
   const { user } = useUser();
 
   function onColumnTextChange(value: string, index: number) {
-    setFormData(prevFormData => ({
-      ...prevFormData,
+    setBoardConfig(prevBoardConfig => ({
+      ...prevBoardConfig,
       columnsInput: {
-        ...prevFormData.columnsInput,
+        ...prevBoardConfig.columnsInput,
         [index]: { columnName: value },
       },
     }));
   };
 
+  function setAllBoardColumns(newColumnsInput) {
+    setBoardConfig(prevBoardConfig => ({
+      ...prevBoardConfig,
+      columnsInput: newColumnsInput
+    })
+    )
+  }
+
   function removeColumnById(columnId: number) {
     console.log("ColumnId to remove", columnId);
     const updatedObject = {
-      ...formData,
+      ...boardConfig,
       columnsInput: {
-        ...formData.columnsInput
+        ...boardConfig.columnsInput
       }
     };
     if (updatedObject.columnsInput[columnId]) {
       delete updatedObject.columnsInput[columnId];
     }
 
-    setFormData(updatedObject);
-    console.log(formData);
+    setBoardConfig(updatedObject);
+    console.log(boardConfig);
   };
 
 
   function handleBoardAttributeChange(inputValue) {
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setBoardConfig((prevBoardConfig) => ({
+      ...prevBoardConfig,
       ...inputValue,
     }));
   }
@@ -73,15 +83,13 @@ export default function Create() {
 
     setIsLoading(true);
 
-    console.log(formData);
-
     const boardId: string = generateBoardId();
 
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
         body: JSON.stringify({
-          formData: formData,
+          boardConfig: boardConfig,
           boardId: boardId,
           userId: user.id,
           requirePassword: requirePassword
@@ -91,11 +99,12 @@ export default function Create() {
         },
       });
 
-      const responseBody = await response.json();
+      const responseBodyJson = await response.json();
+
       if (response.ok) {
         router.push(`/board/${boardId}`);
       } else {
-        console.error("Server responded with an error: ", responseBody);
+        console.error("Server responded with an error: ", responseBodyJson);
       }
     } catch (error) {
       console.error(error);
@@ -139,7 +148,7 @@ export default function Create() {
             ></TextField.Input>
             <Text as="label" size="2">
               <Flex gap="2">
-                <Checkbox color="cyan" variant="classic" defaultChecked onClick={()=>setRequirePassword(!requirePassword)}/> Secure Board with Password
+                <Checkbox color="cyan" variant="classic" defaultChecked onClick={() => setRequirePassword(!requirePassword)} /> Secure Board with Password
               </Flex>
             </Text>
             <Button size="3" variant="soft">
@@ -148,7 +157,7 @@ export default function Create() {
           </Flex>
         </div>
       </form>
-      <ColumnsInput handleRemoveColumn={removeColumnById} handleColumnTextChange={onColumnTextChange} />
+      <ColumnsInput handleRemoveColumn={removeColumnById} handleColumnTextChange={onColumnTextChange} onTemplateSet={setAllBoardColumns} />
     </div>
   );
 }

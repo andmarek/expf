@@ -5,12 +5,9 @@ import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
 const client = new KMSClient({ region: "us-east-1" });
 const kmsKeyId = process.env.AWS_BOARD_PASSWORDS_KEY_ID;
 
-import { getBoard } from "@/src/app/lib/dynamo";
-
-const tableName = process.env.BOARDS_DYNAMODB_TABLE;
+import { tableName, getBoard } from "@/src/app/lib/dynamo";
 
 async function verifyPassword(userEnteredPassword: string, decryptedPassword: string) {
-  console.log("what", userEnteredPassword, decryptedPassword);
   try {
     const match = userEnteredPassword == decryptedPassword;
     if (match) {
@@ -28,8 +25,8 @@ async function decryptData(ciphertextBlob: string, keyId: string) {
     KeyId: keyId,
     CiphertextBlob: Buffer.from(ciphertextBlob, 'base64'),
   });
-  const response = await client.send(command);
-  const decryptedData = new TextDecoder().decode(response.Plaintext);
+  const kmsResponse = await client.send(command);
+  const decryptedData = new TextDecoder().decode(kmsResponse.Plaintext);
   return decryptedData;
 }
 
@@ -38,20 +35,27 @@ export async function POST(req, res) {
     const reqJson = await req.json();
 
     const boardId: string = reqJson.boardId as string;
-    const enteredPassword: string = reqJson.enteredPassword as string;
 
     const dynamoBoardResponse = await getBoard(tableName, boardId);
+    let accessGranted: boolean = false;
 
-    const decryptedPassword = await decryptData(dynamoBoardResponse.Item.Password, kmsKeyId);
+    if (!dynamoBoardResponse.Item.passwordRequired) {
+      accessGranted = true;
+    } else {
+      const enteredPassword = reqJson.password as string;
+      const decryptedpassword = await decryptData(dynamoBoardResponse.Item.password, kmsKeyId);
 
-    const accessGranted = await verifyPassword(enteredPassword, decryptedPassword);
+      console.log(decryptedpassword);
+      accessGranted = await verifyPassword(enteredPassword, decryptedpassword);
+    }
 
     if (accessGranted) {
+      console.log("access granted");
       return NextResponse.json({ message: "Access granted" }, { status: 200 });
     } else {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
   } catch (error) {
-    return NextResponse.json({error: "Internal servor error"}, { status: 500 });
+    return NextResponse.json({ error: "Internal servor error" }, { status: 500 });
   }
 }

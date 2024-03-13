@@ -13,9 +13,10 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   console.log("boardId", props.boardId);
-
+  console.log("password required", props.passwordRequired);
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    props.setUserName(username);
     const response = await fetch(`/api/board/join/${props.boardId}`, {
       method: "POST",
       body: JSON.stringify({ boardId: props.boardId, enteredPassword: password }),

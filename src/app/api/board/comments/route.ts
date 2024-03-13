@@ -1,10 +1,10 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { tableName } from "@/src/app/lib/dynamo"
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
-const tableName = process.env.BOARDS_DYNAMODB_TABLE;
 
 export async function DELETE(request: Request) {
   const requestData = await request.json();

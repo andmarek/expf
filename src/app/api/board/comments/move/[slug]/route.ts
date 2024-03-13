@@ -4,8 +4,7 @@ import {
   UpdateCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
-
-const tableName = process.env.BOARDS_DYNAMODB_TABLE;
+import { tableName } from "@/src/app/lib/dynamo";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
