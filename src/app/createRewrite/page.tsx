@@ -36,6 +36,7 @@ export default function CreateBoard() {
   const [boardColumns, setBoardColumns] = useState(templateOptions[initialTemplate]);
   const [columnCount, setColumnCount] = useState(boardColumns.length);
   const [selectedTemplate, setSelectedTemplate] = useState("Classic");
+  const [useTemplate, setUseTemplate] = useState(true);
 
   const router = useRouter();
 
@@ -75,16 +76,26 @@ export default function CreateBoard() {
     setBoardColumns(prevBoardColumns => [...prevBoardColumns, { columnName: "" }])
   }
 
-  function handleTemplateSelection(templateToSelect: string) {
+  function handleTemplateSelection(templateToSelect: string, changeUseTemplate?: boolean) {
     setSelectedTemplate(templateToSelect);
-    setBoardColumns(templateOptions[templateToSelect]);
-    setColumnCount(templateOptions[templateToSelect].length);
+    if (changeUseTemplate) {
+      const updatedColumns = templateOptions[templateToSelect].map((columns) => ({
+        ...columns,
+        columnName: columns.columnName,
+      }));
+      setBoardColumns(updatedColumns);
+      setColumnCount(templateOptions[templateToSelect].length);
+    }
   }
 
   function changeColumnName(text: string, key: number) {
     setBoardColumns(prevBoardColumns => {
       const newBoardColumns = [...prevBoardColumns];
-      newBoardColumns[key].columnName = text;
+      //newBoardColumns[key].columnName = text;
+      newBoardColumns[key] = {
+        ...newBoardColumns[key],
+        columnName: text,
+      };
       console.log(newBoardColumns);
       return newBoardColumns;
     })
@@ -99,9 +110,15 @@ export default function CreateBoard() {
     })
   }
 
+  function handleCustomSelection() {
+    setUseTemplate(false);
+    setBoardColumns([]);
+    setColumnCount(0);
+  }
+
   return (
-    <div>
-      <form className="flex flex-col" onSubmit={submitForm}>
+    <div className="flex justify-center">
+      <form className="flex flex-col bg-base-950 w-96" onSubmit={submitForm}>
         <label>
           Board Name: <input name="boardName" defaultValue="Some initial value" />
         </label>
@@ -112,8 +129,24 @@ export default function CreateBoard() {
         <p>
           Columns:
         </p>
-        <label><input type="radio" name="myRadio" value="option1" defaultChecked={true} /> I want to use a template (preconfigured columns) </label>
-        <label><input type="radio" name="myRadio" value="option1" /> I want my own custom columns </label>
+        <label>
+          <input
+            type="radio"
+            name="templateRadio"
+            value="template"
+            checked={useTemplate === true}
+            onChange={() => { setUseTemplate(true); handleTemplateSelection(selectedTemplate, true); }}
+          /> I want to use a template (preconfigured columns)
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="customRadio"
+            value="custom"
+            checked={useTemplate === false}
+            onChange={() => handleCustomSelection()}
+          /> I want my own custom columns
+        </label>
         <hr />
         <label>
           Template Selection:
@@ -130,7 +163,7 @@ export default function CreateBoard() {
         <ul>
           {boardColumns.map((column, index) => (
             <li key={index} className="flex flex-row">
-              <input name={`column-${index}`} onChange={(e) => changeColumnName(e.target.value, index)} defaultValue={column.columnName} />
+              <input name={`column-${index}`} onChange={(e) => changeColumnName(e.target.value, index)} value={column.columnName} />
               <Cross1Icon onClick={() => removeColumn(index)} />
             </li>
           )
