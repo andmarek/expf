@@ -46,15 +46,7 @@ export default function CreateBoard() {
     console.log("submitting form");
 
     const boardId = uuidv4();
-    console.log("board attrs", JSON.stringify({
-      boardId,
-      boardName,
-      boardDescription,
-      boardColumns,
-      requireBoardPassword
-    }));
 
-    /*
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
@@ -62,14 +54,13 @@ export default function CreateBoard() {
           boardId,
           boardName,
           boardDescription,
+          boardColumns,
           requireBoardPassword
         }),
         headers: {
           "Content-Type": "application/json"
         },
       });
-
-
       const responseBodyJson = await response.json();
 
       if (response.ok) {
@@ -80,7 +71,6 @@ export default function CreateBoard() {
     } catch (error) {
       console.error("Error:", error);
     }
-    */
   }
 
   function addColumn() {

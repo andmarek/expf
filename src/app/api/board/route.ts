@@ -51,49 +51,42 @@ async function encryptData(plaintext: string, keyId: string) {
 export async function PUT(request: Request) {
   const reqBodyJson = await request.json();
 
-  const columnFormData = reqBodyJson.boardConfig
-    .columnsInput as ColumnFormData[];
-  const requirePassword: boolean = reqBodyJson.requirePassword as boolean;
+  const userId: string = reqBodyJson.userId as string;
+  const boardId: string = reqBodyJson.boardId as string;
+  const boardName: string = reqBodyJson.boardName as string;
+  const boardDescription: string = reqBodyJson.boardDescription as string;
+  const boardColumns: [{ columnName: string }] = reqBodyJson.boardColumns;
+  const requiredBoardPassword: boolean = reqBodyJson.requireBoardPassword as boolean;
 
-  const columnsInputDict: { [columnId: string]: ColumnInput } = {};
-
-  const encryptedPassword = requirePassword
+  const encryptedPassword = requiredBoardPassword
     ? await encryptData(generatePlainPassword(10, true, false), kmsKeyId)
     : "";
 
-  // TODO: is this necessary?
-  // Create a dictionary of columnId to columnData
-  Object.entries(columnFormData).forEach(([columnIndex, columnData]) => {
-    columnsInputDict[columnIndex] = {
-      columnName: columnData.columnName,
+  // Change representation to dictionary in order to store in DynamoDB
+  // and retrieve more effectively.
+  const columnsInputDict: { [columnId: string]: ColumnInput } = {};
+  boardColumns.map((column, index) => (
+    columnsInputDict[index] = {
+      columnName: column.columnName,
       comments: {},
-    };
-  });
-
-  const dynamoInput: PutBoard = {
-    boardId: reqBodyJson.boardId as string,
-    userId: reqBodyJson.userId as string,
-    boardName: reqBodyJson.boardConfig.boardName as string,
-    boardDescription: reqBodyJson.boardConfig.boardDescription as string,
-    columnsInput: columnsInputDict,
-    boardPassword: encryptedPassword as string,
-    requirePassword: reqBodyJson.requirePassword as boolean,
-  };
+    }
+  ))
 
   const command = new PutCommand({
     TableName: tableName as string,
     Item: {
-      BoardId: dynamoInput.boardId,
-      BoardName: dynamoInput.boardName,
-      UserId: dynamoInput.userId,
-      BoardColumns: dynamoInput.columnsInput,
+      BoardId: boardId,
+      BoardName: boardName,
+      UserId: userId,
+      BoardColumns: columnsInputDict,
       Date: new Date().toISOString(),
-      BoardDescription: dynamoInput.boardDescription,
-      Password: dynamoInput.boardPassword,
-      RequirePassword: dynamoInput.requirePassword,
+      BoardDescription: boardDescription,
+      Password: encryptedPassword,
+      RequirePassword: requiredBoardPassword,
     },
   });
   const response = await docClient.send(command);
+
   return Response.json(response);
 }
 
