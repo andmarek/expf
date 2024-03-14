@@ -24,18 +24,18 @@ function getInitialColumns(initialTemplate: string) {
   }
   return initialColumns;
 }
+const initialTemplate = "Classic";
 
 export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChange, onTemplateSet }) {
   const [useTemplate, setUseTemplate] = useState(true);
-  const [selectedTemplate, setSelectedTemplate] = useState("Classic");
+  const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate);
 
-  useEffect(() => {
-    const initialColumns = getInitialColumns(selectedTemplate);
-    onTemplateSet(initialColumns);
-  }, [selectedTemplate, onTemplateSet]);
+  const initialColumns = getInitialColumns(initialTemplate);
 
-  const [currentColumns, setCurrentColumns] = useState(getInitialColumns(selectedTemplate));
+  const [currentColumns, setCurrentColumns] = useState(initialColumns);
   const [numberColumns, setNumberColumns] = useState(0);
+
+  onTemplateSet(initialColumns);
 
   function removeColumn(columnId: number) {
     console.log("removing column at columnsInput level")
@@ -112,7 +112,7 @@ export default function ColumnsInput({ handleRemoveColumn, handleColumnTextChang
           </Flex>
         </RadioGroup.Root>
         {useTemplate ? (
-          <Select.Root defaultValue="Classic" onValueChange={handleTemplateChange}>
+          <Select.Root defaultValue={selectedTemplate} onValueChange={handleTemplateChange}>
             <Select.Trigger />
             <Select.Content>
               <Select.Group>

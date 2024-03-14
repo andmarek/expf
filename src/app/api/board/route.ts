@@ -73,8 +73,8 @@ export async function PUT(request: Request) {
   const dynamoInput: PutBoard = {
     boardId: reqBodyJson.boardId as string,
     userId: reqBodyJson.userId as string,
-    boardName: reqBodyJson.formData.boardName as string,
-    boardDescription: reqBodyJson.formData.boardDescription as string,
+    boardName: reqBodyJson.boardConfig.boardName as string,
+    boardDescription: reqBodyJson.boardConfig.boardDescription as string,
     columnsInput: columnsInputDict,
     boardPassword: encryptedPassword as string,
     requirePassword: reqBodyJson.requirePassword as boolean,
