@@ -79,8 +79,11 @@ export default function CreateBoard() {
   }
 
   function handleTemplateSelection(templateToSelect: string, changeUseTemplate?: boolean) {
+    console.log('hey there');
+    console.log("changeUseTemplate", changeUseTemplate);
     setSelectedTemplate(templateToSelect);
     if (changeUseTemplate) {
+      console.log("testing 123");
       const updatedColumns = templateOptions[templateToSelect].map((columns) => ({
         ...columns,
         columnName: columns.columnName,
@@ -154,7 +157,7 @@ export default function CreateBoard() {
         <hr />
         <label>
           Template Selection:
-          <select value={selectedTemplate} onChange={(e) => handleTemplateSelection(e.target.value)}>
+          <select value={selectedTemplate} onChange={(e) => handleTemplateSelection(e.target.value, useTemplate)}>
             <option value="Classic">Classic Retrospective</option>
             <option value="Two Column">Two Column</option>
             <option value="Testing">Testing</option>
