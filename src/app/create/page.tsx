@@ -1,163 +1,193 @@
 "use client";
 
-import { useUser } from "@clerk/clerk-react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import ColumnsInput from "./ColumnsInput";
+import { useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
+import { Cross1Icon, PlusIcon } from "@radix-ui/react-icons";
 import {
-  Text,
-  Checkbox,
   Heading,
   Button,
-  Flex,
   TextField,
-} from "@radix-ui/themes";
-import { v4 } from "uuid";
+} from "@radix-ui/themes"
 
-export default function Create() {
+
+const initialTemplate = "Classic";
+
+const classicTemplate = [
+  { columnName: "What went well?" },
+  { columnName: "What went wrong?" },
+  { columnName: "Action Items" },
+]
+const twoColumnTemplate = [
+  { columnName: "What went well?" },
+  { columnName: "What went wrong?" },
+]
+
+const testingTemplate = [
+  { columnName: "Test1" },
+  { columnName: "Test2" },
+]
+
+const templateOptions = {
+  "Classic": classicTemplate,
+  "Two Column": twoColumnTemplate,
+  "Testing": testingTemplate,
+};
+
+
+
+export default function CreateBoard() {
+  const [boardName, setBoardName] = useState("");
+  const [boardDescription, setBoardDescription] = useState("");
+  const [requireBoardPassword, setRequireBoardPassword] = useState(true);
+  const [boardColumns, setBoardColumns] = useState(templateOptions[initialTemplate]);
+  const [columnCount, setColumnCount] = useState(boardColumns.length);
+  const [selectedTemplate, setSelectedTemplate] = useState("Classic");
+  const [useTemplate, setUseTemplate] = useState(true);
+
   const router = useRouter();
-
-  const [requirePassword, setRequirePassword] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const [boardConfig, setBoardConfig] = useState<{
-    boardName: string,
-    boardDescription: string,
-    columnsInput: { [key: number]: { columnName: string } },
-  }>({
-    boardName: "",
-    boardDescription: "",
-    columnsInput: {},
-  });
-
-  const { user } = useUser();
-
-  function onColumnTextChange(value: string, index: number) {
-    setBoardConfig(prevBoardConfig => ({
-      ...prevBoardConfig,
-      columnsInput: {
-        ...prevBoardConfig.columnsInput,
-        [index]: { columnName: value },
-      },
-    }));
-  };
-
-  function setAllBoardColumns(newColumnsInput) {
-    setBoardConfig(prevBoardConfig => ({
-      ...prevBoardConfig,
-      columnsInput: newColumnsInput
-    })
-    )
-  }
-
-  function removeColumnById(columnId: number) {
-    console.log("ColumnId to remove", columnId);
-    const updatedObject = {
-      ...boardConfig,
-      columnsInput: {
-        ...boardConfig.columnsInput
-      }
-    };
-    if (updatedObject.columnsInput[columnId]) {
-      delete updatedObject.columnsInput[columnId];
-    }
-
-    setBoardConfig(updatedObject);
-    console.log(boardConfig);
-  };
-
-
-  function handleBoardAttributeChange(inputValue) {
-    setBoardConfig((prevBoardConfig) => ({
-      ...prevBoardConfig,
-      ...inputValue,
-    }));
-  }
-
-  function generateBoardId() {
-    return v4();
-  }
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    setIsLoading(true);
+    const boardId = uuidv4();
 
-    const boardId: string = generateBoardId();
+    console.log(boardId, boardName, boardDescription, boardColumns, requireBoardPassword)
 
     try {
       const response = await fetch("/api/board", {
         method: "PUT",
         body: JSON.stringify({
-          boardConfig: boardConfig,
-          boardId: boardId,
-          userId: user.id,
-          requirePassword: requirePassword
+          boardId,
+          boardName,
+          boardDescription,
+          boardColumns,
+          requireBoardPassword
         }),
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
       });
-
       const responseBodyJson = await response.json();
 
       if (response.ok) {
-        router.push(`/board/${boardId}`);
+        router.push(`board/${boardId}`)
       } else {
-        console.error("Server responded with an error: ", responseBodyJson);
+        console.log("Server responded with an error: ", responseBodyJson);
       }
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error:", error);
     }
   }
 
+  function addColumn() {
+    setColumnCount(columnCount + 1);
+    setBoardColumns(prevBoardColumns => [...prevBoardColumns, { columnName: "" }])
+  }
+
+  function handleTemplateSelection(templateToSelect: string, changeUseTemplate?: boolean) {
+    setSelectedTemplate(templateToSelect);
+    if (changeUseTemplate) {
+      const updatedColumns = templateOptions[templateToSelect].map((columns) => ({
+        ...columns,
+        columnName: columns.columnName,
+      }));
+      setBoardColumns(updatedColumns);
+      setColumnCount(templateOptions[templateToSelect].length);
+    }
+  }
+
+  function changeColumnName(text: string, key: number) {
+    setBoardColumns(prevBoardColumns => {
+      const newBoardColumns = [...prevBoardColumns];
+      //newBoardColumns[key].columnName = text;
+      newBoardColumns[key] = {
+        ...newBoardColumns[key],
+        columnName: text,
+      };
+      return newBoardColumns;
+    })
+  }
+
+  function removeColumn(key: number) {
+    setColumnCount(columnCount - 1);
+    setBoardColumns(prevBoardColumns => {
+      const newBoardColumns = [...prevBoardColumns];
+      newBoardColumns.splice(key, 1);
+      return newBoardColumns;
+    })
+  }
+
+  function handleCustomSelection() {
+    setUseTemplate(false);
+    setBoardColumns([]);
+    setColumnCount(0);
+  }
+
   return (
-    <div className="flex flex-col items-center space-y-3 section-create">
-      <form className="flex flex-col w-96" onSubmit={submitForm}>
-        <Heading size="6" className="self-center py-4">
-          {" "}
-          Create a New Board{" "}
-        </Heading>
-        <div className="flex flex-col">
-          <Flex
-            direction="column"
-            gap="3"
-            className="bg-base-950 rounded-md p-3"
-          >
-            <Heading> Board Title </Heading>
-            <TextField.Input
-              name="boardName"
-              className="m-2"
-              type="text"
-              placeholder="Enter a title"
-              onChange={(e) =>
-                handleBoardAttributeChange({ boardName: e.target.value })
-              }
-            ></TextField.Input>
-            <Heading> Board Details </Heading>
-            <TextField.Input
-              name="boardDescription"
-              className="m-2"
-              type="text"
-              placeholder="Enter a Description"
-              onChange={(e) =>
-                handleBoardAttributeChange({ boardDescription: e.target.value })
-              }
-            ></TextField.Input>
-            <Text as="label" size="2">
-              <Flex gap="2">
-                <Checkbox color="cyan" variant="classic" defaultChecked onClick={() => setRequirePassword(!requirePassword)} /> Secure Board with Password
-              </Flex>
-            </Text>
-            <Button size="3" variant="soft">
-              {isLoading ? "Loading..." : "Create"}
-            </Button>
-          </Flex>
+    <div className="flex justify-center bg-base-900 bg-opacity-60 w-96 mx-auto my-3 rounded-md section-create">
+      <form className="flex flex-col w-96 p-2 mx-2" onSubmit={submitForm}>
+        <div className="my-2">
+          <div className="flex flex-col space-y-2 my-2">
+            <Heading className="self-center">Board Name</Heading>
+            <TextField.Input name="boardName" onChange={(e) => { setBoardName(e.target.value) }} placeholder="Some initial value"></TextField.Input>
+          </div>
+          <div className="flex flex-col space-y-2 my-2">
+            <Heading className="self-center">Board Description</Heading>
+            <TextField.Input name="boardDescription" onChange={(e) => { setBoardDescription(e.target.value) }} placeholder="Some initial value"></TextField.Input>
+          </div>
         </div>
+        <div className="my-2">
+          <input type="checkbox" checked={requireBoardPassword} onChange={() => { setRequireBoardPassword(!requireBoardPassword) }} /> Require Password (autogenerated)
+        </div>
+        <div className="flex flex-col space-y-2">
+          <Heading className="self-center">
+            Columns Options
+          </Heading>
+          <label>
+            <input
+              type="radio"
+              name="templateRadio"
+              value="template"
+              checked={useTemplate === true}
+              onChange={() => { setUseTemplate(true); handleTemplateSelection(selectedTemplate, true); }}
+            /> I want to use a template
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="customRadio"
+              value="custom"
+              checked={useTemplate === false}
+              onChange={() => handleCustomSelection()}
+            /> I want my own custom columns
+          </label>
+          <div className="flex flex-col space-y-2">
+            <Heading className="self-center"> Template Selection </Heading>
+            <select className="self-center" value={selectedTemplate} onChange={(e) => handleTemplateSelection(e.target.value, useTemplate)}>
+              <option value="Classic">Classic Retrospective</option>
+              <option value="Two Column">Two Column</option>
+              <option value="Testing">Testing</option>
+            </select>
+          </div>
+        </div>
+        <div className="my-3">
+          <label className="flex flex-row place-items-center justify-center space-x-2">
+            <Heading>Current Columns</Heading>
+            <PlusIcon onClick={addColumn} />
+          </label>
+          <ul className="flex flex-col space-y-2 my-2 place-items-center">
+            {boardColumns.map((column, index) => (
+              <li key={index} className="flex flex-row place-items-center space-x-2">
+                <TextField.Input name={`column-${index}`} onChange={(e) => changeColumnName(e.target.value, index)} value={column.columnName}></TextField.Input>
+                <Cross1Icon className="text-coolors-red" onClick={() => removeColumn(index)} />
+              </li>
+            )
+            )}
+          </ul>
+        </div>
+        <Button className="my-2 self-center w-2/3"> Create Board </Button>
       </form>
-      <ColumnsInput handleRemoveColumn={removeColumnById} handleColumnTextChange={onColumnTextChange} onTemplateSet={setAllBoardColumns} />
     </div>
-  );
+  )
 }
