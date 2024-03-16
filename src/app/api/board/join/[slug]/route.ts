@@ -1,4 +1,3 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { NextResponse } from "next/server";
 import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
 

@@ -8,12 +8,11 @@ import {
   Button,
   Container,
   Link,
-  Text,
 } from "@radix-ui/themes";
 
 import { EyeNoneIcon } from "@radix-ui/react-icons";
 
-async function revealBoardPassword() {}
+
 
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
@@ -22,7 +21,7 @@ export default function ControlPanel() {
   const userId = user?.id;
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         const response = await fetch("/api/boards", {
           method: "GET",
@@ -35,22 +34,49 @@ export default function ControlPanel() {
           throw new Error("Error fetching board data.");
         }
         const jsonData = await response.json();
-
-        const boards = jsonData.Items;
-
-        console.log(boards);
-        const userIdBoards = boards.filter((board) => board.UserId == userId);
-        setBoards(userIdBoards);
+        setBoards(jsonData);
+        return jsonData;
       } catch (error) {
         console.error("Error initializing board page.");
       }
     };
+
     if (userId) {
       fetchData();
     } else {
       return;
     }
   }, [userId]);
+
+  async function revealBoardPassword(boardId: string) {
+    try {
+      const response = await fetch(`/api/board/${boardId}/password`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const jsonData = await response.json();
+        console.log("jsondata dawg", jsonData);
+        //return jsonData.password;
+        setBoards((currentBoards) => {
+          return currentBoards.map((board) => {
+            if (board.BoardId === boardId) {
+              // Return a new object with the properties of the current board
+              // combined with the new properties. This effectively updates the board.
+              return { ...board, Password: jsonData.password };
+            } else {
+              return board; // Return the board unchanged if the id doesn't match
+            }
+          });
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching board password.");
+    }
+  }
 
   async function handleDeleteBoard(boardId: string) {
     const newBoards = boards.filter((board) => board.BoardId !== boardId);
@@ -125,7 +151,12 @@ export default function ControlPanel() {
                 </Table.Cell>
                 <Table.Cell>
                   <div className="flex flex-col">
-                    <EyeNoneIcon onClick={revealBoardPassword} className="ml-1" />{" "}
+                    {
+                      (!board.Password ?
+                        <EyeNoneIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1" /> :
+                        <p>{board.Password}</p>
+                      )
+                    }
                   </div>
                 </Table.Cell>
               </Table.Row>
