@@ -35,7 +35,6 @@ export async function POST(request: NextRequest) {
     TableName: tableName as string,
     Key: {
       BoardId: boardId,
-      UserId: userId
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,

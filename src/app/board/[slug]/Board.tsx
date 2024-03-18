@@ -78,7 +78,6 @@ export default function Board(props: BoardProps) {
           return;
         }
         if (hasJoined) {
-          console.log("JOINING BOYZ", userName);
           const response = await fetch("/api/board", {
             method: "POST",
             body: JSON.stringify({ boardId }),

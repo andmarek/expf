@@ -10,13 +10,12 @@ import {
   Link,
 } from "@radix-ui/themes";
 
-import { EyeNoneIcon } from "@radix-ui/react-icons";
+import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 
 
 export default function ControlPanel() {
   const [boards, setBoards] = useState([]);
-
   const { user } = useUser();
   const userId = user?.id;
 
@@ -60,15 +59,12 @@ export default function ControlPanel() {
       if (response.ok) {
         const jsonData = await response.json();
         console.log("jsondata dawg", jsonData);
-        //return jsonData.password;
         setBoards((currentBoards) => {
           return currentBoards.map((board) => {
             if (board.BoardId === boardId) {
-              // Return a new object with the properties of the current board
-              // combined with the new properties. This effectively updates the board.
               return { ...board, Password: jsonData.password };
             } else {
-              return board; // Return the board unchanged if the id doesn't match
+              return board;
             }
           });
         })
@@ -153,8 +149,11 @@ export default function ControlPanel() {
                   <div className="flex flex-col">
                     {
                       (!board.Password ?
-                        <EyeNoneIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1" /> :
-                        <p>{board.Password}</p>
+                        <EyeOpenIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1" /> :
+                        <div className="flex flex-row place-items-center space-x-2">
+                          <p>{board.Password}</p>
+                          <EyeNoneIcon />
+                        </div>
                       )
                     }
                   </div>

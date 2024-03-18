@@ -176,7 +176,9 @@ export default function Comment({
         editedCommentText,
       }),
     });
+
     const data = await response.json();
+
     if (response.ok) {
       dispatch({
         type: "UPDATE_COMMENT_TEXT",

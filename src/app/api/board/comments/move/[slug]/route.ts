@@ -21,7 +21,7 @@ async function moveComment(
   // Remove the comment from the source column
   const removeCommentFromSourceColumn = new UpdateCommand({
     TableName: tableName,
-    Key: { BoardId: boardId, UserId: userId },
+    Key: { BoardId: boardId },
     UpdateExpression:
       "REMOVE BoardColumns.#source_column_id.comments.#comment_id",
     ExpressionAttributeNames: {
@@ -33,7 +33,7 @@ async function moveComment(
   // Add the comment to the destination column
   const addCommentToDestinationColumn = new UpdateCommand({
     TableName: tableName,
-    Key: { BoardId: boardId, UserId: userId },
+    Key: { BoardId: boardId },
     UpdateExpression:
       "SET BoardColumns.#destination_column_id.comments.#comment_id = :comment",
     ExpressionAttributeNames: {

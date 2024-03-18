@@ -11,8 +11,6 @@ export async function DELETE(request: Request) {
 
   const boardId: string = requestData.boardId;
 
-  const userId: string = requestData.userId;
-
   const commentId: string = requestData.commentId;
   const columnId: string = requestData.columnId;
 
@@ -26,8 +24,7 @@ export async function DELETE(request: Request) {
   const command = new UpdateCommand({
     TableName: tableName,
     Key: {
-      BoardId: boardId,
-      UserId: userId,
+      BoardId: boardId
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,
@@ -41,7 +38,6 @@ export async function POST(request: Request) {
   const requestData = await request.json();
 
   const boardId: string = requestData.boardId;
-  const userId: string = requestData.userId;
 
   const commentText: string = requestData.commentText;
 
@@ -55,6 +51,7 @@ export async function POST(request: Request) {
 
   const updateExpression =
     "SET BoardColumns.#column_id.comments.#comment_id = :comment_obj";
+
   const expressionAttributeNames = {
     "#column_id": columnId,
     "#comment_id": commentId,
@@ -67,7 +64,6 @@ export async function POST(request: Request) {
     TableName: tableName,
     Key: {
       BoardId: boardId,
-      UserId: userId,
     },
     UpdateExpression: updateExpression,
     ExpressionAttributeNames: expressionAttributeNames,
