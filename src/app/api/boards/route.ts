@@ -21,6 +21,8 @@ export async function GET() {
       BoardId: board.BoardId,
       BoardName: board.BoardName,
       BoardDescription: board.BoardDescription,
+      DateCreated: board.Date,
+      RequirePassword: board.RequirePassword,
     }
   });
 

@@ -130,11 +130,11 @@ export default function CreateBoard() {
         <div className="my-2">
           <div className="flex flex-col space-y-2 my-2">
             <Heading className="self-center">Board Name</Heading>
-            <TextField.Input name="boardName" onChange={(e) => { setBoardName(e.target.value) }} placeholder="Some initial value"></TextField.Input>
+            <TextField.Input name="boardName" onChange={(e) => { setBoardName(e.target.value) }} placeholder="Enter a board name..."></TextField.Input>
           </div>
           <div className="flex flex-col space-y-2 my-2">
             <Heading className="self-center">Board Description</Heading>
-            <TextField.Input name="boardDescription" onChange={(e) => { setBoardDescription(e.target.value) }} placeholder="Some initial value"></TextField.Input>
+            <TextField.Input name="boardDescription" onChange={(e) => { setBoardDescription(e.target.value) }} placeholder="Enter a board description..."></TextField.Input>
           </div>
         </div>
         <div className="my-2">

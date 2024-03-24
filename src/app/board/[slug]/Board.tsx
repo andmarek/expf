@@ -199,10 +199,8 @@ export default function Board(props: BoardProps) {
 
   function selectSortStatus(sortBy: string) {
     if (sortBy === "Time") {
-      console.log("sorting by time");
       setSortStatus({ sortBy: "time", sortDirection: "asc" });
     } else if (sortBy === "Likes") {
-      console.log("sorting by likes");
       setSortStatus({ sortBy: "likes", sortDirection: "desc" });
       boardState.columns.forEach((column) => {
         column.comments.sort((a, b) => {

@@ -149,10 +149,10 @@ export default function ControlPanel() {
                   <div className="flex flex-col">
                     {
                       (!board.Password ?
-                        <EyeOpenIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1" /> :
+                        <EyeOpenIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1 cursor-pointer" /> :
                         <div className="flex flex-row place-items-center space-x-2">
                           <p>{board.Password}</p>
-                          <EyeNoneIcon />
+                          <EyeNoneIcon className="cursor-pointer" />
                         </div>
                       )
                     }
