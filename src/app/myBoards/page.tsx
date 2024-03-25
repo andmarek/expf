@@ -8,16 +8,17 @@ import {
   Button,
   Container,
   Link,
+  TextFieldInput
 } from "@radix-ui/themes";
 
 import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 
-
-export default function ControlPanel() {
+export default function NewBoards() {
   const [boards, setBoards] = useState([]);
   const { user } = useUser();
   const userId = user?.id;
+  const [passwordCache, setPasswordCache] = useState({});
 
   useEffect(() => {
     async function fetchData() {
@@ -47,30 +48,53 @@ export default function ControlPanel() {
     }
   }, [userId]);
 
-  async function revealBoardPassword(boardId: string) {
-    try {
-      const response = await fetch(`/api/board/${boardId}/password`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  function populatePasswordCache(boardId: string, password: string) {
+    setPasswordCache((prevCache) => ({
+      ...prevCache,
+      [boardId]: {
+        boardPassword: password,
+        showPassword: true,
+      },
+    }));
+  }
 
-      if (response.ok) {
-        const jsonData = await response.json();
-        console.log("jsondata dawg", jsonData);
-        setBoards((currentBoards) => {
-          return currentBoards.map((board) => {
-            if (board.BoardId === boardId) {
-              return { ...board, Password: jsonData.password };
-            } else {
-              return board;
-            }
-          });
-        })
+  async function removeBoardPasswordFromView(boardId: string) {
+    setPasswordCache((prevCache) => ({
+      ...prevCache,
+      [boardId]: {
+        ...prevCache[boardId],
+        showPassword: false,
+      },
+    }));
+  }
+
+  async function revealBoardPassword(boardId: string) {
+    if (passwordCache[boardId]) {
+      setPasswordCache((prevCache) => ({
+        ...prevCache,
+        [boardId]: {
+          ...prevCache[boardId],
+          showPassword: true,
+        },
+      }));
+    } else {
+      console.log("Getting from KMS");
+      try {
+        const response = await fetch(`/api/board/${boardId}/password`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const jsonData = await response.json();
+          console.log("jsondata dawg", jsonData);
+          populatePasswordCache(boardId, jsonData.password);
+        }
+      } catch (error) {
+        console.error("Error fetching board password.");
       }
-    } catch (error) {
-      console.error("Error fetching board password.");
     }
   }
 
@@ -100,69 +124,60 @@ export default function ControlPanel() {
 
   return (
     <div className="flex flex-col space-y-3 py-2">
-      <div className="flex flex-col justify-center">
-        <Heading weight="bold" align="center" color="mint" size="8">
-          My Boards
-        </Heading>
-        <form className="my-2 self-center" action="/create">
-          <Button size="3"> Create New Board </Button>
-        </form>
+      <div className="flex flex-col max-w-2/3 border-b">
+        <div className="mx-10 flex flex-row space-x-5">
+          <Heading color="mint" size="5" weight="light">
+            My Boards
+          </Heading>
+        </div>
       </div>
-      <Container size="2">
-        <Table.Root variant="surface">
-          <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeaderCell> Board Name</Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell>
-                {" "}
-                Board Description{" "}
-              </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell> Actions </Table.ColumnHeaderCell>
-              <Table.ColumnHeaderCell> Password </Table.ColumnHeaderCell>
-            </Table.Row>
-            {boards.map((board) => (
-              <Table.Row key={board.BoardId}>
-                <Table.Cell>
-                  <Link
-                    href={`/board/${board.BoardId}`}
-                    className="transition-all duration-300 text-lg px-4"
-                  >
-                    {board.BoardName}
-                  </Link>
-                </Table.Cell>
-                <Table.Cell>{board.BoardDescription}</Table.Cell>
-                <Table.Cell>
-                  <Button key={board.BoardId + "edit"} className="mx-2">
-                    {" "}
-                    Edit{" "}
+      <div className="flex flex-col self-center space-x-2 max-w-2/3">
+        <div className="flex flex-row py-2 space-x-2">
+          <TextFieldInput className="w-max" placeholder="Type to filter boards..." />
+          <form className="" action="/create">
+            <Button size="2" variant="soft"> Create New Board </Button>
+          </form>
+        </div>
+        <div className="flex flex-row space-x-4">
+          {boards.map((board) => (
+            <div className="flex flex-col p-2 border border-base-800 rounded-lg w-96 h-56 hover:border-base-600 duration-300 transition-all" key={board.BoardId}>
+              <div className="flex flex-col justify-between">
+                <Link href={`/board/${board.BoardId}`}>
+                  <h1 className="text-lg">{board.BoardName}</h1>
+                </Link>
+                {new Date(board.DateCreated).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </div>
+              {board.RequirePassword && (
+                <p>
+                  Password:{' '}
+                  {passwordCache[board.BoardId]?.showPassword
+                    ? passwordCache[board.BoardId].boardPassword
+                    : "Hidden"}
+                </p>
+              )}
+              <div className="flex flex-row space-x-2">
+                <Link href={`/board/${board.BoardId}`}>
+                  <Button variant="soft" className="cursor-pointer" size="2">View</Button>
+                </Link>
+                {board.RequirePassword && (
+                  <Button variant="soft" className="cursor-pointer" size="2">
+                    {passwordCache[board.BoardId]?.showPassword ? (
+                      <EyeOpenIcon onClick={() => removeBoardPasswordFromView(board.BoardId)} />
+                    ) : (
+                      <EyeNoneIcon onClick={() => revealBoardPassword(board.BoardId)} />
+                    )}
                   </Button>
-                  <Button
-                    key={board.BoardId + "delete"}
-                    className="mx-2"
-                    onClick={() => handleDeleteBoard(board.BoardId)}
-                  >
-                    {" "}
-                    Delete{" "}
-                  </Button>{" "}
-                </Table.Cell>
-                <Table.Cell>
-                  <div className="flex flex-col">
-                    {
-                      (!board.Password ?
-                        <EyeOpenIcon onClick={() => revealBoardPassword(board.BoardId)} className="ml-1 cursor-pointer" /> :
-                        <div className="flex flex-row place-items-center space-x-2">
-                          <p>{board.Password}</p>
-                          <EyeNoneIcon className="cursor-pointer" />
-                        </div>
-                      )
-                    }
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Header>
-        </Table.Root>
-      </Container>
+                )}
+                <Button variant="soft" className="cursor-pointer" size="2" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
