@@ -15,10 +15,12 @@ import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 
 
+
 export default function NewBoards() {
   const [boards, setBoards] = useState([]);
   const { user } = useUser();
   const userId = user?.id;
+  const [passwordCache, setPasswordCache] = useState({});
 
   useEffect(() => {
     async function fetchData() {
@@ -48,30 +50,53 @@ export default function NewBoards() {
     }
   }, [userId]);
 
-  async function revealBoardPassword(boardId: string) {
-    try {
-      const response = await fetch(`/api/board/${boardId}/password`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+  function populatePasswordCache(boardId, password) {
+    setPasswordCache((prevCache) => ({
+      ...prevCache,
+      [boardId]: {
+        boardPassword: password,
+        showPassword: true,
+      },
+    }));
+  }
 
-      if (response.ok) {
-        const jsonData = await response.json();
-        console.log("jsondata dawg", jsonData);
-        setBoards((currentBoards) => {
-          return currentBoards.map((board) => {
-            if (board.BoardId === boardId) {
-              return { ...board, Password: jsonData.password };
-            } else {
-              return board;
-            }
-          });
-        })
+  async function removeBoardPasswordFromView(boardId: string) {
+    setPasswordCache((prevCache) => ({
+      ...prevCache,
+      [boardId]: {
+        ...prevCache[boardId],
+        showPassword: false,
+      },
+    }));
+  }
+
+  async function revealBoardPassword(boardId) {
+    if (passwordCache[boardId]) {
+      setPasswordCache((prevCache) => ({
+        ...prevCache,
+        [boardId]: {
+          ...prevCache[boardId],
+          showPassword: true,
+        },
+      }));
+    } else {
+      console.log("Getting from KMS");
+      try {
+        const response = await fetch(`/api/board/${boardId}/password`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const jsonData = await response.json();
+          console.log("jsondata dawg", jsonData);
+          populatePasswordCache(boardId, jsonData.password);
+        }
+      } catch (error) {
+        console.error("Error fetching board password.");
       }
-    } catch (error) {
-      console.error("Error fetching board password.");
     }
   }
 
@@ -106,7 +131,6 @@ export default function NewBoards() {
           <Heading color="mint" size="5" weight="light">
             My Boards
           </Heading>
-
         </div>
       </div>
       <div className="flex flex-col self-center space-x-2 max-w-2/3">
@@ -117,40 +141,45 @@ export default function NewBoards() {
           </form>
         </div>
         <div className="flex flex-row space-x-4">
-          {
-            boards.map((board) => (
-              <div className="flex flex-col p-2 border border-base-800 rounded-lg w-96 h-56 hover:border-base-600 duration-300 transition-all" key={board.BoardId}>
-                <div className="flex flex-col justify-between">
-                  <Link href={`/board/${board.BoardId}`}>
-                    <h1 className="text-lg">{board.BoardName}</h1>
-                  </Link>
-                  {
-                    new Date(board.DateCreated).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })
-                  }
-                </div>
-                {!board.RequirePassword ? <></> :
-                  <p>Password: {board.Password ? board.Password : "Hidden"}</p>
-                }
-                <div className="flex flex-row space-x-2">
-                  <Link href={`/board/${board.BoardId}`}>
-                    <Button variant="soft" className="cursor-pointer" size="2">View</Button>
-                  </Link>
-                  {!board.RequirePassword ? <></> :
-                    <Button variant="soft" className="cursor-pointer" size="2" onClick={() => revealBoardPassword(board.BoardId)}>
-                      {board.Password ? <EyeOpenIcon /> : <EyeNoneIcon />}
-                    </Button>
-                  }
-                  <Button variant="soft" className="cursor-pointer" size="2" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
-                </div>
+          {boards.map((board) => (
+            <div className="flex flex-col p-2 border border-base-800 rounded-lg w-96 h-56 hover:border-base-600 duration-300 transition-all" key={board.BoardId}>
+              <div className="flex flex-col justify-between">
+                <Link href={`/board/${board.BoardId}`}>
+                  <h1 className="text-lg">{board.BoardName}</h1>
+                </Link>
+                {new Date(board.DateCreated).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
               </div>
-            ))
-          }
+              {board.RequirePassword && (
+                <p>
+                  Password:{' '}
+                  {passwordCache[board.BoardId]?.showPassword
+                    ? passwordCache[board.BoardId].boardPassword
+                    : "Hidden"}
+                </p>
+              )}
+              <div className="flex flex-row space-x-2">
+                <Link href={`/board/${board.BoardId}`}>
+                  <Button variant="soft" className="cursor-pointer" size="2">View</Button>
+                </Link>
+                {board.RequirePassword && (
+                  <Button variant="soft" className="cursor-pointer" size="2">
+                    {passwordCache[board.BoardId]?.showPassword ? (
+                      <EyeOpenIcon onClick={() => removeBoardPasswordFromView(board.BoardId)} />
+                    ) : (
+                      <EyeNoneIcon onClick={() => revealBoardPassword(board.BoardId)} />
+                    )}
+                  </Button>
+                )}
+                <Button variant="soft" className="cursor-pointer" size="2" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-    </div >
+    </div>
   );
 }
