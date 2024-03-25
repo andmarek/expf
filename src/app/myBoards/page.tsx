@@ -16,9 +16,24 @@ import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 export default function NewBoards() {
   const [boards, setBoards] = useState([]);
+  const [filteredBoards, setFilteredBoards] = useState([]);
+
   const { user } = useUser();
   const userId = user?.id;
   const [passwordCache, setPasswordCache] = useState({});
+
+  function handleSearch(event) {
+    const searchKeyword = event.target.value.toLowerCase();
+    if (searchKeyword === "") {
+      // If the search input is empty, fetch the original list of boards
+      setFilteredBoards(boards);
+    } else {
+      const filtered = boards.filter((board) =>
+        board.BoardName.toLowerCase().includes(searchKeyword)
+      );
+      setFilteredBoards(filtered);
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -35,6 +50,7 @@ export default function NewBoards() {
         }
         const jsonData = await response.json();
         setBoards(jsonData);
+        setFilteredBoards(jsonData);
         return jsonData;
       } catch (error) {
         console.error("Error initializing board page.");
@@ -124,22 +140,19 @@ export default function NewBoards() {
 
   return (
     <div className="flex flex-col space-y-3 py-2">
-      <div className="flex flex-col max-w-2/3 border-b">
-        <div className="mx-10 flex flex-row space-x-5">
-          <Heading color="mint" size="5" weight="light">
-            My Boards
-          </Heading>
-        </div>
-      </div>
       <div className="flex flex-col self-center space-x-2 max-w-2/3">
-        <div className="flex flex-row py-2 space-x-2">
-          <TextFieldInput className="w-max" placeholder="Type to filter boards..." />
-          <form className="" action="/create">
+        <div className="flex flex-row px-2 py-2 items-center justify-between">
+          <TextFieldInput
+            className="w-96"
+            placeholder="Type to filter boards..."
+            onChange={handleSearch}
+          />
+          <form action="/create">
             <Button size="2" variant="soft"> Create New Board </Button>
           </form>
         </div>
         <div className="flex flex-row space-x-4">
-          {boards.map((board) => (
+          {filteredBoards.map((board) => (
             <div className="flex flex-col p-2 border border-base-800 rounded-lg w-96 h-56 hover:border-base-600 duration-300 transition-all" key={board.BoardId}>
               <div className="flex flex-col justify-between">
                 <Link href={`/board/${board.BoardId}`}>

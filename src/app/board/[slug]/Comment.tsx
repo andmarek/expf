@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Flex, Text, Dialog, Button, TextArea } from "@radix-ui/themes";
 import {
   Pencil1Icon,
   TrashIcon,
-  CheckIcon,
   HeartFilledIcon,
   HeartIcon,
 } from "@radix-ui/react-icons";
@@ -176,8 +175,6 @@ export default function Comment({
         editedCommentText,
       }),
     });
-
-    const data = await response.json();
 
     if (response.ok) {
       dispatch({
