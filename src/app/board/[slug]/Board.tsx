@@ -72,7 +72,7 @@ export default function Board(props: BoardProps) {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function fetchData() {
       try {
         if (!userId) {
           return;

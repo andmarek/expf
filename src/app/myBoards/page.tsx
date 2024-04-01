@@ -3,15 +3,12 @@ import { useUser } from "@clerk/clerk-react";
 
 import React, { useEffect, useState } from "react";
 import {
-  Heading,
-  Table,
   Button,
-  Container,
   Link,
   TextFieldInput
 } from "@radix-ui/themes";
 
-import { EyeNoneIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { EyeNoneIcon, EyeOpenIcon, GearIcon } from "@radix-ui/react-icons";
 
 
 export default function NewBoards() {
@@ -186,6 +183,11 @@ export default function NewBoards() {
                   </Button>
                 )}
                 <Button variant="soft" className="cursor-pointer" size="2" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
+                <Link href={`/board/${board.BoardId}/settings`}>
+                  <Button variant="soft" className="cursor-pointer" size="2">
+                    <GearIcon />
+                  </Button>
+                </Link>
               </div>
             </div>
           ))}
