@@ -8,7 +8,7 @@ import {
   TextFieldInput
 } from "@radix-ui/themes";
 
-import { EyeNoneIcon, EyeOpenIcon, GearIcon } from "@radix-ui/react-icons";
+import { MagnifyingGlassIcon, EyeNoneIcon, GearIcon, PlusIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 
 export default function NewBoards() {
@@ -137,60 +137,56 @@ export default function NewBoards() {
 
   return (
     <div className="flex flex-col space-y-3 py-2">
-      <div className="flex flex-col self-center space-x-2 max-w-2/3">
-        <div className="flex flex-row px-2 py-2 items-center justify-between">
-          <TextFieldInput
-            className="w-96"
-            placeholder="Type to filter boards..."
-            onChange={handleSearch}
-          />
+      <div className="flex flex-col self-center space-x-2 w-3/4">
+        <div className="flex flex-row px-2 py-2 items-center space-x-2 justify-center">
+          <div className="flex flex-row border-base-900 border rounded-md items-center space-x-2">
+            <MagnifyingGlassIcon className="mx-2 text-base-850" />
+            <input onChange={handleSearch} className="text-xl bg-base-black rounded-md outline-none" placeholder="Search boards..." />
+          </div>
           <form action="/create">
-            <Button size="2" variant="soft"> Create New Board </Button>
+            <Button size="2" variant="soft"> <PlusIcon /> </Button>
           </form>
         </div>
-        <div className="flex flex-row space-x-4">
-          {filteredBoards.map((board) => (
-            <div className="flex flex-col p-2 border border-base-800 rounded-lg w-96 h-56 hover:border-base-600 duration-300 transition-all" key={board.BoardId}>
-              <div className="flex flex-col justify-between">
-                <Link href={`/board/${board.BoardId}`}>
-                  <h1 className="text-lg">{board.BoardName}</h1>
-                </Link>
-                {new Date(board.DateCreated).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </div>
-              {board.RequirePassword && (
-                <p>
-                  Password:{' '}
-                  {passwordCache[board.BoardId]?.showPassword
-                    ? passwordCache[board.BoardId].boardPassword
-                    : "Hidden"}
-                </p>
-              )}
-              <div className="flex flex-row space-x-2">
-                <Link href={`/board/${board.BoardId}`}>
-                  <Button variant="soft" className="cursor-pointer" size="2">View</Button>
-                </Link>
+        <div className="flex justify-center items-center w-full">
+          <div className="grid grid-cols-3 gap-4 w-5/6 mx-auto">
+            {filteredBoards.map((board) => (
+              <div className="flex flex-col p-2 border border-base-800 rounded-lg hover:border-base-600 transition-all duration-300 w-full min-h-[16rem]" key={board.BoardId}>
+                <div className="flex flex-col">
+                  <Link href={`/board/${board.BoardId}`}>
+                    <a className="text-lg">{board.BoardName}</a>
+                  </Link>
+                  <span className="italic">
+                    {new Date(board.DateCreated).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
                 {board.RequirePassword && (
-                  <Button variant="soft" className="cursor-pointer" size="2">
-                    {passwordCache[board.BoardId]?.showPassword ? (
-                      <EyeOpenIcon onClick={() => removeBoardPasswordFromView(board.BoardId)} />
-                    ) : (
-                      <EyeNoneIcon onClick={() => revealBoardPassword(board.BoardId)} />
-                    )}
-                  </Button>
+                  <p className="font-bold">
+                    Password: {" "}
+                    {passwordCache[board.BoardId]?.showPassword
+                      ? passwordCache[board.BoardId].boardPassword
+                      : "Hidden"}
+                  </p>
                 )}
-                <Button variant="soft" className="cursor-pointer" size="2" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
-                <Link href={`/board/${board.BoardId}/settings`}>
-                  <Button variant="soft" className="cursor-pointer" size="2">
-                    <GearIcon />
+                <div className="flex items-center space-x-2 mt-2">
+                  {board.RequirePassword && (
+                    <Button variant="soft" className="cursor-pointer" onClick={() => passwordCache[board.BoardId]?.showPassword ? removeBoardPasswordFromView(board.BoardId) : revealBoardPassword(board.BoardId)}>
+                      {passwordCache[board.BoardId]?.showPassword ? "Hide Password" : "Show Password"}
+                    </Button>
+                  )}
+                  <Button variant="soft" className="cursor-pointer" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
+                  <Button variant="soft">
+                    <Link href={`/board/${board.BoardId}/settings`}>
+                      <a className="btn-variant-soft cursor-pointer">Settings</a>
+                    </Link>
                   </Button>
-                </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
