@@ -92,7 +92,6 @@ export default function Board(props: BoardProps) {
 
           const jsonData = await response.json();
           setBoardName(jsonData.Item.BoardName);
-
           const passwordRequiredFromDb = jsonData.Item.RequirePassword;
           console.log("password required from db", passwordRequiredFromDb);
           if (passwordRequiredFromDb) {
@@ -107,6 +106,7 @@ export default function Board(props: BoardProps) {
             payload: boardColumns,
           });
         } else {
+          /*
           console.log("getting board metadata");
           const response = await fetch(`/api/board/${boardId}/metadata`, {
             method: "POST",
@@ -123,6 +123,8 @@ export default function Board(props: BoardProps) {
           } else {
             throw new Error("Error fetching board data.");
           }
+          */
+
         }
       } catch (error) {
         console.error("Error initializing board page.");

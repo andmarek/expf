@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { KMSClient, DecryptCommand } from "@aws-sdk/client-kms";
+import { decryptData } from "@/src/app/lib/kms"
 
 const client = new KMSClient({ region: "us-east-1" });
 const kmsKeyId = process.env.AWS_BOARD_PASSWORDS_KEY_ID;
@@ -19,16 +20,6 @@ async function verifyPassword(userEnteredPassword: string, decryptedPassword: st
   }
 }
 
-async function decryptData(ciphertextBlob: string, keyId: string) {
-  const command = new DecryptCommand({
-    KeyId: keyId,
-    CiphertextBlob: Buffer.from(ciphertextBlob, 'base64'),
-  });
-  const kmsResponse = await client.send(command);
-  const decryptedData = new TextDecoder().decode(kmsResponse.Plaintext);
-  return decryptedData;
-}
-
 export async function POST(req, res) {
   try {
     const reqJson = await req.json();
@@ -37,14 +28,14 @@ export async function POST(req, res) {
 
     const dynamoBoardResponse = await getBoard(tableName, boardId);
     let accessGranted: boolean = false;
-
-    if (!dynamoBoardResponse.Item.passwordRequired) {
+    if (dynamoBoardResponse.Item.passwordRequired == false) {
       accessGranted = true;
     } else {
-      const enteredPassword = reqJson.password as string;
-      const decryptedpassword = await decryptData(dynamoBoardResponse.Item.password, kmsKeyId);
+      const enteredPassword = reqJson.enteredPassword as string;
+      const decryptedpassword = await decryptData(dynamoBoardResponse.Item.Password, kmsKeyId);
 
-      console.log(decryptedpassword);
+      console.log("decrypted", decryptedpassword);
+      console.log("entered", enteredPassword);
       accessGranted = await verifyPassword(enteredPassword, decryptedpassword);
     }
 
@@ -52,6 +43,7 @@ export async function POST(req, res) {
       console.log("access granted");
       return NextResponse.json({ message: "Access granted" }, { status: 200 });
     } else {
+      console.log("wtf bro");
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
   } catch (error) {

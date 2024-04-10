@@ -45,7 +45,7 @@ export default function SideBar({
       >
         <div className="px-5 py-5">
           <h1>Blur card text</h1>
-          <Switch defaultChecked={passwordRequired} onCheckedChange={switchBlurCardText} />
+          <Switch defaultChecked={false} onCheckedChange={switchBlurCardText} />
           <h1>Protect Board with Password</h1>
           <Switch defaultChecked={passwordRequired} onCheckedChange={switchPasswordRequired} />
           <TextField.Input onChange={(e) => setCurrentProposedBoardPassword(e.target.value)} placeholder="Enter a password" />
