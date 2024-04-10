@@ -51,7 +51,7 @@ export default function Board(props: BoardProps) {
   const [isConnected, setIsConnected] = useState(socket.connected);
 
   /* Board Options */
-  const [passwordRequired, setPasswordRequired] = useState(true); // needs to be saved eventually
+  const [passwordRequired, setPasswordRequired] = useState(false);
   const [password, setPassword] = useState("");
 
   const [boardBlurred, setBoardBlurred] = useState(false);
@@ -94,11 +94,11 @@ export default function Board(props: BoardProps) {
           setBoardName(jsonData.Item.BoardName);
 
           const passwordRequiredFromDb = jsonData.Item.RequirePassword;
+          console.log("password required from db", passwordRequiredFromDb);
           if (passwordRequiredFromDb) {
             setPasswordRequired(passwordRequiredFromDb);
             setPassword(jsonData.Item.Password);
           }
-          setPasswordRequired(jsonData.Item.RequirePassword);
 
           const boardColumns = transformBoardColumns(jsonData);
 
@@ -287,7 +287,7 @@ export default function Board(props: BoardProps) {
 
     console.log("drag has ended");
 
-    return "";
+    return;
   }
 
   return (
@@ -304,6 +304,7 @@ export default function Board(props: BoardProps) {
         ) : (
           <div className="grid w-full h-full">
             <SideBar
+              boardId={boardId}
               switchPasswordRequired={switchRequirePassword}
               switchBlurCardText={switchBlurBoard}
               showSidebar={sidebarOpened}

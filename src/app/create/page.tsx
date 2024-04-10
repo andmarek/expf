@@ -174,13 +174,13 @@ export default function CreateBoard() {
         <div className="my-3">
           <label className="flex flex-row place-items-center justify-center space-x-2">
             <Heading>Current Columns</Heading>
-            <PlusIcon onClick={addColumn} />
+            <PlusIcon className="cursor-pointer opacity-50 hover:opacity-100" onClick={addColumn} />
           </label>
           <ul className="flex flex-col space-y-2 my-2 place-items-center">
             {boardColumns.map((column, index) => (
               <li key={index} className="flex flex-row place-items-center space-x-2">
                 <TextField.Input name={`column-${index}`} onChange={(e) => changeColumnName(e.target.value, index)} value={column.columnName}></TextField.Input>
-                <Cross1Icon className="text-coolors-red" onClick={() => removeColumn(index)} />
+                <Cross1Icon className="hover:text-coolors-red text-red-light cursor-pointer" onClick={() => removeColumn(index)} />
               </li>
             )
             )}

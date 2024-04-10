@@ -5,10 +5,9 @@ import React, { useEffect, useState } from "react";
 import {
   Button,
   Link,
-  TextFieldInput
 } from "@radix-ui/themes";
 
-import { MagnifyingGlassIcon, EyeNoneIcon, GearIcon, PlusIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { MagnifyingGlassIcon, PlusIcon } from "@radix-ui/react-icons";
 
 
 export default function NewBoards() {
@@ -137,25 +136,25 @@ export default function NewBoards() {
 
   return (
     <div className="flex flex-col space-y-3 py-2">
-      <div className="flex flex-col self-center space-x-2 w-3/4">
-        <div className="flex flex-row px-2 py-2 items-center space-x-2 justify-center">
+      <div className="flex flex-col self-center space-x-2 w-11/12 sm:w-3/4">
+        <div className="flex flex-col px-2 py-2 items-center space-x-2 justify-center">
           <div className="flex flex-row border-base-900 border rounded-md items-center space-x-2">
             <MagnifyingGlassIcon className="mx-2 text-base-850" />
-            <input onChange={handleSearch} className="text-xl bg-base-black rounded-md outline-none" placeholder="Search boards..." />
+            <input onChange={handleSearch} className="text-lg sm:text-xl bg-base-black rounded-md outline-none p-2" placeholder="Search boards..." />
           </div>
           <form action="/create">
             <Button size="2" variant="soft"> <PlusIcon /> </Button>
           </form>
         </div>
         <div className="flex justify-center items-center w-full">
-          <div className="grid grid-cols-3 gap-4 w-5/6 mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto">
             {filteredBoards.map((board) => (
               <div className="flex flex-col p-2 border border-base-800 rounded-lg hover:border-base-600 transition-all duration-300 w-full min-h-[16rem]" key={board.BoardId}>
                 <div className="flex flex-col">
                   <Link href={`/board/${board.BoardId}`}>
                     <a className="text-lg">{board.BoardName}</a>
                   </Link>
-                  <span className="italic">
+                  <span className="italic text-sm sm:text-base">
                     {new Date(board.DateCreated).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'long',
@@ -171,7 +170,7 @@ export default function NewBoards() {
                       : "Hidden"}
                   </p>
                 )}
-                <div className="flex items-center space-x-2 mt-2">
+                <div className="flex items-center lg:space-x-2 mt-2 lg:flex-row sm:flex-col lg:space-y-0 sm:space-y-2">
                   {board.RequirePassword && (
                     <Button variant="soft" className="cursor-pointer" onClick={() => passwordCache[board.BoardId]?.showPassword ? removeBoardPasswordFromView(board.BoardId) : revealBoardPassword(board.BoardId)}>
                       {passwordCache[board.BoardId]?.showPassword ? "Hide Password" : "Show Password"}
