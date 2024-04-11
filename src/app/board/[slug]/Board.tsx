@@ -71,6 +71,10 @@ export default function Board(props: BoardProps) {
     setPasswordRequired(!passwordRequired);
   }
 
+  function setIsPasswordRequired(isPasswordRequired: boolean) {
+    setPasswordRequired(isPasswordRequired);
+  }
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -105,26 +109,6 @@ export default function Board(props: BoardProps) {
             type: "SET_CATEGORIES",
             payload: boardColumns,
           });
-        } else {
-          /*
-          console.log("getting board metadata");
-          const response = await fetch(`/api/board/${boardId}/metadata`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-          if (response.ok) {
-            const jsonData = await response.json();
-            console.log(jsonData);
-
-            setBoardName(jsonData.BoardName);
-            setPasswordRequired(jsonData.passwordRequired);
-          } else {
-            throw new Error("Error fetching board data.");
-          }
-          */
-
         }
       } catch (error) {
         console.error("Error initializing board page.");
@@ -301,7 +285,7 @@ export default function Board(props: BoardProps) {
             boardId={boardId}
             setHasJoined={setHasJoined}
             setUserName={setUserName}
-            passwordRequired={passwordRequired}
+            setPasswordRequired={setPasswordRequired}
           />
         ) : (
           <div className="grid w-full h-full">
@@ -311,7 +295,7 @@ export default function Board(props: BoardProps) {
               switchBlurCardText={switchBlurBoard}
               showSidebar={sidebarOpened}
               setShowSidebar={setSideBarOpened}
-              passwordRequired={passwordRequired}
+              passwordRequired={setPasswordRequired}
             />
             <div
               className={

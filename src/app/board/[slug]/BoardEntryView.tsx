@@ -6,7 +6,7 @@ interface BoardEntryPageProps {
   boardId: string;
   setUserName: (username: string) => void;
   setHasJoined: (hasJoined: boolean) => void;
-  passwordRequired: boolean;
+  setPasswordRequired: (isPasswordRequired: boolean) => void;
 }
 
 export default function BoardEntryView(props: BoardEntryPageProps) {
@@ -18,25 +18,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
   const [passwordRequired, setPasswordRequired] = useState(true);
 
   const [isLoading, setIsLoading] = useState(true);
-  /*
-  console.log("getting board metadata");
-  const response = await fetch(`/api/board/${boardId}/metadata`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  if (response.ok) {
-    const jsonData = await response.json();
-    console.log(jsonData);
 
-    setBoardName(jsonData.BoardName);
-    setPasswordRequired(jsonData.passwordRequired);
-  } else {
-    throw new Error("Error fetching board data.");
-  }
-}
-  */
   useEffect(() => {
     async function fetchMetadata(boardId: string) {
       console.log("getting board metadata");
@@ -52,6 +34,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
 
         setBoardName(boardMetadata.boardName);
         setPasswordRequired(boardMetadata.passwordRequired);
+        props.setPasswordRequired(boardMetadata.passwordRequired);
 
         setIsLoading(false);
       } else {
@@ -59,7 +42,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
       }
     }
     fetchMetadata(props.boardId);
-  }, [boardName, passwordRequired, isLoading, props.boardId]);
+  }, [boardName, passwordRequired, isLoading, props]);
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

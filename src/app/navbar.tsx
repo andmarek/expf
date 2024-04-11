@@ -25,6 +25,7 @@ export default function NavBar() {
         <SignedIn>
           <NavLink linkText="My Boards" href="/myBoards" />
         </SignedIn>
+        <NavLink linkText="Create" href="/create" />
       </div>
     </nav>
   );
