@@ -7,6 +7,7 @@ interface BoardEntryPageProps {
   setUserName: (username: string) => void;
   setHasJoined: (hasJoined: boolean) => void;
   setPasswordRequired: (isPasswordRequired: boolean) => void;
+  saveUserBoardAccess: (boardId: string, username: string) => void;
 }
 
 export default function BoardEntryView(props: BoardEntryPageProps) {
@@ -21,7 +22,6 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
 
   useEffect(() => {
     async function fetchMetadata(boardId: string) {
-      console.log("getting board metadata");
       const response = await fetch(`/api/board/${boardId}/metadata`, {
         method: "POST",
         headers: {
@@ -47,7 +47,6 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     props.setUserName(username);
-    console.log(password);
     const response = await fetch(`/api/board/join/${props.boardId}`, {
       method: "POST",
       body: JSON.stringify({ boardId: props.boardId, enteredPassword: password }),
@@ -57,14 +56,10 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
     });
 
     const responseJson = await response.json();
-    console.log(responseJson);
-
-    console.log(response.status);
     if (response.ok) {
       // redirect here
-      console.log("testing123")
-      console.log("joined successfully");
       props.setHasJoined(true);
+      props.saveUserBoardAccess(props.boardId, username);
     } else {
       console.error("Failed to join board");
     }
@@ -90,7 +85,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
             Join{" "}
           </Button>
         </form>
-      ) : (< div> LOADING BRO! </div>)
+      ) : (< div> Loading... </div>)
       }
     </div>
   );

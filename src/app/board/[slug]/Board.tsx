@@ -19,6 +19,7 @@ interface BoardProps {
 }
 
 export default function Board(props: BoardProps) {
+  // Drag and drop ID
   const DndId = useId();
 
   const sensors = useSensors(
@@ -31,8 +32,6 @@ export default function Board(props: BoardProps) {
 
   const { user } = useUser();
   const userId = user?.id;
-
-  console.log(user);
 
   const [boardName, setBoardName] = useState("");
 
@@ -47,7 +46,7 @@ export default function Board(props: BoardProps) {
   const [sidebarOpened, setSideBarOpened] = useState(false);
 
   /* isConnected is currently unused, but I think it'll be used soon,
-     so I'm keeping it. */
+  so I'm keeping it. */
   const [isConnected, setIsConnected] = useState(socket.connected);
 
   /* Board Options */
@@ -58,6 +57,16 @@ export default function Board(props: BoardProps) {
 
   const initialState = { columns: [] };
   const [boardState, dispatch] = useReducer(boardReducer, initialState);
+
+  // This is technically less secure than using a cookie, but it's a lot easier to implement.
+  // We will need to implement a cookie-based solution in the future.
+  const saveUserBoardAccess = (boardId: string, userName: string) => {
+    localStorage.setItem(`board_${boardId}_access`, JSON.stringify({
+      userName,
+      hasJoined: true,
+      timestamp: new Date().getTime()
+    }));
+  };
 
   function switchBlurBoard() {
     setBoardBlurred(!boardBlurred);
@@ -117,53 +126,62 @@ export default function Board(props: BoardProps) {
     fetchData();
   }, [boardId, userId, hasJoined, password]);
 
+  useEffect(() => {
+    const savedAccess = localStorage.getItem(`board_${boardId}_access`);
+    if (savedAccess) {
+      const { userName, hasJoined } = JSON.parse(savedAccess);
+      setUserName(userName);
+      setHasJoined(hasJoined);
+    }
+  }, [boardId]);
+
   /*
   TURNING OFF WEBSOCKETS FOR NOW.. maybe feature flag?
 
   useEffect(() => {
-    socket.connect();
+  socket.connect();
 
-    function onConnect() {
-      setIsConnected(true);
-    }
+  function onConnect() {
+  setIsConnected(true);
+  }
 
-    function onEmittedComment(data) {
-      dispatch({
-        type: "ADD_COMMENT_TO_COLUMN",
-        payload: {
-          columnId: data.columnId,
-          comment: { id: data.commentText, text: data.commentText },
-        },
-      });
-    }
+  function onEmittedComment(data) {
+  dispatch({
+  type: "ADD_COMMENT_TO_COLUMN",
+  payload: {
+  columnId: data.columnId,
+  comment: { id: data.commentText, text: data.commentText },
+  },
+  });
+  }
 
-    function onEmittedDeleteComment(data) {
-      dispatch({
-        type: "DELETE_COMMENT_FROM_COLUMN",
-        payload: { columnId: data.columnId, commentId: data.commentId },
-      });
-    }
+  function onEmittedDeleteComment(data) {
+  dispatch({
+  type: "DELETE_COMMENT_FROM_COLUMN",
+  payload: { columnId: data.columnId, commentId: data.commentId },
+  });
+  }
 
-    function onEmittedSwitchBlurBoard(data) {
-      setBoardBlurred(!data.boardBlurred);
-    }
+  function onEmittedSwitchBlurBoard(data) {
+  setBoardBlurred(!data.boardBlurred);
+  }
 
-    function onDisconnect() {
-      setIsConnected(false);
-    }
-    socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
-    socket.on("new comment", onEmittedComment);
-    socket.on("switch blur board", onEmittedSwitchBlurBoard);
-    socket.on("delete comment", onEmittedDeleteComment);
+  function onDisconnect() {
+  setIsConnected(false);
+  }
+  socket.on("connect", onConnect);
+  socket.on("disconnect", onDisconnect);
+  socket.on("new comment", onEmittedComment);
+  socket.on("switch blur board", onEmittedSwitchBlurBoard);
+  socket.on("delete comment", onEmittedDeleteComment);
 
-    return () => {
-      socket.off("connect", onConnect);
-      socket.off("new comment", onEmittedComment);
-      socket.off("disconnect", onDisconnect);
-      socket.off("switch blur board", onEmittedSwitchBlurBoard);
-      socket.off("delete comment", onEmittedDeleteComment);
-    };
+  return () => {
+  socket.off("connect", onConnect);
+  socket.off("new comment", onEmittedComment);
+  socket.off("disconnect", onDisconnect);
+  socket.off("switch blur board", onEmittedSwitchBlurBoard);
+  socket.off("delete comment", onEmittedDeleteComment);
+  };
   }, []);
   */
   function transformBoardColumns(data) {
@@ -281,21 +299,22 @@ export default function Board(props: BoardProps) {
       <div id="__next" className="flex flex-col antialiased min-h-full h-full">
         {!hasJoined ? (
           <BoardEntryView
-            boardName={boardName}
-            boardId={boardId}
-            setHasJoined={setHasJoined}
-            setUserName={setUserName}
-            setPasswordRequired={setPasswordRequired}
+          boardName={boardName}
+          boardId={boardId}
+          setHasJoined={setHasJoined}
+          setUserName={setUserName}
+          setPasswordRequired={setPasswordRequired}
+          saveUserBoardAccess={saveUserBoardAccess}
           />
         ) : (
           <div className="grid w-full h-full">
             <SideBar
-              boardId={boardId}
-              switchPasswordRequired={switchRequirePassword}
-              switchBlurCardText={switchBlurBoard}
-              showSidebar={sidebarOpened}
-              setShowSidebar={setSideBarOpened}
-              passwordRequired={setPasswordRequired}
+            boardId={boardId}
+            switchPasswordRequired={switchRequirePassword}
+            switchBlurCardText={switchBlurBoard}
+            showSidebar={sidebarOpened}
+            setShowSidebar={setSideBarOpened}
+            passwordRequired={setPasswordRequired}
             />
             <div
               className={
@@ -303,26 +322,26 @@ export default function Board(props: BoardProps) {
               }
             >
               <BoardStatusBar
-                boardName={boardName}
-                userName={userName}
-                selectSortStatus={selectSortStatus}
+              boardName={boardName}
+              userName={userName}
+              selectSortStatus={selectSortStatus}
               />
 
               <div className="flex flex-row justify-center">
                 {boardState.columns.map((column) => {
                   return (
                     <Column
-                      key={column.columnId}
-                      boardId={boardId}
-                      userId={user?.id}
-                      name={column.columnName}
-                      dispatch={dispatch}
-                      currentText={column.currentText}
-                      comments={column.comments}
-                      columnId={column.columnId}
-                      socket={socket}
-                      cardTextBlurred={boardBlurred}
-                      sortStatus={sortStatus}
+                    key={column.columnId}
+                    boardId={boardId}
+                    userId={user?.id}
+                    name={column.columnName}
+                    dispatch={dispatch}
+                    currentText={column.currentText}
+                    comments={column.comments}
+                    columnId={column.columnId}
+                    socket={socket}
+                    cardTextBlurred={boardBlurred}
+                    sortStatus={sortStatus}
                     />
                   );
                 })}
