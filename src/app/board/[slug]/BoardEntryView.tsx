@@ -13,11 +13,8 @@ interface BoardEntryPageProps {
 export default function BoardEntryView(props: BoardEntryPageProps) {
   const [boardName, setBoardName] = useState("");
   const [username, setUsername] = useState("");
-
   const [password, setPassword] = useState("");
-
   const [passwordRequired, setPasswordRequired] = useState(true);
-
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
