@@ -22,7 +22,6 @@ export async function POST(request: NextRequest, { params: { slug } }) {
   const boardMetadata = {
     boardId: response.Item.BoardId,
     boardName: response.Item.BoardName,
-    passwordRequired: response.Item.RequirePassword,
   };
   console.log(boardMetadata)
   return Response.json(boardMetadata);

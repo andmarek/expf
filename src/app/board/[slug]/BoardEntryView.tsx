@@ -6,15 +6,12 @@ interface BoardEntryPageProps {
   boardId: string;
   setUserName: (username: string) => void;
   setHasJoined: (hasJoined: boolean) => void;
-  setPasswordRequired: (isPasswordRequired: boolean) => void;
   saveUserBoardAccess: (boardId: string, username: string) => void;
 }
 
 export default function BoardEntryView(props: BoardEntryPageProps) {
   const [boardName, setBoardName] = useState("");
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [passwordRequired, setPasswordRequired] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -30,8 +27,6 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
         console.log(boardMetadata);
 
         setBoardName(boardMetadata.boardName);
-        setPasswordRequired(boardMetadata.passwordRequired);
-        props.setPasswordRequired(boardMetadata.passwordRequired);
 
         setIsLoading(false);
       } else {
@@ -39,20 +34,15 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
       }
     }
     fetchMetadata(props.boardId);
-  }, [boardName, passwordRequired, isLoading, props]);
+  }, [boardName, isLoading, props]);
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log("Form submitted!", { username, password, passwordRequired });
+    console.log("Form submitted!", { username });
     
     // Validate required fields
     if (!username.trim()) {
       alert("Please enter a username");
-      return;
-    }
-    
-    if (passwordRequired && !password.trim()) {
-      alert("Please enter the password");
       return;
     }
     
@@ -61,7 +51,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
     try {
       const response = await fetch(`/api/board/join/${props.boardId}`, {
         method: "POST",
-        body: JSON.stringify({ boardId: props.boardId, enteredPassword: password }),
+        body: JSON.stringify({}),
         headers: {
           "Content-Type": "application/json",
         },
@@ -71,7 +61,6 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
       console.log("Join response:", responseJson);
       
       if (response.ok) {
-        // redirect here
         props.setHasJoined(true);
         props.saveUserBoardAccess(props.boardId, username);
       } else {
@@ -91,14 +80,6 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
           <h1> Joining {boardName} </h1>
           <h1> Please provide a username </h1>
           <TextField.Input value={username} onChange={(e) => setUsername(e.target.value)} />
-          {
-            passwordRequired ? (
-              <div>
-                <h1> Please provide the password </h1>
-                <TextField.Input onChange={(e) => setPassword(e.target.value)} />
-              </div>
-            ) : null
-          }
           <Button type="submit" size="3" variant="soft">
             {" "}
             Join{" "}

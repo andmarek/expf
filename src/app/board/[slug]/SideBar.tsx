@@ -1,41 +1,14 @@
-import { Switch, TextField, Button } from "@radix-ui/themes";
+import { Switch } from "@radix-ui/themes";
 import { ChevronRightIcon } from "@radix-ui/react-icons";
-import { useState } from 'react';
 
 export default function SideBar({
   boardId,
-  switchPasswordRequired,
   switchBlurCardText,
   showSidebar,
   setShowSidebar,
-  passwordRequired,
 }) {
   const sidebarWidthPx = "250";
-  const [currentProposedBoardPassword, setCurrentProposedBoardPassword] = useState("");
 
-  async function setBoardPassword(newBoardPassword: string) {
-    try {
-      const response = await fetch(`/api/board/${boardId}/password`, {
-        method: "PUT",
-        body: JSON.stringify({
-          boardId,
-          newBoardPassword
-        })
-      }
-      )
-      const responseBodyJson = await response.json();
-      if (response.ok) {
-        console.log("Password updated successfully");
-      } else {
-        console.log("Server responded with an error: ", responseBodyJson);
-
-      }
-    } catch (error) {
-      console.error("Erorr: ", error);
-    }
-  }
-
-  console.log("pwd", passwordRequired);
   return (
     <div className="grid col-start-1 row-start-1 items-start">
       <div
@@ -46,12 +19,6 @@ export default function SideBar({
         <div className="px-5 py-5">
           <h1>Blur card text</h1>
           <Switch defaultChecked={false} onCheckedChange={switchBlurCardText} />
-          <h1>Protect Board with Password</h1>
-          <Switch defaultChecked={passwordRequired} onCheckedChange={switchPasswordRequired} />
-          <TextField.Input onChange={(e) => setCurrentProposedBoardPassword(e.target.value)} placeholder="Enter a password" />
-          <Button onClick={() => setBoardPassword(currentProposedBoardPassword)} className="mt-2">
-            Set Password
-          </Button>
         </div>
       </div>
       <ChevronRightIcon

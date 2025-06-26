@@ -16,7 +16,6 @@ export default function NewBoards() {
 
   const { user } = useUser();
   const userId = user?.id;
-  const [passwordCache, setPasswordCache] = useState({});
 
   function handleSearch(event) {
     const searchKeyword = event.target.value.toLowerCase();
@@ -60,56 +59,6 @@ export default function NewBoards() {
     }
   }, [userId]);
 
-  function populatePasswordCache(boardId: string, password: string) {
-    setPasswordCache((prevCache) => ({
-      ...prevCache,
-      [boardId]: {
-        boardPassword: password,
-        showPassword: true,
-      },
-    }));
-  }
-
-  async function removeBoardPasswordFromView(boardId: string) {
-    setPasswordCache((prevCache) => ({
-      ...prevCache,
-      [boardId]: {
-        ...prevCache[boardId],
-        showPassword: false,
-      },
-    }));
-  }
-
-  async function revealBoardPassword(boardId: string) {
-    if (passwordCache[boardId]) {
-      setPasswordCache((prevCache) => ({
-        ...prevCache,
-        [boardId]: {
-          ...prevCache[boardId],
-          showPassword: true,
-        },
-      }));
-    } else {
-      console.log("Getting from KMS");
-      try {
-        const response = await fetch(`/api/board/${boardId}/password`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const jsonData = await response.json();
-          console.log("jsondata dawg", jsonData);
-          populatePasswordCache(boardId, jsonData.password);
-        }
-      } catch (error) {
-        console.error("Error fetching board password.");
-      }
-    }
-  }
-
   async function handleDeleteBoard(boardId: string) {
     const newBoards = boards.filter((board) => board.BoardId !== boardId);
     setBoards(newBoards);
@@ -137,7 +86,7 @@ export default function NewBoards() {
     <div className="flex flex-col space-y-3 py-2">
       <div className="flex flex-col self-center space-x-2 w-11/12 sm:w-3/4">
         <SearchBar handleSearch={handleSearch} />
-        <BoardGrid boards={filteredBoards} passwordCache={passwordCache} handleDeleteBoard={handleDeleteBoard} revealBoardPassword={revealBoardPassword} removeBoardPasswordFromView={removeBoardPasswordFromView} />
+        <BoardGrid boards={filteredBoards} handleDeleteBoard={handleDeleteBoard} />
       </div>
     </div>
   );
@@ -160,7 +109,7 @@ export default function NewBoards() {
     );
   }
   
-  function BoardGrid({ boards, passwordCache, handleDeleteBoard, revealBoardPassword, removeBoardPasswordFromView }) {
+  function BoardGrid({ boards, handleDeleteBoard }) {
     return (
       <div className="flex justify-center items-center w-full">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full mx-auto">
@@ -168,10 +117,7 @@ export default function NewBoards() {
             <BoardCard
               key={board.BoardId}
               board={board}
-              passwordCache={passwordCache}
               handleDeleteBoard={handleDeleteBoard}
-              revealBoardPassword={revealBoardPassword}
-              removeBoardPasswordFromView={removeBoardPasswordFromView}
             />
           ))}
         </div>
@@ -179,7 +125,7 @@ export default function NewBoards() {
     );
   }
   
-  function BoardCard({ board, passwordCache, handleDeleteBoard, revealBoardPassword, removeBoardPasswordFromView }) {
+  function BoardCard({ board, handleDeleteBoard }) {
     return (
       <div className="flex flex-col p-2 border border-base-800 rounded-lg hover:border-base-600 transition-all duration-300 w-full min-h-[16rem]">
         <Link href={`/board/${board.BoardId}`}>
@@ -188,17 +134,7 @@ export default function NewBoards() {
         <span className="italic text-sm sm:text-base">
           {new Date(board.DateCreated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
         </span>
-        {board.RequirePassword && (
-          <p className="font-bold">
-            Password: {passwordCache[board.BoardId]?.showPassword ? passwordCache[board.BoardId].boardPassword : "Hidden"}
-          </p>
-        )}
         <div className="flex items-center med:space-x-2 mt-2 lg:flex-row sm:flex-col lg:space-y-0 sm:space-y-2">
-          {board.RequirePassword && (
-            <Button variant="soft" className="cursor-pointer" onClick={() => passwordCache[board.BoardId]?.showPassword ? removeBoardPasswordFromView(board.BoardId) : revealBoardPassword(board.BoardId)}>
-              {passwordCache[board.BoardId]?.showPassword ? "Hide Password" : "Show Password"}
-            </Button>
-          )}
           <Button variant="soft" className="cursor-pointer" onClick={() => handleDeleteBoard(board.BoardId)}>Delete</Button>
           <Button variant="soft">
             <Link href={`/board/${board.BoardId}/settings`}>

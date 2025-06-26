@@ -50,8 +50,6 @@ export default function Board(props: BoardProps) {
   const [isConnected, setIsConnected] = useState(socket.connected);
 
   /* Board Options */
-  const [passwordRequired, setPasswordRequired] = useState(false);
-  const [password, setPassword] = useState("");
 
   const [boardBlurred, setBoardBlurred] = useState(false);
 
@@ -76,13 +74,7 @@ export default function Board(props: BoardProps) {
     });
   }
 
-  function switchRequirePassword() {
-    setPasswordRequired(!passwordRequired);
-  }
 
-  function setIsPasswordRequired(isPasswordRequired: boolean) {
-    setPasswordRequired(isPasswordRequired);
-  }
 
   useEffect(() => {
     async function fetchData() {
@@ -105,12 +97,6 @@ export default function Board(props: BoardProps) {
 
           const jsonData = await response.json();
           setBoardName(jsonData.Item.BoardName);
-          const passwordRequiredFromDb = jsonData.Item.RequirePassword;
-          console.log("password required from db", passwordRequiredFromDb);
-          if (passwordRequiredFromDb) {
-            setPasswordRequired(passwordRequiredFromDb);
-            setPassword(jsonData.Item.Password);
-          }
 
           const boardColumns = transformBoardColumns(jsonData);
 
@@ -124,7 +110,7 @@ export default function Board(props: BoardProps) {
       }
     };
     fetchData();
-  }, [boardId, userId, hasJoined, password]);
+  }, [boardId, userId, hasJoined]);
 
   useEffect(() => {
     const savedAccess = localStorage.getItem(`board_${boardId}_access`);
@@ -184,14 +170,14 @@ export default function Board(props: BoardProps) {
   };
   }, []);
   */
-  function transformBoardColumns(data) {
+  function transformBoardColumns(data: any) {
     return Object.entries(data.Item.BoardColumns).map(
-      ([columnId, columnData]) => ({
+      ([columnId, columnData]: [string, any]) => ({
         columnId: columnId,
         columnName: columnData.columnName,
         currentText: columnData.currentText,
         comments: Object.entries(columnData.comments || {}).map(
-          ([commentId, commentObj]) => ({
+          ([commentId, commentObj]: [string, any]) => ({
             id: commentId,
             comment_text: commentObj.comment_text,
             comment_likes: commentObj.comment_likes,
@@ -303,18 +289,15 @@ export default function Board(props: BoardProps) {
           boardId={boardId}
           setHasJoined={setHasJoined}
           setUserName={setUserName}
-          setPasswordRequired={setPasswordRequired}
           saveUserBoardAccess={saveUserBoardAccess}
           />
         ) : (
           <div className="grid w-full h-full">
             <SideBar
             boardId={boardId}
-            switchPasswordRequired={switchRequirePassword}
             switchBlurCardText={switchBlurBoard}
             showSidebar={sidebarOpened}
             setShowSidebar={setSideBarOpened}
-            passwordRequired={setPasswordRequired}
             />
             <div
               className={

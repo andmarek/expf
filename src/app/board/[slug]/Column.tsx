@@ -7,8 +7,8 @@ import { useDroppable } from "@dnd-kit/core";
 
 interface Comment {
   id: string;
-  text: string;
-  likes: number;
+  comment_text: string;
+  comment_likes: number;
 }
 
 interface ColumnProps {

@@ -5,8 +5,6 @@ import { tableName } from "@/src/app/lib/dynamo";
 const ddb = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddb);
 
-const kmsKeyId = process.env.AWS_BOARD_PASSWORDS_KEY_ID as string;
-
 export async function GET() {
   const command = new ScanCommand({
     TableName: tableName as string,
@@ -22,7 +20,6 @@ export async function GET() {
       BoardName: board.BoardName,
       BoardDescription: board.BoardDescription,
       DateCreated: board.Date,
-      RequirePassword: board.RequirePassword,
     }
   });
 

@@ -5,7 +5,6 @@ import {
 } from "@aws-sdk/lib-dynamodb"
 
 export const tableName = process.env.BOARDS_DYNAMODB_TABLE
-export const kmsKeyId = process.env.AWS_BOARD_PASSWORDS_KMS_KEY_ID
 
 export async function getBoard(tableName: string, boardId: string) {
   const ddb = new DynamoDBClient({});
