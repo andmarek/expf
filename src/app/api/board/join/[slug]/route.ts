@@ -20,19 +20,42 @@ async function verifyPassword(userEnteredPassword: string, decryptedPassword: st
   }
 }
 
-export async function POST(req, res) {
+export async function POST(req: Request, { params }: { params: { slug: string } }) {
   try {
     const reqJson = await req.json();
+    console.log("Join request received:", reqJson);
 
-    const boardId: string = reqJson.boardId as string;
+    const boardId: string = params.slug;
 
     const dynamoBoardResponse = await getBoard(tableName, boardId);
+    console.log("Board data:", dynamoBoardResponse.Item);
+    console.log("All field names:", Object.keys(dynamoBoardResponse.Item));
+    console.log("passwordRequired field:", dynamoBoardResponse.Item.passwordRequired);
+    console.log("RequirePassword field:", dynamoBoardResponse.Item.RequirePassword);
+    console.log("Password field:", dynamoBoardResponse.Item.Password);
+    
     let accessGranted: boolean = false;
-    if (dynamoBoardResponse.Item.passwordRequired == false) {
+    // Use the correct field name from the database
+    const isPasswordRequired = dynamoBoardResponse.Item.RequirePassword === true;
+    
+    console.log("Is password required?", isPasswordRequired);
+                              
+    if (!isPasswordRequired) {
+      console.log("No password required, granting access");
       accessGranted = true;
     } else {
       const enteredPassword = reqJson.enteredPassword as string;
-      const decryptedpassword = await decryptData(dynamoBoardResponse.Item.Password, kmsKeyId);
+      const encryptedPassword = dynamoBoardResponse.Item.Password;
+      
+      console.log("Encrypted password from DB:", encryptedPassword);
+      console.log("Password required:", dynamoBoardResponse.Item.passwordRequired);
+      
+      if (!encryptedPassword) {
+        console.error("No encrypted password found in database but password is required");
+        return NextResponse.json({ error: "Board configuration error: missing password" }, { status: 500 });
+      }
+      
+      const decryptedpassword = await decryptData(encryptedPassword, kmsKeyId);
 
       console.log("decrypted", decryptedpassword);
       console.log("entered", enteredPassword);
@@ -47,6 +70,7 @@ export async function POST(req, res) {
       return NextResponse.json({ error: "Access Denied" }, { status: 403 });
     }
   } catch (error) {
-    return NextResponse.json({ error: "Internal servor error" }, { status: 500 });
+    console.error("Error in join API:", error);
+    return NextResponse.json({ error: "Internal server error", details: error.message }, { status: 500 });
   }
 }

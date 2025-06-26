@@ -43,22 +43,44 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    console.log("Form submitted!", { username, password, passwordRequired });
+    
+    // Validate required fields
+    if (!username.trim()) {
+      alert("Please enter a username");
+      return;
+    }
+    
+    if (passwordRequired && !password.trim()) {
+      alert("Please enter the password");
+      return;
+    }
+    
     props.setUserName(username);
-    const response = await fetch(`/api/board/join/${props.boardId}`, {
-      method: "POST",
-      body: JSON.stringify({ boardId: props.boardId, enteredPassword: password }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    
+    try {
+      const response = await fetch(`/api/board/join/${props.boardId}`, {
+        method: "POST",
+        body: JSON.stringify({ boardId: props.boardId, enteredPassword: password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    const responseJson = await response.json();
-    if (response.ok) {
-      // redirect here
-      props.setHasJoined(true);
-      props.saveUserBoardAccess(props.boardId, username);
-    } else {
-      console.error("Failed to join board");
+      const responseJson = await response.json();
+      console.log("Join response:", responseJson);
+      
+      if (response.ok) {
+        // redirect here
+        props.setHasJoined(true);
+        props.saveUserBoardAccess(props.boardId, username);
+      } else {
+        console.error("Failed to join board:", responseJson);
+        alert("Failed to join board: " + (responseJson.message || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Network error:", error);
+      alert("Network error occurred. Please try again.");
     }
   }
 
@@ -77,7 +99,7 @@ export default function BoardEntryView(props: BoardEntryPageProps) {
               </div>
             ) : null
           }
-          <Button size="3" variant="soft">
+          <Button type="submit" size="3" variant="soft">
             {" "}
             Join{" "}
           </Button>
